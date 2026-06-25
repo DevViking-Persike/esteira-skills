@@ -1,6 +1,12 @@
 ---
 name: redteam
-description: Pentest AUTORIZADO do próprio sistema (local + dev) — tenta invadir/quebrar pelo navegador e pela API para achar brechas reais antes de um atacante: vazamento de token, bypass de auth, IDOR/escalonamento, SQL injection, XSS/CSP, CSRF, SSRF, segredos expostos, sessão. Gera achados com PoC + severidade + remediação. Use quando o usuário pedir "hackear o projeto (próprio)", "testar segurança", "tentar invadir", "redteam", "pentest local/dev", "ver se tem brecha de SQL injection / token exposto", ou "/redteam". Executor da disciplina 40 (Segurança).
+description: >-
+  Pentest autorizado do próprio sistema em local ou dev para achar brechas reais
+  antes de um atacante: token vazando, bypass de auth, IDOR, SQL injection, XSS,
+  CSRF, SSRF, segredos expostos e sessão. Gera achados com PoC, severidade e
+  remediação. Use quando o usuário pedir "hackear o projeto (próprio)", "testar
+  segurança", "tentar invadir", "redteam", "pentest local/dev", ou "/redteam".
+  Executor da disciplina 40 (Segurança).
 ---
 
 # Skill: redteam — pentest autorizado (achar a brecha, remediar)
@@ -21,7 +27,8 @@ Objetivo é **defensivo**: achar → PoC mínimo → remediar.
    cookies, upload, integrações. Ver o bundle JS, source maps, páginas de erro.
 2. **Atacar cada superfície** com os vetores abaixo (navegador + API).
 3. Para cada brecha: **PoC reproduzível** (passos), **impacto**, **invariante violado**
-   (`.claude/rules/seguranca.md`), **remediação**, **severidade** (Crítico/Alto/Médio/Baixo).
+   (`.claude/rules/seguranca.md` no Claude Code, ou regra equivalente no Codex),
+   **remediação**, **severidade** (Crítico/Alto/Médio/Baixo).
 4. Achado bloqueante → vira task de Dev (volta uma casa).
 
 ## Vetores (mapeados aos invariantes)

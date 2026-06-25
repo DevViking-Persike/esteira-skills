@@ -1,18 +1,35 @@
 ---
 name: scaffold-spec
-description: Monta a base operacional `.spec/` de um projeto e é o HUB que orquestra todas as outras skills da esteira (discovery, arquitetura, desenvolvimento, qa/qa-rpa, seguranca/redteam, deploy) para construir um projeto inteiro e bem estruturado. Cria cadência de sprints + MANIFEST/STATE/RUNBOOK + reference/ + rules (segurança, fluxo criar/refatorar/documentar) + tools (spec-check) + hooks. Use quando o usuário pedir "criar estrutura .spec", "scaffold spec", "montar um projeto do zero", "bootstrap operacional", "preparar projeto pra criar/refatorar/documentar um sistema", ou "/scaffold-spec [criar|refatorar|documentar]".
+description: >-
+  Monta a base operacional .spec de um projeto e orquestra as skills da esteira
+  (discovery, arquitetura, desenvolvimento, qa/qa-rpa, seguranca/redteam, deploy)
+  para construir um projeto inteiro e bem estruturado. Cria cadência de sprints,
+  MANIFEST, STATE, RUNBOOK, reference, rules, commands, tools e hooks. Use quando
+  o usuário pedir "criar estrutura .spec", "scaffold spec", "montar um projeto do
+  zero", "bootstrap operacional", "preparar projeto pra criar/refatorar/documentar
+  um sistema", ou "/scaffold-spec [criar|refatorar|documentar]".
 ---
 
 # Skill: scaffold-spec
 
 Monta a **base operacional** de um projeto: o diretório `.spec/` (cadência de
-sprints por disciplina + índice + estado + runbook), as **rules** de segurança e
-de fluxo de desenvolvimento, e a **skill de deploy**. Generaliza o padrão validado
-em produção. Funciona em projeto novo (greenfield) ou existente.
+sprints por disciplina + índice + estado + runbook), as **rules** de engenharia,
+os **commands** do Claude Code e a **skill de deploy**. Generaliza o padrão
+validado em produção. Funciona em projeto novo (greenfield) ou existente.
 
 > **Princípio do projeto:** `rule` = fonte de verdade (conhecimento); `skill` =
-> runbook que aplica. O `.spec/` é o manual operacional; o `CLAUDE.md` é só o
-> roteador que aponta pra ele.
+> runbook que aplica. O `.spec/` é o manual operacional; roteadores como
+> `CLAUDE.md` só apontam pra ele.
+
+## Compatibilidade Claude Code + Codex
+
+- Mantenha as skills do Claude Code como fonte de verdade.
+- Para Codex, no projeto consumidor, crie `.codex/skills` como symlink para
+  `.claude/skills`.
+- Não crie cópias divergentes de `SKILL.md`; se precisar ajustar uma skill,
+  ajuste a fonte e deixe o symlink refletir.
+- Arquivos TOML não são necessários para skills Codex neste formato. Use
+  `SKILL.md` com frontmatter YAML e, quando existir, `agents/openai.yaml`.
 
 ## Ecossistema — `scaffold-spec` é o hub
 
@@ -21,13 +38,14 @@ inteiro e bem estruturado. Cada disciplina da esteira tem sua skill; o `scaffold
 as **instala** e o `RUNBOOK` as **invoca na ordem**:
 
 ```
-/scaffold-spec [criar|refatorar|documentar]   ← monta .spec/ + rules + skills + tools + hooks
+/scaffold-spec [criar|refatorar|documentar]   ← monta .spec/ + rules + commands + skills + tools + hooks
         │
         ▼   a esteira, dirigida pelas skills (gates bloqueantes):
 00  /discovery [produto|desenvolvimento]   → contexto (Mom Test / JTBD / 4 riscos / NFR)
 10  /arquitetura design                    → gate: a abordagem é sã?
 20  /desenvolvimento                       → implementa (testes junto)
 10  /arquitetura review                    → gate: o diff bate com plano/ADR? 0 violação de camada
+25  /review-codigo-subagents               → review técnico por lanes/subagents
 30  /qa  →  /qa-rpa                         → validação real front+back de cada tela (RPA)
 40  /seguranca  →  /redteam                → pentest autorizado (próprio local/dev)
     /deploy                                → build → registry → apply → smoke
@@ -40,12 +58,13 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 | `discovery` | levanta o contexto (modos **produto** / **desenvolvimento**) | 00 |
 | `arquitetura` | gate de **design** (antes) e **review** (depois do dev) | 10 |
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
+| `review-codigo-subagents` | sprint de review de código por subagents independentes | 25 |
 | `qa` / `qa-rpa` | gate de QA / **RPA front+back** automatizado de cada tela | 30 |
 | `seguranca` / `redteam` | gate de segurança / **pentest** do próprio local-dev | 40 |
 | `deploy` | sobe o projeto (build → apply → smoke) | transversal |
 
 > **Relação bidirecional:** o `scaffold` instala e referencia todas; cada skill de
-> etapa aponta de volta pra sua disciplina em `.spec/sprints/` e pras `.claude/rules/`.
+> etapa aponta de volta pra sua disciplina em `.spec/sprints/` e pras regras do projeto.
 > Resultado: o projeto fica **íntegro da base à entrega validada**. O `RUNBOOK.md`
 > gerado deve **invocar a skill de cada etapa** na ordem (ver blueprint no Passo 1).
 
@@ -79,6 +98,7 @@ confirmar):
     ├── 00-discovery/        { README.md, _TEMPLATE-discovery.md }
     ├── 10-arquitetura/      { README.md, _TEMPLATE-arquitetura.md }
     ├── 20-desenvolvimento/  { README.md, _TEMPLATE-desenvolvimento.md }
+    ├── 25-review-codigo/    { README.md, _TEMPLATE-review-codigo.md }
     ├── 30-qa/               { README.md, _TEMPLATE-qa.md }
     └── 40-seguranca/        { README.md, _TEMPLATE-seguranca.md }
 ```
@@ -88,25 +108,29 @@ confirmar):
 **`MANIFEST.md`** — ponto de entrada único. Seções: *Bootstrap de sessão* (ordem
 de leitura: MANIFEST → STATE → RUNBOOK → disciplina atual); *Mapa do `.spec/`*
 (tabela caminho→o quê); *Disciplinas → onde olhar* (tabela etapa→README→docs de
-referência); *Regras de execução* (tabela apontando `.claude/rules/*`);
+referência); *Regras de execução* (tabela apontando `.claude/rules/*` e, no
+Codex, para a regra equivalente do projeto);
 *Maquinário de validação* (comandos de teste/build/lint do projeto); *Regra-mãe*
 (o que governa o escopo — preencher com o contrato/escopo do projeto).
 
 **`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, etapa, branch,
-atualizado em); tabela de progresso da esteira (00→10→20→10-review→30→40 com
+atualizado em); tabela de progresso da esteira
+(00→10→20→10-review→25-review-codigo→30→40 com
 status ⬜🟡✅🔴); último resultado de validação; pendências; itens aguardando
 aprovação; histórico de incrementos; protocolo de atualização (atualizar ao
 entrar/sair de cada etapa; nunca avançar com gate reprovado).
 
-**`sprints/README.md`** — as 5 disciplinas (00 Discovery, 10 Arquitetura [gate
-transversal], 20 Desenvolvimento, 30 QA, 40 Segurança), o fluxo da esteira
-(`00 → 10-design → 20 → 10-review → 30 → 40 → release`, Arquitetura roda 2× como
-gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
+**`sprints/README.md`** — as 6 disciplinas (00 Discovery, 10 Arquitetura [gate
+transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
+fluxo da esteira
+(`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
+Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
 instância (`<disciplina>-NN-<tema>.md`, mesmo NN em toda a esteira).
 
 **`sprints/RUNBOOK.md`** — como rodar a esteira autonomamente: ler STATE → retomar
 etapa; loop pelas etapas **invocando a skill de cada uma** (`/discovery` → `/arquitetura`
-→ `/desenvolvimento` → `/arquitetura review` → `/qa`+`/qa-rpa` → `/seguranca`+`/redteam`
+→ `/desenvolvimento` → `/arquitetura review` → `/review-codigo-subagents`
+→ `/qa`+`/qa-rpa` → `/seguranca`+`/redteam`
 → `/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
 obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
 produção, gate reprovado 2×, decisão estrutural sem registro, segredo.
@@ -121,20 +145,25 @@ de uma instância.
 > conteúdo, **generalizando** o que for específico de domínio (regras fiscais,
 > Zitadel, etc.) para placeholders `<...>`.
 
-## Passo 2 — Instalar rules, skills de etapa, deploy, tools e hooks
+## Passo 2 — Instalar rules, commands, skills de etapa, deploy, tools e hooks
 
 A esteira é **dirigida por skills** (uma por etapa) que o `scaffold` orquestra.
-Copie tudo para o projeto-alvo:
+Copie tudo para o projeto-alvo em `.claude/skills` e, quando usar Codex, crie um
+symlink para essa árvore canônica:
 
 ```bash
 S=.claude/skills/scaffold-spec/templates
-# rules (fonte de verdade)
-cp $S/rules/seguranca.md             .claude/rules/seguranca.md
-cp $S/rules/fluxo-desenvolvimento.md .claude/rules/fluxo-desenvolvimento.md
-# skills de etapa (a esteira chama estas) — copiar do repo-fonte, ou já globais em ~/.claude/skills/
-cp -R .claude/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam} <dest>/.claude/skills/ 2>/dev/null || true
-# skill de deploy
-mkdir -p .claude/skills/deploy && cp $S/skills/deploy/SKILL.md .claude/skills/deploy/SKILL.md
+# rules e commands (fonte de verdade operacional)
+mkdir -p .claude/rules .claude/commands
+cp -R $S/rules/. .claude/rules/
+cp -R $S/commands/. .claude/commands/
+# skills da esteira e transversais — copiar do repo-fonte, ou já globais em ~/.claude/skills/
+cp -R .claude/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam,review-codigo-subagents} <dest>/.claude/skills/ 2>/dev/null || true
+# skill de deploy (copiar a pasta para preservar agents/openai.yaml)
+mkdir -p .claude/skills && cp -R $S/skills/deploy .claude/skills/
+# Codex: manter .claude/skills como fonte canônica e apontar para ela
+mkdir -p .codex
+[ -e .codex/skills ] || ln -s ../.claude/skills .codex/skills
 # tool de validação ("entrega funcionando")
 mkdir -p .claude/tools && cp $S/tools/spec-check.sh .claude/tools/ && chmod +x .claude/tools/spec-check.sh
 # hooks (opt-in): ver $S/hooks/README.md
@@ -146,34 +175,40 @@ mkdir -p .claude/tools && cp $S/tools/spec-check.sh .claude/tools/ && chmod +x .
 | 00 Discovery | `/discovery [produto\|desenvolvimento]` — banco de perguntas (Mom Test / JTBD / 4 riscos / NFR) |
 | 10 Arquitetura | `/arquitetura [design\|review]` — gate 2× |
 | 20 Desenvolvimento | `/desenvolvimento` |
+| 25 Review de Código | `/review-codigo-subagents` — pipeline read-only por lanes/subagents |
 | 30 QA | `/qa` (gate) + `/qa-rpa` (automação RPA front+back de cada tela) |
 | 40 Segurança | `/seguranca` (gate) + `/redteam` (pentest autorizado do próprio local/dev) |
 
-> Se as skills de etapa já estiverem **globais** (`~/.claude/skills/`), não precisa
-> copiar — só garanta que existem. O `RUNBOOK.md` invoca cada uma na etapa certa.
+> Se as skills de etapa já estiverem **globais** (`~/.claude/skills/` ou
+> `~/.codex/skills/`), não precisa copiar — só garanta que existem. O `RUNBOOK.md`
+> invoca cada uma na etapa certa.
 
-- **`seguranca.md`** / **`fluxo-desenvolvimento.md`** — rules (segurança + os 3
-  modos criar/refatorar/documentar). Preencha os `<...>`.
+- **`rules/`** — regras de engenharia, segurança, fluxo e review. Preencha ou
+  ajuste placeholders `<...>` conforme o projeto.
+- **`commands/`** — comandos Claude Code para auditar rules, refatorar alvo,
+  responsividade e código morto.
 - **`deploy/SKILL.md`** — runbook de deploy (build→registry→apply→smoke); aponte
   pra uma `staging-deploy.md` quando existir.
 - **`tools/spec-check.sh`** — valida a `.spec/` (arquivos obrigatórios + links +
   STATE). Rode ao fechar: `bash .claude/tools/spec-check.sh`.
 - **hooks** (`templates/hooks/`) — rodam o `spec-check` automaticamente (Stop /
-  PostToolUse). **Opt-in:** mesclar no `.claude/settings.json` (não auto-aplicar).
+  PostToolUse). **Opt-in:** mesclar no `.claude/settings.json` no Claude Code
+  (não auto-aplicar). No Codex, use validação manual ou mecanismo equivalente.
 
-## Passo 3 — Cabear o `CLAUDE.md` (roteador)
+## Passo 3 — Cabear o roteador do agente
 
-Crie ou ajuste o `CLAUDE.md` da raiz para ser um **roteador fino** que aponta
-para a base nova (não duplicar conteúdo):
+Crie ou ajuste o roteador do agente (`CLAUDE.md` no Claude Code, ou equivalente
+no Codex quando existir) para ser um **roteador fino** que aponta para a base nova
+(não duplicar conteúdo):
 
 - **Regra-mãe** (1 linha — o que governa o escopo).
 - **Bootstrap — ordem de leitura:** `.spec/MANIFEST.md` → `.spec/STATE.md` →
   `.spec/sprints/RUNBOOK.md`.
-- **Seguir a esteira do `.spec/`** (00→10→20→10→30→40, gates do RUNBOOK) — cada
-  etapa via a skill: `/discovery`, `/arquitetura`, `/desenvolvimento`, `/qa`, `/seguranca`.
-- **Autoridades:** rules em `.claude/rules/` (segurança, fluxo-desenvolvimento, +
-  as do projeto); skills em `.claude/skills/` (discovery, arquitetura,
-  desenvolvimento, qa, seguranca, deploy + as do projeto).
+- **Seguir a esteira do `.spec/`** (00→10→20→10→25→30→40, gates do RUNBOOK) —
+  cada etapa via a skill: `/discovery`, `/arquitetura`, `/desenvolvimento`,
+  `/review-codigo-subagents`, `/qa`, `/seguranca`.
+- **Autoridades:** rules em `.claude/rules/` ou equivalente do projeto; skills em
+  `.claude/skills/` e, para Codex, via symlink `.codex/skills`.
 - **Segurança:** os invariantes irredutíveis (ver `seguranca.md`).
 
 ## Passo 4 — Fechar
@@ -187,8 +222,8 @@ para a base nova (não duplicar conteúdo):
 
 ## Anti-patterns
 
-- ❌ Sobrescrever um `.spec/`/`CLAUDE.md` existente sem confirmar.
+- ❌ Sobrescrever um `.spec/`/roteador existente sem confirmar.
 - ❌ Gerar a esteira sem definir o MODO (criar/refatorar/documentar muda tudo).
 - ❌ Copiar conteúdo específico de domínio de outro projeto
   para o projeto atual — generalize.
-- ❌ Deixar `CLAUDE.md` gordo — ele é só roteador; o manual vive no `.spec/`.
+- ❌ Deixar o roteador gordo — ele só aponta; o manual vive no `.spec/`.

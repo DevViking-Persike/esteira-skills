@@ -1,19 +1,24 @@
 ---
 name: deploy
-description: Sobe/atualiza o projeto no ambiente alvo — build das imagens, push pro registry, apply dos manifests e rollout + smoke tests. Use quando o usuário pedir "deploy", "subir staging/prod", "atualizar no cluster", "rollout", "publicar", ou variações. Preencha os <...> com a infra real do projeto.
+description: >-
+  Sobe ou atualiza o projeto no ambiente alvo: build das imagens, push para o
+  registry, apply dos manifests, rollout e smoke tests. Use quando o usuário
+  pedir "deploy", "subir staging/prod", "atualizar no cluster", "rollout",
+  "publicar", ou variações. Preencha os placeholders com a infra real do projeto.
 ---
 
 # Skill: deploy
 
 Runbook de deploy do projeto. **Fonte de verdade:** `.claude/rules/staging-deploy.md`
-(crie-a com a topologia real). Esta skill é o roteiro operacional; preencha os
-`<...>` no primeiro uso.
+quando rodar no Claude Code, ou a regra equivalente do projeto quando rodar no
+Codex. Crie-a com a topologia real. Esta skill é o roteiro operacional; preencha
+os `<...>` no primeiro uso.
 
 ## Pré-requisitos
 
 - Acesso ao cluster/host (`<kubectl/KUBECONFIG ou ssh>`).
-- Login no registry (`<registry>`), credenciais via `.claude/rules/seguranca.md`
-  (nunca em claro).
+- Login no registry (`<registry>`), credenciais seguindo `.claude/rules/seguranca.md`
+  no Claude Code ou a regra equivalente no Codex (nunca em claro).
 - Build tooling (`<docker buildx / plataforma alvo, ex. linux/arm64>`).
 
 ## Passos
@@ -34,7 +39,8 @@ docker buildx build --platform <plataforma> -f <Dockerfile> \
 > Tag mutável (`:staging`) é prática; para snapshot use `:sha-<commit>`.
 
 ### 2. Segredos no cluster
-Aplicar os Secrets a partir dos `.enc` cifrados (ver `.claude/rules/seguranca.md`):
+Aplicar os Secrets a partir dos `.enc` cifrados (ver `.claude/rules/seguranca.md`
+no Claude Code, ou regra equivalente no Codex):
 ```bash
 <infra/secrets/apply-secrets.sh all   # ou o mecanismo do projeto (sealed-secrets/kubeseal)>
 ```
@@ -60,7 +66,7 @@ curl -sI https://<host>/api/health | head -3   # 200
 Depois: login real (se houver auth) e o RPA de QA do incremento
 (`.spec/sprints/30-qa/`) com o host do ambiente.
 
-## Restrições (de `.claude/rules/seguranca.md`)
+## Restrições (de `.claude/rules/seguranca.md` ou equivalente Codex)
 
 - Nunca afrouxar validação/auth em produção (`*_LENIENT`/`*_BYPASS`).
 - Nunca commitar Secret plano; backup antes de operação destrutiva no banco.

@@ -1,4 +1,4 @@
-# Hooks recomendados (opt-in)
+# Hooks recomendados para Claude Code (opt-in)
 
 Hooks que ajudam a **entregar o projeto claro e funcionando** — validam a base
 `.spec/` automaticamente. **Não são auto-aplicados** (mexer no `settings.json` é

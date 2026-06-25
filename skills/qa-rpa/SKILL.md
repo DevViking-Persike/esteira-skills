@@ -1,6 +1,11 @@
 ---
 name: qa-rpa
-description: Cria e roda RPAs de validação de QA — automação de navegador (Playwright) que entra como usuário real, percorre o FLUXO de cada tela de cada front e valida FRONT (renderiza, navega, 0 erro de console, status HTTP do documento) E BACK (a BFF/API por trás responde o envelope certo, sem vazar token). Gera uma matriz PASS/FAIL por tela. Use quando o usuário pedir "criar RPA de QA", "automação de testes", "validar todas as telas", "testar o fluxo front+back", "RPA de validação", ou "/qa-rpa". É o executor da disciplina 30 (QA).
+description: >-
+  Cria e roda RPAs de validação de QA com Playwright, navegando como usuário real
+  para validar front, back, fluxo, console, status HTTP e vazamento de token.
+  Gera matriz PASS/FAIL por tela. Use quando o usuário pedir "criar RPA de QA",
+  "automação de testes", "validar todas as telas", "testar o fluxo front+back",
+  "RPA de validação", ou "/qa-rpa". É o executor da disciplina 30 (QA).
 ---
 
 # Skill: qa-rpa — RPA de validação (front + back)

@@ -30,7 +30,13 @@
 | **Viab. técnica** | dá pra construir? | <→ discovery desenvolvimento> |
 | **Viab. negócio** | funciona pro negócio (legal/financeiro/operacional)? | <...> |
 
-## 6. Sucesso & escopo
+## 6. Achados de subagents (se usados)
+- **Subagents criados:** <produto/oportunidade, docs, riscos, outro>
+- **Evidências úteis:** <fatos observados, com caminho/linha quando houver>
+- **Lacunas para usuário:** <perguntas ainda abertas>
+- **Hipóteses não confirmadas:** <não tratar como verdade>
+
+## 7. Sucesso & escopo
 - **Sucesso em 1 frase:** <...>
 - **Métrica de sucesso:** leading <...> · lagging <...>
 - **Menor fatia (MVP/slice):** <...> · **Fora de escopo agora:** <...>

@@ -1,13 +1,14 @@
 # Regras de Fluxo de Desenvolvimento
 
 > Como o trabalho atravessa a esteira de `.spec/sprints/` (Discovery → Arquitetura
-> → Dev → QA → Segurança). Há **3 modos**; o modo escolhido muda a ênfase de cada
-> disciplina e os critérios de aceitação. Defina o modo **na Discovery**.
+> → Dev → Review de Código → QA → Segurança). Há **3 modos**; o modo escolhido
+> muda a ênfase de cada disciplina e os critérios de aceitação. Defina o modo
+> **na Discovery**.
 
 ## A esteira (comum aos 3 modos)
 
 ```
-00 DISCOVERY → 10 ARQUITETURA(design) → 20 DEV → 10 ARQUITETURA(review) → 30 QA → 40 SEGURANÇA → release
+00 DISCOVERY → 10 ARQUITETURA(design) → 20 DEV → 10 ARQUITETURA(review) → 25 REVIEW CÓDIGO → 30 QA → 40 SEGURANÇA → release
 ```
 
 - **Arquitetura é gate transversal** (roda 2×: valida o plano antes do dev e
@@ -27,11 +28,12 @@ Construir algo que não existe.
 | Arquitetura (design) | desenho do zero: camadas, contratos, stack, ADR das decisões estruturais |
 | Dev | implementar por camada + testes junto; build/lint verdes |
 | Arquitetura (review) | o entregue bate com o design/ADR? 0 violação de camada |
+| Review de Código | subagents auditam diff, regras locais, testes, segurança básica, operabilidade e lacunas antes do QA |
 | QA | cobre cada critério de aceitação + caminho de erro |
 | Segurança | invadir pelo navegador o que subiu (token, authz, audit, CSP) |
 
-**DoD do incremento:** funciona, testado, sem violação de camada, sem achado
-crítico de segurança.
+**DoD do incremento:** funciona, testado, sem violação de camada, review de
+código sem `FAIL`, sem achado crítico de segurança.
 
 ---
 
@@ -45,6 +47,7 @@ Mudar a estrutura interna **sem mudar o comportamento observável**.
 | Arquitetura (design) | **atual × alvo**: o que muda, o que se preserva; plano incremental (Strangler Fig se grande); ADR se decisão estrutural |
 | Dev | mudanças **pequenas e reversíveis**; testes de caracterização cobrindo o comportamento antes de mexer |
 | Arquitetura (review) | a refatoração atingiu a meta sem violar camada nem vazar comportamento? |
+| Review de Código | subagents focam regressão, acoplamento novo, dívida criada e candidatos a código morto/deps |
 | QA | **regressão pesada**: a suíte/RPA prova que o comportamento observável é idêntico |
 | Segurança | re-auditoria das superfícies tocadas |
 
@@ -65,11 +68,13 @@ Tornar o sistema entendível e operável, sem mudar código.
 | Arquitetura (design) | montar o **mapa de arquitetura** vigente (camadas, comunicação, deploy) → `.spec/reference/` |
 | Dev → **escrever docs** | gerar `reference/` (arquitetura, roadmap, deploy, observabilidade), READMEs por módulo, runbooks |
 | Arquitetura (review) | a doc **bate com o código real**? sem afirmação stale (stack morta, infra antiga) |
+| Review de Código | subagents verificam docs contra código, comandos, exemplos, links e lacunas de operabilidade |
 | QA | verificar comandos/links dos docs (executam? resolvem? smoke real) |
 | Segurança | documentar os invariantes de segurança + 1 passada `/security-review` |
 
 **DoD do incremento:** doc fiel ao código atual, sem referência quebrada/stale,
-verificável; `CLAUDE.md` roteia para o `.spec/`.
+verificável; o roteador do agente (`CLAUDE.md`, `AGENTS.md` ou equivalente)
+aponta para o `.spec/`.
 
 > ❌ Anti-pattern: tratar doc histórica como verdade atual — validar contra o
 > código; remover/arquivar o que está superado.
@@ -83,4 +88,5 @@ Pare e peça decisão humana quando:
 2. Ação destrutiva/irreversível ou deploy em **produção**.
 3. Gate reprovado 2× seguidas na mesma etapa (não converge).
 4. Decisão estrutural nova sem ADR.
-5. Qualquer passo que exigiria abrir/expor segredo (`.claude/rules/seguranca.md`).
+5. Qualquer passo que exigiria abrir/expor segredo (`.claude/rules/seguranca.md`
+   ou regra equivalente do projeto).

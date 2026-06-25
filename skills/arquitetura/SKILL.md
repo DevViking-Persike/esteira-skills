@@ -1,13 +1,19 @@
 ---
 name: arquitetura
-description: Roda o gate de Arquitetura da esteira (disciplina 10) — design gate (antes do dev: a abordagem é sã?) e review gate (depois do dev: o diff bate com o plano/ADR e não viola camada?). Use quando o usuário pedir "revisar arquitetura", "design gate", "review do que o dev fez", "validar a abordagem", ou "/arquitetura [design|review]". Gate bloqueante.
+description: >-
+  Roda o gate de Arquitetura da esteira (disciplina 10) — design gate antes do
+  desenvolvimento e review gate depois do desenvolvimento, validando plano,
+  ADR, camadas e contratos. Use quando o usuário pedir "revisar arquitetura",
+  "design gate", "review do que o dev fez", "validar a abordagem", ou
+  "/arquitetura [design|review]". Gate bloqueante.
 ---
 
 # Skill: arquitetura (gate transversal — disciplina 10)
 
 Roda o gate de Arquitetura **2×** por incremento. Método em
-`.spec/sprints/10-arquitetura/README.md`; regras em `.claude/rules/` (arquitetura,
-seguranca). Cada gate é **bloqueante**: reprovou → volta uma casa.
+`.spec/sprints/10-arquitetura/README.md`; regras em `.claude/rules/` quando rodar
+no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
+(arquitetura, seguranca). Cada gate é **bloqueante**: reprovou → volta uma casa.
 
 ## Entrada
 - `design` (antes do dev) ou `review` (depois do dev), em ARGUMENTS.
