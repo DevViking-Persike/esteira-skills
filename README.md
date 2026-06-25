@@ -1,11 +1,21 @@
-# Esteira — Skills de Claude Code para criar, refatorar e documentar sistemas
+# Esteira — Skills para Claude Code e Codex
 
-Um **ecossistema de skills** (Claude Code) que monta a base operacional de um
-projeto (`.spec/`) e roda uma **esteira de sprints por disciplina** — do discovery
-à entrega validada. Genérico e reutilizável em qualquer projeto.
+Um **ecossistema de skills** que monta a base operacional de um projeto (`.spec/`)
+e roda uma **esteira de sprints por disciplina** — do discovery à entrega validada.
+Genérico e reutilizável em qualquer projeto.
 
 > Princípio: `rule` = fonte de verdade (conhecimento); `skill` = runbook que aplica.
-> O `.spec/` é o manual operacional; o `CLAUDE.md` é só o roteador que aponta pra ele.
+> O `.spec/` é o manual operacional; roteadores como `CLAUDE.md` só apontam pra ele.
+
+## Compatibilidade Codex
+
+Os arquivos em `skills/` continuam sendo a fonte de verdade deste repositório.
+Em um projeto consumidor, instale ou copie essas skills em `.claude/skills` e faça
+o Codex apontar para essa mesma árvore com um symlink em `.codex/skills`. Não
+crie uma cópia separada para Codex.
+
+Cada skill também possui `agents/openai.yaml`, metadata opcional recomendada para
+o Codex. Arquivos TOML não são necessários para este formato de skill.
 
 ## As skills
 
@@ -17,10 +27,12 @@ projeto (`.spec/`) e roda uma **esteira de sprints por disciplina** — do disco
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
 | `qa` / `qa-rpa` | gate de QA / **RPA** de navegador validando cada tela **front + back** | 30 |
 | `seguranca` / `redteam` | gate de segurança / **pentest autorizado** do próprio local/dev | 40 |
+| `review-codigo-subagents` | pipeline genérica de review por subagents independentes | transversal |
 
-O `scaffold-spec` também instala uma **rule de segurança**, uma **rule de fluxo de
-desenvolvimento** (modos *criar / refatorar / documentar*), uma **skill de deploy**,
-uma **tool** de validação (`spec-check.sh`) e **hooks** opcionais.
+O `scaffold-spec` também instala **rules de engenharia**, **commands do Claude
+Code** (`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`), uma
+**skill de deploy**, uma **tool** de validação (`spec-check.sh`) e **hooks**
+opcionais.
 
 ## Fluxo
 
@@ -44,6 +56,14 @@ Copie as skills para o diretório de skills do Claude Code:
 cp -R skills/* ~/.claude/skills/
 # ou por projeto
 cp -R skills/* <seu-projeto>/.claude/skills/
+```
+
+Para usar no Codex em um projeto mantendo os arquivos do Claude Code como fonte
+canônica, aponte `.codex/skills` para `.claude/skills` no projeto consumidor:
+
+```bash
+mkdir -p <seu-projeto>/.codex
+ln -s ../.claude/skills <seu-projeto>/.codex/skills
 ```
 
 Depois, num projeto, rode `/scaffold-spec criar` (ou `refatorar` / `documentar`).

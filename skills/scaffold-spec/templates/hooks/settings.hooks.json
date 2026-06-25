@@ -1,5 +1,5 @@
 {
-  "//": "Hooks recomendados pra base .spec/. MESCLE isto no .claude/settings.json do projeto (não substitua o arquivo inteiro). Não é auto-aplicado — opt-in.",
+  "//": "Hooks recomendados para Claude Code na base .spec/. MESCLE isto no .claude/settings.json do projeto (não substitua o arquivo inteiro). Não é auto-aplicado — opt-in.",
   "hooks": {
     "Stop": [
       {

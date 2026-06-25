@@ -1,12 +1,18 @@
 ---
 name: qa
-description: Roda a etapa de QA da esteira (disciplina 30) — validação REAL (não só unit) provando que o incremento funciona e não regrediu, cobrindo cada critério de aceitação da Discovery, caminhos de erro e autorização. Use quando o usuário pedir "rodar QA", "validar o incremento", "testar de verdade", "RPA", ou "/qa". Gate: VERDICT=PASS + relatório.
+description: >-
+  Roda a etapa de QA da esteira (disciplina 30), com validação real além de unit,
+  provando que o incremento funciona e não regrediu, cobrindo critérios de
+  aceitação, caminhos de erro e autorização. Use quando o usuário pedir "rodar
+  QA", "validar o incremento", "testar de verdade", "RPA", ou "/qa". Gate com
+  VERDICT=PASS e relatório.
 ---
 
 # Skill: qa (disciplina 30)
 
 Prova que o incremento **funciona de verdade** e que nada regrediu. Método em
-`.spec/sprints/30-qa/README.md`; regras em `.claude/rules/testes.md`. Para a
+`.spec/sprints/30-qa/README.md`; regras em `.claude/rules/testes.md` quando rodar
+no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex. Para a
 **automação** (RPA de navegador validando cada tela front+back), use a skill
 **`/qa-rpa`** — este `/qa` é o gate; o `/qa-rpa` é a execução.
 

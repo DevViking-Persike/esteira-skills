@@ -1,12 +1,18 @@
 ---
 name: seguranca
-description: Roda a etapa de Segurança da esteira (disciplina 40) — exploração dinâmica que tenta quebrar/invadir o ambiente vivo, mapeada aos invariantes de `.claude/rules/seguranca.md` (token vazando, authz/IDOR, sessão, audit, CSP, redirect/SSRF, bypass). Use quando o usuário pedir "redteam", "testar segurança", "tentar invadir", "auditoria de segurança", ou "/seguranca". Último portão antes do release.
+description: >-
+  Roda a etapa de Segurança da esteira (disciplina 40), com exploração dinâmica
+  autorizada do ambiente vivo mapeada aos invariantes de segurança: token vazando,
+  authz/IDOR, sessão, audit, CSP, redirect/SSRF e bypass. Use quando o usuário
+  pedir "redteam", "testar segurança", "tentar invadir", "auditoria de
+  segurança", ou "/seguranca". Último portão antes do release.
 ---
 
 # Skill: seguranca (disciplina 40)
 
 Tenta **quebrar/invadir** o que subiu, como um atacante. Método em
-`.spec/sprints/40-seguranca/README.md`; invariantes em `.claude/rules/seguranca.md`.
+`.spec/sprints/40-seguranca/README.md`; invariantes em `.claude/rules/seguranca.md`
+quando rodar no Claude Code, ou na regra equivalente do projeto quando rodar no Codex.
 Para a **execução ofensiva** (pentest autorizado do próprio local/dev — SQLi, token
 exposto, IDOR, bypass…), use a skill **`/redteam`** — este `/seguranca` é o gate.
 

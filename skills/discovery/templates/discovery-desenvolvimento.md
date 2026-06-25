@@ -30,7 +30,13 @@
 - **Riscos** (técnico / compliance — retrofit ~3× / dependência): <...>
 - **Spikes** necessários (provar viabilidade antes): <...>
 
-## 6. Dependências & aceitação
+## 6. Achados de subagents (se usados)
+- **Subagents criados:** <código/legado, NFR/riscos, docs/operabilidade, outro>
+- **Evidências úteis:** <fatos observados, com caminho/linha quando houver>
+- **Lacunas para usuário:** <perguntas ainda abertas>
+- **Hipóteses não confirmadas:** <não tratar como verdade>
+
+## 7. Dependências & aceitação
 - **Depende de:** <sistemas/serviços/equipes>
 - **Critérios de aceitação (verificáveis):**
   1. **Dado** <contexto> **quando** <ação> **então** <resultado observável>.

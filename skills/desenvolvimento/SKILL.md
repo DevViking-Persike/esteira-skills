@@ -1,12 +1,19 @@
 ---
 name: desenvolvimento
-description: Roda a etapa de Desenvolvimento da esteira (disciplina 20) — implementa conforme a spec aceita (Discovery) e o plano aprovado (Arquitetura design gate), com testes junto e validação local verde antes do review. Use quando o usuário pedir "implementar", "desenvolver o incremento", "codar a sprint NN", "começar o dev", ou "/desenvolvimento". Não começa sem plano aprovado.
+description: >-
+  Roda a etapa de Desenvolvimento da esteira (disciplina 20), implementando
+  conforme a spec aceita e o plano aprovado no gate de Arquitetura, com testes
+  junto e validação local verde antes do review. Use quando o usuário pedir
+  "implementar", "desenvolver o incremento", "codar a sprint NN", "começar o
+  dev", ou "/desenvolvimento". Não começa sem plano aprovado.
 ---
 
 # Skill: desenvolvimento (disciplina 20)
 
 Implementa o incremento. Método em `.spec/sprints/20-desenvolvimento/README.md`;
-regras em `.claude/rules/` (arquitetura, testes, seguranca, fluxo-desenvolvimento).
+regras em `.claude/rules/` quando rodar no Claude Code, ou nas regras equivalentes
+do projeto quando rodar no Codex (arquitetura, testes, seguranca,
+fluxo-desenvolvimento).
 
 ## Definition of Ready (não começar sem)
 - Spec aceita + critérios de aceitação (Discovery).

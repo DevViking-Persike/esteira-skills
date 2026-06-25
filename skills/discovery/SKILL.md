@@ -1,6 +1,14 @@
 ---
 name: discovery
-description: Conduz um discovery estruturado (com banco de perguntas pesquisado) para gerar bom contexto antes de construir/refatorar/documentar. Dois modos — **produto** (porquê/usuário/valor — base de documentação de produto e justificativa de feature) e **desenvolvimento** (escopo/NFR/restrições/aceitação — base pra construir/refatorar). Usa método The Mom Test. Use quando o usuário pedir "fazer discovery", "discovery de produto/desenvolvimento", "levantar requisitos/contexto", "antes de começar a desenvolver", ou "/discovery [produto|desenvolvimento]". É a disciplina 00 da esteira `.spec/sprints/`.
+description: >-
+  Conduz um discovery estruturado para gerar contexto antes de
+  construir/refatorar/documentar. Dois modos: produto (porquê, usuário, valor) e
+  desenvolvimento (escopo, NFR, restrições, aceitação). Pode criar subagents
+  independentes para pesquisa, leitura de código, riscos e lacunas quando houver
+  contexto amplo. Usa The Mom Test. Use quando o usuário pedir "fazer discovery",
+  "discovery de produto/desenvolvimento", "levantar requisitos/contexto", "antes
+  de começar a desenvolver", ou "/discovery [produto|desenvolvimento]". É a
+  disciplina 00 da esteira .spec.
 ---
 
 # Skill: discovery
@@ -34,6 +42,43 @@ A qualidade do discovery vem de **como** se pergunta. Regras:
 > Fontes: The Mom Test (Rob Fitzpatrick); Continuous Discovery / Opportunity
 > Solution Tree (Teresa Torres); The Four Big Risks (Marty Cagan/SVPG); Jobs to be
 > Done; NFRs (Volere/arc42).
+
+---
+
+## Subagents de discovery
+
+Use subagents quando o discovery depender de investigação paralela que pode ser
+feita sem bloquear a entrevista: leitura de código legado, inventário de
+integrações, comparação de documentação, pesquisa de riscos, análise de NFR ou
+levantamento de lacunas por domínio.
+
+### Quando criar
+- Contexto espalhado em muitos arquivos, módulos, docs ou sistemas.
+- `refatorar` ou `documentar`, onde é preciso medir estado atual antes de decidir.
+- Produto + desenvolvimento no mesmo incremento, separando oportunidade,
+  viabilidade técnica e riscos.
+- Risco alto de viés: pedir leituras independentes evita uma conclusão prematura.
+
+### Passes recomendados
+- **Produto/oportunidade:** sintetizar outcome, usuário, dor, evidências e lacunas.
+- **Código/legado:** mapear módulos, fluxos, integrações, pontos frágeis e testes
+  existentes. Read-only.
+- **NFR/riscos:** levantar performance, segurança, confiabilidade, compliance,
+  dependências externas e spikes necessários.
+- **Docs/operabilidade:** comparar README, runbooks, scripts e realidade do código,
+  marcando stale, ausente ou não verificável.
+
+### Contrato de cada subagent
+Ao criar um subagent, dê escopo estreito, indique arquivos/diretórios permitidos e
+peça saída em Markdown com:
+- Evidências com caminho e linha quando houver.
+- Lacunas e perguntas que precisam de usuário.
+- Riscos e premissas separadas de fatos observados.
+- Nenhuma edição de arquivo, nenhum comando destrutivo e nenhum acesso a produção.
+
+Não use subagents para substituir a entrevista com o usuário. Consolide os
+achados como **evidência auxiliar** e deixe claro o que foi confirmado pelo
+usuário, o que veio do código/docs e o que ainda é hipótese.
 
 ---
 
@@ -115,13 +160,16 @@ A qualidade do discovery vem de **como** se pergunta. Regras:
 
 1. Confirme o **modo** (produto/desenvolvimento) e o **scaffold-mode**
    (criar/refatorar/documentar) — se não souber, pergunte.
-2. Faça as perguntas **em ondas** (use o método Mom Test). **Não** invente as
+2. Se o contexto exigir investigação paralela, crie subagents read-only antes ou
+   durante as ondas de perguntas. Use os passes acima e continue a entrevista em
+   paralelo quando não depender do resultado.
+3. Faça as perguntas **em ondas** (use o método Mom Test). **Não** invente as
    respostas: se for entrevista real, conduza; se o usuário já tem o contexto,
    colete e **confronte lacunas** (aponte o que falta responder).
-3. Quando houver contexto suficiente, **sintetize** na instância de discovery
+4. Quando houver contexto suficiente, **sintetize** na instância de discovery
    (`.spec/sprints/00-discovery/discovery-NN-<tema>.md`) — use os templates desta
    skill (`templates/discovery-produto.md` / `templates/discovery-desenvolvimento.md`).
-4. **Gate da Discovery (DoD):** escopo confirmado, aditivos aprovados, critérios
+5. **Gate da Discovery (DoD):** escopo confirmado, aditivos aprovados, critérios
    de aceitação verificáveis, riscos/NFR mapeados. Só então passa pra Arquitetura.
 
 Exemplos preenchidos (o que é "bom"): `templates/EXEMPLOS.md`.

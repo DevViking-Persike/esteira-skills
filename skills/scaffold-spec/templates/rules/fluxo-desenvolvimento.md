@@ -69,7 +69,8 @@ Tornar o sistema entendível e operável, sem mudar código.
 | Segurança | documentar os invariantes de segurança + 1 passada `/security-review` |
 
 **DoD do incremento:** doc fiel ao código atual, sem referência quebrada/stale,
-verificável; `CLAUDE.md` roteia para o `.spec/`.
+verificável; o roteador do agente (`CLAUDE.md`, `AGENTS.md` ou equivalente)
+aponta para o `.spec/`.
 
 > ❌ Anti-pattern: tratar doc histórica como verdade atual — validar contra o
 > código; remover/arquivar o que está superado.
@@ -83,4 +84,5 @@ Pare e peça decisão humana quando:
 2. Ação destrutiva/irreversível ou deploy em **produção**.
 3. Gate reprovado 2× seguidas na mesma etapa (não converge).
 4. Decisão estrutural nova sem ADR.
-5. Qualquer passo que exigiria abrir/expor segredo (`.claude/rules/seguranca.md`).
+5. Qualquer passo que exigiria abrir/expor segredo (`.claude/rules/seguranca.md`
+   ou regra equivalente do projeto).
