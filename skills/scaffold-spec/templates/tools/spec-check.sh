@@ -14,7 +14,8 @@ red(){ printf '\033[31m%s\033[0m\n' "$*"; }; grn(){ printf '\033[32m%s\033[0m\n'
 # 1) arquivos obrigatórios
 req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/README.md .spec/sprints/RUNBOOK.md
      .spec/sprints/00-discovery/README.md .spec/sprints/10-arquitetura/README.md
-     .spec/sprints/20-desenvolvimento/README.md .spec/sprints/30-qa/README.md
+     .spec/sprints/20-desenvolvimento/README.md
+     .spec/sprints/25-review-codigo/README.md .spec/sprints/30-qa/README.md
      .spec/sprints/40-seguranca/README.md
      .claude/rules/README.md .claude/rules/01-file-size.md .claude/rules/02-unit-tests.md
      .claude/rules/03-solid.md .claude/rules/04-clean-architecture.md

@@ -1,20 +1,21 @@
 ---
 name: review-codigo-subagents
 description: >-
-  Constrói e executa uma pipeline genérica de review de código com subagents
-  independentes, adaptando lanes ao projeto, ao diff e às regras locais. Use
-  quando o usuário pedir "review de código", "pipeline de review", "rodar
-  subagents de review", "auditar regras", "revisar antes de merge/refatoração" ou
-  análise ampla de qualidade. Read-only por padrão; correções exigem confirmação
-  separada.
+  Roda a sprint 25 de review de código da esteira, construindo uma pipeline
+  genérica com subagents independentes e adaptando lanes ao projeto, ao diff e às
+  regras locais. Use quando o usuário pedir "review de código", "pipeline de
+  review", "rodar subagents de review", "auditar regras", "revisar antes de QA",
+  "revisar antes de merge/refatoração" ou "/review-codigo-subagents". Read-only
+  por padrão; correções exigem confirmação separada.
 ---
 
-# Skill: review-codigo-subagents
+# Skill: review-codigo-subagents (disciplina 25)
 
-Orquestra uma **pipeline de review de código** por subagents. A skill não assume
-stack, framework, arquitetura ou ferramenta específica: primeiro descobre o
-projeto, depois escolhe lanes de análise, executa subagents read-only e consolida
-um relatório priorizado.
+Orquestra a **sprint 25 — Review de Código** por subagents. Roda depois de
+`/desenvolvimento` e do gate `/arquitetura review`, antes de `/qa`. A skill não
+assume stack, framework, arquitetura ou ferramenta específica: primeiro descobre
+o projeto, depois escolhe lanes de análise, executa subagents read-only e
+consolida um relatório priorizado.
 
 ## Objetivo
 
@@ -25,6 +26,24 @@ Criar um processo repetível para responder:
 - Existem riscos de arquitetura, testes, segurança, operação ou UX?
 - O que bloqueia merge/refatoração e o que pode virar backlog?
 - Quais próximos passos têm maior impacto?
+
+## Entrada e saída da sprint
+
+**Entrada (Definition of Ready):**
+
+- Diff pronto e aprovado no gate `/arquitetura review`.
+- Plano/spec/ADR relevantes disponíveis em `.spec/`.
+- Regras locais disponíveis em `.claude/rules/` ou equivalente do projeto.
+- Comandos de validação identificados ou lacuna registrada.
+
+**Saída (Definition of Done):**
+
+- Relatório arquivado em `.spec/sprints/25-review-codigo/review-codigo-NN-<tema>.md`.
+- Veredito geral `PASS`, `PASS_WITH_WARNINGS` ou `FAIL`.
+- Achados com evidência, severidade e próximo passo.
+- Comandos executados/não executados registrados.
+- `.spec/STATE.md` atualizado. `FAIL` volta para Desenvolvimento ou Arquitetura,
+  conforme a causa.
 
 ## Princípios
 

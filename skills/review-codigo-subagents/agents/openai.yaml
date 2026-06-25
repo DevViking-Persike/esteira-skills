@@ -1,4 +1,4 @@
 interface:
   display_name: "Pipeline Review Subagents"
-  short_description: "Pipeline de review por subagents"
-  default_prompt: "Use $review-codigo-subagents para montar e executar uma pipeline de review de codigo."
+  short_description: "Sprint de review por subagents"
+  default_prompt: "Use $review-codigo-subagents para rodar a sprint 25 de review de codigo."

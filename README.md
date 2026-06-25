@@ -25,9 +25,9 @@ o Codex. Arquivos TOML não são necessários para este formato de skill.
 | `discovery` | levanta o contexto com perguntas pesquisadas (modos **produto** / **desenvolvimento**) | 00 |
 | `arquitetura` | gate de **design** (antes do dev) e **review** (depois) | 10 |
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
+| `review-codigo-subagents` | sprint de review de código por subagents independentes | 25 |
 | `qa` / `qa-rpa` | gate de QA / **RPA** de navegador validando cada tela **front + back** | 30 |
 | `seguranca` / `redteam` | gate de segurança / **pentest autorizado** do próprio local/dev | 40 |
-| `review-codigo-subagents` | pipeline genérica de review por subagents independentes | transversal |
 
 O `scaffold-spec` também instala **rules de engenharia**, **commands do Claude
 Code** (`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`), uma
@@ -42,6 +42,7 @@ opcionais.
   → /arquitetura design                        → gate: a abordagem é sã?
   → /desenvolvimento                           → implementa (testes junto)
   → /arquitetura review                        → gate: o diff bate com plano/ADR?
+  → /review-codigo-subagents                   → sprint de review técnico por lanes/subagents
   → /qa  →  /qa-rpa                             → validação real front+back de cada tela
   → /seguranca  →  /redteam                    → pentest autorizado (achar a brecha, remediar)
   → /deploy  +  spec-check                      → sobe e valida a entrega

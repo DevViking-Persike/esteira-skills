@@ -45,6 +45,7 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 10  /arquitetura design                    → gate: a abordagem é sã?
 20  /desenvolvimento                       → implementa (testes junto)
 10  /arquitetura review                    → gate: o diff bate com plano/ADR? 0 violação de camada
+25  /review-codigo-subagents               → review técnico por lanes/subagents
 30  /qa  →  /qa-rpa                         → validação real front+back de cada tela (RPA)
 40  /seguranca  →  /redteam                → pentest autorizado (próprio local/dev)
     /deploy                                → build → registry → apply → smoke
@@ -57,10 +58,10 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 | `discovery` | levanta o contexto (modos **produto** / **desenvolvimento**) | 00 |
 | `arquitetura` | gate de **design** (antes) e **review** (depois do dev) | 10 |
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
+| `review-codigo-subagents` | sprint de review de código por subagents independentes | 25 |
 | `qa` / `qa-rpa` | gate de QA / **RPA front+back** automatizado de cada tela | 30 |
 | `seguranca` / `redteam` | gate de segurança / **pentest** do próprio local-dev | 40 |
 | `deploy` | sobe o projeto (build → apply → smoke) | transversal |
-| `review-codigo-subagents` | pipeline genérica de review por subagents independentes | transversal |
 
 > **Relação bidirecional:** o `scaffold` instala e referencia todas; cada skill de
 > etapa aponta de volta pra sua disciplina em `.spec/sprints/` e pras regras do projeto.
@@ -97,6 +98,7 @@ confirmar):
     ├── 00-discovery/        { README.md, _TEMPLATE-discovery.md }
     ├── 10-arquitetura/      { README.md, _TEMPLATE-arquitetura.md }
     ├── 20-desenvolvimento/  { README.md, _TEMPLATE-desenvolvimento.md }
+    ├── 25-review-codigo/    { README.md, _TEMPLATE-review-codigo.md }
     ├── 30-qa/               { README.md, _TEMPLATE-qa.md }
     └── 40-seguranca/        { README.md, _TEMPLATE-seguranca.md }
 ```
@@ -112,20 +114,23 @@ Codex, para a regra equivalente do projeto);
 (o que governa o escopo — preencher com o contrato/escopo do projeto).
 
 **`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, etapa, branch,
-atualizado em); tabela de progresso da esteira (00→10→20→10-review→30→40 com
+atualizado em); tabela de progresso da esteira
+(00→10→20→10-review→25-review-codigo→30→40 com
 status ⬜🟡✅🔴); último resultado de validação; pendências; itens aguardando
 aprovação; histórico de incrementos; protocolo de atualização (atualizar ao
 entrar/sair de cada etapa; nunca avançar com gate reprovado).
 
-**`sprints/README.md`** — as 5 disciplinas (00 Discovery, 10 Arquitetura [gate
-transversal], 20 Desenvolvimento, 30 QA, 40 Segurança), o fluxo da esteira
-(`00 → 10-design → 20 → 10-review → 30 → 40 → release`, Arquitetura roda 2× como
-gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
+**`sprints/README.md`** — as 6 disciplinas (00 Discovery, 10 Arquitetura [gate
+transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
+fluxo da esteira
+(`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
+Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
 instância (`<disciplina>-NN-<tema>.md`, mesmo NN em toda a esteira).
 
 **`sprints/RUNBOOK.md`** — como rodar a esteira autonomamente: ler STATE → retomar
 etapa; loop pelas etapas **invocando a skill de cada uma** (`/discovery` → `/arquitetura`
-→ `/desenvolvimento` → `/arquitetura review` → `/qa`+`/qa-rpa` → `/seguranca`+`/redteam`
+→ `/desenvolvimento` → `/arquitetura review` → `/review-codigo-subagents`
+→ `/qa`+`/qa-rpa` → `/seguranca`+`/redteam`
 → `/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
 obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
 produção, gate reprovado 2×, decisão estrutural sem registro, segredo.
@@ -170,9 +175,9 @@ mkdir -p .claude/tools && cp $S/tools/spec-check.sh .claude/tools/ && chmod +x .
 | 00 Discovery | `/discovery [produto\|desenvolvimento]` — banco de perguntas (Mom Test / JTBD / 4 riscos / NFR) |
 | 10 Arquitetura | `/arquitetura [design\|review]` — gate 2× |
 | 20 Desenvolvimento | `/desenvolvimento` |
+| 25 Review de Código | `/review-codigo-subagents` — pipeline read-only por lanes/subagents |
 | 30 QA | `/qa` (gate) + `/qa-rpa` (automação RPA front+back de cada tela) |
 | 40 Segurança | `/seguranca` (gate) + `/redteam` (pentest autorizado do próprio local/dev) |
-| Transversal | `/review-codigo-subagents` — pipeline read-only de review antes de refatoração/merge |
 
 > Se as skills de etapa já estiverem **globais** (`~/.claude/skills/` ou
 > `~/.codex/skills/`), não precisa copiar — só garanta que existem. O `RUNBOOK.md`
@@ -199,8 +204,9 @@ no Codex quando existir) para ser um **roteador fino** que aponta para a base no
 - **Regra-mãe** (1 linha — o que governa o escopo).
 - **Bootstrap — ordem de leitura:** `.spec/MANIFEST.md` → `.spec/STATE.md` →
   `.spec/sprints/RUNBOOK.md`.
-- **Seguir a esteira do `.spec/`** (00→10→20→10→30→40, gates do RUNBOOK) — cada
-  etapa via a skill: `/discovery`, `/arquitetura`, `/desenvolvimento`, `/qa`, `/seguranca`.
+- **Seguir a esteira do `.spec/`** (00→10→20→10→25→30→40, gates do RUNBOOK) —
+  cada etapa via a skill: `/discovery`, `/arquitetura`, `/desenvolvimento`,
+  `/review-codigo-subagents`, `/qa`, `/seguranca`.
 - **Autoridades:** rules em `.claude/rules/` ou equivalente do projeto; skills em
   `.claude/skills/` e, para Codex, via symlink `.codex/skills`.
 - **Segurança:** os invariantes irredutíveis (ver `seguranca.md`).
