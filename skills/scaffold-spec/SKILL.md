@@ -63,6 +63,14 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 | `seguranca` / `redteam` | gate de segurança / **pentest** do próprio local-dev | 40 |
 | `deploy` | sobe o projeto (build → apply → smoke) | transversal |
 
+> **Esteira de qualidade (transversal):** além da esteira de *processo* acima, o
+> scaffold instala uma esteira de *qualidade de código* em `.claude/esteira/`
+> (gates bloqueantes `00-check → 10-refactor → 20-test/cov/mutation → 30-review`),
+> com presets de stack em `.claude/stacks/` e templates de orquestração multi-agente
+> em `templates/agents/`. Roda autônoma sobre um diff/branch ou wired após
+> `/desenvolvimento`, alimentando `/arquitetura review` e `/review-codigo-subagents`.
+> Valide com `bash .claude/tools/esteira-check.sh`.
+
 > **Relação bidirecional:** o `scaffold` instala e referencia todas; cada skill de
 > etapa aponta de volta pra sua disciplina em `.spec/sprints/` e pras regras do projeto.
 > Resultado: o projeto fica **íntegro da base à entrega validada**. O `RUNBOOK.md`
@@ -153,20 +161,27 @@ symlink para essa árvore canônica:
 
 ```bash
 S=.claude/skills/scaffold-spec/templates
-# rules e commands (fonte de verdade operacional)
-mkdir -p .claude/rules .claude/commands
-cp -R $S/rules/. .claude/rules/
-cp -R $S/commands/. .claude/commands/
-# skills da esteira e transversais — copiar do repo-fonte, ou já globais em ~/.claude/skills/
+# rules de engenharia (3 camadas) + segurança/fluxo
+mkdir -p .claude/{rules,commands,stacks,esteira,tools,skills}
+cp -R $S/rules/eng/. .claude/rules/
+cp $S/rules/seguranca.md $S/rules/fluxo-desenvolvimento.md $S/rules/README.md .claude/rules/ 2>/dev/null || true
+# runbooks LLM-agnostic (ative o frontmatter comentado p/ Claude Code; cole como prompt em outros LLMs)
+cp -R $S/commands/eng/. .claude/commands/
+# catálogo de stacks — Camada 2 das rules referencia estes comandos concretos
+cp -R $S/stacks/. .claude/stacks/
+# esteira de qualidade de código (gates bloqueantes + stages + RUNBOOK)
+cp -R $S/esteira/. .claude/esteira/
+# skills da esteira de processo — copiar do repo-fonte, ou já globais em ~/.claude/skills/
 cp -R .claude/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam,review-codigo-subagents} <dest>/.claude/skills/ 2>/dev/null || true
 # skill de deploy (copiar a pasta para preservar agents/openai.yaml)
-mkdir -p .claude/skills && cp -R $S/skills/deploy .claude/skills/
+cp -R $S/skills/deploy .claude/skills/
 # Codex: manter .claude/skills como fonte canônica e apontar para ela
 mkdir -p .codex
 [ -e .codex/skills ] || ln -s ../.claude/skills .codex/skills
-# tool de validação ("entrega funcionando")
-mkdir -p .claude/tools && cp $S/tools/spec-check.sh .claude/tools/ && chmod +x .claude/tools/spec-check.sh
+# tools de validação
+cp $S/tools/spec-check.sh $S/tools/esteira-check.sh .claude/tools/ && chmod +x .claude/tools/*.sh
 # hooks (opt-in): ver $S/hooks/README.md
+# agents/*.tpl NÃO são auto-instalados — instancie sob demanda substituindo {{...}} (ver agents/README.md)
 ```
 
 **Skills de etapa — a esteira chama em ordem:**
@@ -183,14 +198,22 @@ mkdir -p .claude/tools && cp $S/tools/spec-check.sh .claude/tools/ && chmod +x .
 > `~/.codex/skills/`), não precisa copiar — só garanta que existem. O `RUNBOOK.md`
 > invoca cada uma na etapa certa.
 
-- **`rules/`** — regras de engenharia, segurança, fluxo e review. Preencha ou
-  ajuste placeholders `<...>` conforme o projeto.
-- **`commands/`** — comandos Claude Code para auditar rules, refatorar alvo,
-  responsividade e código morto.
-- **`deploy/SKILL.md`** — runbook de deploy (build→registry→apply→smoke); aponte
-  pra uma `staging-deploy.md` quando existir.
-- **`tools/spec-check.sh`** — valida a `.spec/` (arquivos obrigatórios + links +
-  STATE). Rode ao fechar: `bash .claude/tools/spec-check.sh`.
+- **`rules/eng/`** — 11 regras de engenharia em **3 camadas** (princípio universal
+  + preset por stack + exemplo) + `seguranca.md` + `fluxo-desenvolvimento.md`.
+  Preencha placeholders `<preencher: ...>` conforme o projeto.
+- **`stacks/`** — catálogo de presets (backend/frontend/mobile/RPA); a Camada 2
+  das rules referencia estes comandos concretos.
+- **`esteira/`** — esteira de qualidade de código (gates bloqueantes
+  `00-check → 10-refactor → 20-test/cov/mutation → 30-review` + `RUNBOOK`).
+- **`commands/eng/`** — runbooks LLM-agnostic (`check-rules`, `refactor`,
+  `responsive-pass`, `dead-code-cleansing`). Para Claude Code, ative o frontmatter
+  comentado no topo de cada um; em outros LLMs, cole o corpo como prompt.
+- **`agents/`** — templates de orquestração multi-agente (`main-orchestrator`,
+  `sub-orchestrator`, `worker-{build,test,validate}`). **Não auto-instalados** —
+  instancie sob demanda substituindo `{{...}}` (ver `agents/README.md`).
+- **`deploy/SKILL.md`** — runbook de deploy (build→registry→apply→smoke).
+- **`tools/spec-check.sh`** + **`tools/esteira-check.sh`** — validam a entrega
+  (`.spec/`) e a engenharia (agnosticidade LLM + estrutura + smoke install).
 - **hooks** (`templates/hooks/`) — rodam o `spec-check` automaticamente (Stop /
   PostToolUse). **Opt-in:** mesclar no `.claude/settings.json` no Claude Code
   (não auto-aplicar). No Codex, use validação manual ou mecanismo equivalente.
@@ -215,6 +238,9 @@ no Codex quando existir) para ser um **roteador fino** que aponta para a base no
 
 - **Validar a entrega:** `bash .claude/tools/spec-check.sh` — deve dar OK (0 link
   quebrado, arquivos obrigatórios presentes). Corrija o que apontar.
+- **Validar a engenharia:** `bash .claude/tools/esteira-check.sh` — valida
+  agnosticidade LLM, resíduo de stack específica, estrutura (≤300 linhas) e
+  smoke install dos templates de engenharia.
 - Liste o que foi criado e o que tem placeholder `<...>` a preencher.
 - Atualize `STATE.md` com o 1º incremento (ou deixe "nenhum ativo").
 - Registre o que **não** rodou e por quê.

@@ -29,10 +29,15 @@ o Codex. Arquivos TOML não são necessários para este formato de skill.
 | `qa` / `qa-rpa` | gate de QA / **RPA** de navegador validando cada tela **front + back** | 30 |
 | `seguranca` / `redteam` | gate de segurança / **pentest autorizado** do próprio local/dev | 40 |
 
-O `scaffold-spec` também instala **rules de engenharia**, **commands do Claude
-Code** (`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`), uma
-**skill de deploy**, uma **tool** de validação (`spec-check.sh`) e **hooks**
-opcionais.
+O `scaffold-spec` também instala **rules de engenharia em 3 camadas** (princípio
+universal + preset por stack + exemplo) para Rust, Node-TS, Python, Go, C#, KMP,
+Svelte/Angular/React e RPA; um **catálogo de stacks** (`.claude/stacks/`); uma
+**esteira de qualidade de código** com gates bloqueantes (`.claude/esteira/`:
+`00-check → 10-refactor → 20-test/cov/mutation → 30-review`); **templates de
+orquestração multi-agente** (`agents/`); **commands** do Claude Code
+(`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`) — todos
+LLM-agnostic (rodam no Claude Code e em outros LLMs, via prompt); uma **skill de
+deploy**; e as **tools** de validação `spec-check.sh` e `esteira-check.sh`.
 
 ## Fluxo
 
