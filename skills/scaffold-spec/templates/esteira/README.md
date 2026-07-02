@@ -44,7 +44,9 @@ stage por stage a sub-orchestrators/workers. Tarefa micro (hotfix de 1 arquivo)
   entender dependências antes do split e validar que o diff não quebrou
   invariantes de camada.
 - **`/check-rules`** (command) — implementa o stage 00 (auditoria read-only).
-- **`/refactor <arquivo>`** (command) —implementa o fluxo do stage 10 num arquivo.
+- **`/refactor <arquivo>`** (command) — implementa o fluxo do stage 10 num arquivo.
+- **`/responsive-pass <rota>`** (command) — ferramenta opcional do stage 10 para UI (Regra 09).
+- **`/dead-code-cleansing`** (command) — ferramenta opcional do stage 10 para código morto.
 - **`/code-review`** (command) — complementa o stage 30 (bugs + cleanups).
 - **Hooks** (`templates/hooks/`) — rodam `spec-check`/checks automaticamente em
   Stop/PostToolUse. **Opt-in** — mesclar no `settings.json`, não auto-aplicar.
