@@ -26,6 +26,11 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 4. Precisa de **ADR**? (decisão estrutural → `.spec/reference/ADR-NNN`).
 → Veredito: aprovado (segue p/ Dev) ou reprovado (volta à Discovery/Dev).
 
+> **Fronteira:** o review gate (10b) é um gate **fino** — julga camadas, ACs e
+> ADR sobre o diff já pronto; não é onde o diff é produzido. Quem produz os
+> achados de review por lane é a disciplina 25 (`/review-codigo-subagents`) —
+> o 10b consome/julga esse resultado, não o refaz.
+
 ## review gate (depois do dev) — revisar o DIFF
 1. **0 violação de camada / direção de dependência** (lint de camadas verde).
 2. Sem segredo vazando; nenhuma regra de `seguranca.md` quebrada.

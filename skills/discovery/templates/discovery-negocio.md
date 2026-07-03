@@ -1,8 +1,9 @@
-# Discovery NN — <tema> `[DISCOVERY · PRODUTO]`
+# Discovery NN — <tema> `[DISCOVERY · NEGÓCIO]`
 
-> Modo produto: o **porquê**. Gera contexto de produto (base de documentação de
-> produto + justificativa de feature). Método: The Mom Test (comportamento/histórias,
-> não opiniões).
+> Modo negócio: o **porquê**. Gera contexto de negócio/produto (base de
+> documentação de produto + justificativa de feature + regras do domínio).
+> Método: The Mom Test (comportamento/histórias, não opiniões).
+> Artefato canônico: `.spec/discovery/discovery-NN-<tema>.negocio.md`.
 
 ## 1. Outcome (resultado de negócio)
 - **Resultado a mover:** <retenção / ativação / receita / custo / NPS — não a feature>
@@ -41,7 +42,16 @@
 - **Métrica de sucesso:** leading <...> · lagging <...>
 - **Menor fatia (MVP/slice):** <...> · **Fora de escopo agora:** <...>
 
-## DoD da Discovery (produto)
+## 8. Regras & Fluxo de negócio
+- **Regras/políticas do negócio:** <o que o negócio exige/proíbe — não técnico>
+- **Invariantes do domínio (não-técnicos):** <o que sempre precisa valer>
+- **Atores/papéis (ótica do negócio):** <quem participa e o que decide/aprova>
+- **Fluxo ponta-a-ponta:** <passo a passo do processo, do gatilho ao desfecho>
+- **Estados & casos-limite do negócio:** <estados possíveis, exceções, desfechos alternativos>
+- **Regulado / compliance (nível de negócio):** <LGPD, contratos, obrigação legal — o que rege>
+
+## DoD da Discovery (negócio)
 - [ ] Outcome + métrica/baseline · [ ] oportunidade validada (comportamento, não opinião)
 - [ ] 4 riscos avaliados · [ ] sucesso mensurável · [ ] escopo (MVP × fora)
+- [ ] regras/invariantes/fluxo de negócio mapeados · [ ] compliance de negócio identificado
 - [ ] aditivos aprovados · [ ] handoff (→ discovery desenvolvimento, se for construir)

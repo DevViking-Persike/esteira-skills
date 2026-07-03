@@ -41,7 +41,7 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 /scaffold-spec [criar|refatorar|documentar]   ← monta .spec/ + rules + commands + skills + tools + hooks
         │
         ▼   a esteira, dirigida pelas skills (gates bloqueantes):
-00  /discovery [produto|desenvolvimento]   → contexto (Mom Test / JTBD / 4 riscos / NFR)
+00  /discovery [negocio|dev|refatoracao]   → contexto (seletor de modos: skills/discovery/SKILL.md)
 10  /arquitetura design                    → gate: a abordagem é sã?
 20  /desenvolvimento                       → implementa (testes junto)
 10  /arquitetura review                    → gate: o diff bate com plano/ADR? 0 violação de camada
@@ -55,7 +55,7 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 | Skill | Papel | Etapa |
 |---|---|---|
 | **scaffold-spec** | monta a base + orquestra (o **hub**) | — |
-| `discovery` | levanta o contexto (modos **produto** / **desenvolvimento**) | 00 |
+| `discovery` | levanta o contexto (3 modos — seletor em [`discovery/SKILL.md`](../discovery/SKILL.md)) | 00 |
 | `arquitetura` | gate de **design** (antes) e **review** (depois do dev) | 10 |
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
 | `review-codigo-subagents` | sprint de review de código por subagents independentes | 25 |
@@ -133,13 +133,20 @@ transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
 fluxo da esteira
 (`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
 Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
-instância (`<disciplina>-NN-<tema>.md`, mesmo NN em toda a esteira).
+instância (`<disciplina>-NN-<tema>.md`, mesmo NN em toda a esteira). O
+**Discovery** (00) fecha com fan-in: emite `.spec/discovery/plano-de-sprints-NN.md`
+(1 linha por sprint derivado — scaffold-mode + ACs + discoveries-fonte + ordem),
+o backlog fatiado que o RUNBOOK consome a seguir.
 
-**`sprints/RUNBOOK.md`** — como rodar a esteira autonomamente: ler STATE → retomar
-etapa; loop pelas etapas **invocando a skill de cada uma** (`/discovery` → `/arquitetura`
-→ `/desenvolvimento` → `/arquitetura review` → `/review-codigo-subagents`
-→ `/qa`+`/qa-rpa` → `/seguranca`+`/redteam`
-→ `/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
+**`sprints/RUNBOOK.md`** — como rodar a esteira autonomamente: no início, o
+**seletor de modos do Discovery** (`/discovery [negocio|dev|refatoracao]`,
+default por scaffold-mode — ver `discovery/SKILL.md`); ler STATE → retomar
+etapa; depois do Discovery aprovar o `plano-de-sprints-NN.md`, **loop "para
+cada item do backlog: `10→20→25→30→40`"** — cada sprint derivado do plano
+entra na esteira pela Arquitetura, invocando a skill de cada etapa
+(`/arquitetura` → `/desenvolvimento` → `/arquitetura review` →
+`/review-codigo-subagents` → `/qa`+`/qa-rpa` → `/seguranca`+`/redteam` →
+`/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
 obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
 produção, gate reprovado 2×, decisão estrutural sem registro, segredo.
 
@@ -187,7 +194,7 @@ cp $S/tools/spec-check.sh $S/tools/esteira-check.sh .claude/tools/ && chmod +x .
 **Skills de etapa — a esteira chama em ordem:**
 | Etapa | Skill |
 |---|---|
-| 00 Discovery | `/discovery [produto\|desenvolvimento]` — banco de perguntas (Mom Test / JTBD / 4 riscos / NFR) |
+| 00 Discovery | `/discovery [negocio\|dev\|refatoracao]` — 3 modos, seletor + mapa default×scaffold-mode em [`discovery/SKILL.md`](../discovery/SKILL.md) (não repetido aqui) |
 | 10 Arquitetura | `/arquitetura [design\|review]` — gate 2× |
 | 20 Desenvolvimento | `/desenvolvimento` |
 | 25 Review de Código | `/review-codigo-subagents` — pipeline read-only por lanes/subagents |
@@ -220,19 +227,31 @@ cp $S/tools/spec-check.sh $S/tools/esteira-check.sh .claude/tools/ && chmod +x .
 
 ## Passo 3 — Cabear o roteador do agente
 
-Crie ou ajuste o roteador do agente (`CLAUDE.md` no Claude Code, ou equivalente
-no Codex quando existir) para ser um **roteador fino** que aponta para a base nova
-(não duplicar conteúdo):
+**Não reescreva o roteador à mão.** Copie o template canônico e preencha os
+`<...>`:
 
-- **Regra-mãe** (1 linha — o que governa o escopo).
-- **Bootstrap — ordem de leitura:** `.spec/MANIFEST.md` → `.spec/STATE.md` →
-  `.spec/sprints/RUNBOOK.md`.
-- **Seguir a esteira do `.spec/`** (00→10→20→10→25→30→40, gates do RUNBOOK) —
-  cada etapa via a skill: `/discovery`, `/arquitetura`, `/desenvolvimento`,
-  `/review-codigo-subagents`, `/qa`, `/seguranca`.
-- **Autoridades:** rules em `.claude/rules/` ou equivalente do projeto; skills em
-  `.claude/skills/` e, para Codex, via symlink `.codex/skills`.
-- **Segurança:** os invariantes irredutíveis (ver `seguranca.md`).
+```bash
+mkdir -p .claude
+cp .claude/skills/scaffold-spec/templates/router/CLAUDE.md.tpl .claude/CLAUDE.md
+# preencher <projeto>, <regra-mãe> etc. em .claude/CLAUDE.md
+```
+
+A **versão instalável pelo orchestrator é `.claude/CLAUDE.md`** (dentro de
+`ROOTS` — o `CLAUDE.md` da raiz do projeto não é instalável pelo pipeline). O
+template já traz, prontos e sem precisar redigitar: regra-mãe, bootstrap
+(`MANIFEST.md` → `STATE.md` → `RUNBOOK.md`), a esteira 00→40 e as autoridades
+(rules/skills/segurança). Não adicione conteúdo operacional aqui — se precisou
+detalhar, o lugar é o `.spec/` ou uma `rule`.
+
+Quando o scaffold roda **dentro do projeto-consumidor** (não no repo-fonte),
+crie também o stub de 2 linhas na raiz apontando para o roteador real:
+
+```bash
+printf '# <projeto>\nEste projeto usa a esteira. Roteador: `.claude/CLAUDE.md` · Mapa: `.spec/MANIFEST.md`.\n' > CLAUDE.md
+```
+
+Para Codex, gere `AGENTS.md` a partir do **mesmo template** (gêmeo do
+`CLAUDE.md.tpl`) — `spec-check.sh` valida os dois.
 
 ## Passo 4 — Fechar
 

@@ -1,11 +1,52 @@
 # Regras de Fluxo de Desenvolvimento
 
 > Como o trabalho atravessa a esteira de `.spec/sprints/` (Discovery → Arquitetura
-> → Dev → Review de Código → QA → Segurança). Há **3 modos**; o modo escolhido
-> muda a ênfase de cada disciplina e os critérios de aceitação. Defina o modo
-> **na Discovery**.
+> → Dev → Review de Código → QA → Segurança). Há **2 eixos ortogonais** — ver
+> seção "Os 2 eixos" abaixo. Este arquivo detalha o eixo **scaffold-mode**
+> (CRIAR/REFATORAR/DOCUMENTAR); o eixo **discovery-mode**
+> (negocio/dev/refatoracao) é definido e detalhado na skill `discovery`
+> (`skills/discovery/SKILL.md`, seção "Seletor de modos") — não repetido aqui.
 
-## A esteira (comum aos 3 modos)
+## Os 2 eixos
+
+O trabalho é governado por **dois eixos independentes**, escolhidos em
+momentos diferentes:
+
+| Eixo | Valores | Responde | Onde se escolhe |
+|---|---|---|---|
+| **scaffold-mode** | `criar` / `refatorar` / `documentar` | **como executar** cada sprint (ênfase de cada disciplina 00→40, ver tabelas abaixo) | `/scaffold-spec [criar\|refatorar\|documentar]` |
+| **discovery-mode** | `negocio` / `dev` / `refatoracao` | **o que investigar** antes de executar (banco de perguntas da Discovery) | seletor de `/discovery`, com default por scaffold-mode |
+
+Os eixos são **ortogonais**: combinações não-contíguas (ex.: scaffold-mode
+`criar` com discovery-mode `{negocio, refatoracao}`) são permitidas — o
+scaffold-mode não restringe quais discovery-modes podem rodar, só sugere o
+default. A ordem canônica dos discovery-modes (negocio→dev→refatoracao) fixa
+apenas a **sequência de execução** quando mais de um é selecionado.
+
+## Regra de fan-in: 1 rodada de Discovery → N sprints
+
+Uma rodada de Discovery (os discovery-modes selecionados, rodados em ordem
+canônica) fecha com **um único artefato de consolidação**:
+`.spec/discovery/plano-de-sprints-NN.md` — 1 linha por sprint derivado
+(scaffold-mode do sprint + ACs + discoveries-fonte + ordem/dependências).
+
+A partir daí, **cada sprint do plano é uma esteira própria**: começa sempre
+em **Arquitetura** (não repete a Discovery), reaproveitando os artefatos da
+rodada compartilhada:
+
+```
+1 Discovery (negocio/dev/refatoracao) → plano-de-sprints-NN.md
+        │
+        ├─ sprint 1 → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
+        ├─ sprint 2 → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
+        └─ sprint N → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
+```
+
+O **gate de saída da Discovery** é o "Plano de Sprints aprovado pelo usuário"
+— bloqueante: só com o backlog fatiado (cada item com ACs verificáveis +
+scaffold-mode definido) abre a 1ª Arquitetura.
+
+## A esteira de um sprint (comum aos 3 scaffold-modes)
 
 ```
 00 DISCOVERY → 10 ARQUITETURA(design) → 20 DEV → 10 ARQUITETURA(review) → 25 REVIEW CÓDIGO → 30 QA → 40 SEGURANÇA → release
@@ -18,7 +59,7 @@
 
 ---
 
-## Modo CRIAR (sistema novo / greenfield)
+## scaffold-mode CRIAR (sistema novo / greenfield)
 
 Construir algo que não existe.
 
@@ -37,7 +78,7 @@ código sem `FAIL`, sem achado crítico de segurança.
 
 ---
 
-## Modo REFATORAR (sistema existente)
+## scaffold-mode REFATORAR (sistema existente)
 
 Mudar a estrutura interna **sem mudar o comportamento observável**.
 
@@ -58,7 +99,7 @@ reversível.
 
 ---
 
-## Modo DOCUMENTAR (sistema existente sem/com pouca doc)
+## scaffold-mode DOCUMENTAR (sistema existente sem/com pouca doc)
 
 Tornar o sistema entendível e operável, sem mudar código.
 
@@ -81,7 +122,7 @@ aponta para o `.spec/`.
 
 ---
 
-## Paradas obrigatórias (em qualquer modo)
+## Paradas obrigatórias (em qualquer scaffold-mode)
 
 Pare e peça decisão humana quando:
 1. Item fora do escopo/contrato sem aprovação escrita (registrar em `STATE.md`).

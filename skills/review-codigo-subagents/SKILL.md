@@ -17,6 +17,13 @@ assume stack, framework, arquitetura ou ferramenta específica: primeiro descobr
 o projeto, depois escolhe lanes de análise, executa subagents read-only e
 consolida um relatório priorizado.
 
+> **Fronteira:** a disciplina 25 é **EXECUÇÃO** por lanes — produz os achados
+> que o gate `/arquitetura review` (10b) depois julga (aprovado/reprovado); a
+> 25 não substitui o gate. A **lane Segurança/privacidade** desta pipeline é
+> análise **ESTÁTICA** do diff (secret scan, authz por leitura de código,
+> superfície de risco); a exploração **DINÂMICA** do ambiente vivo é da
+> disciplina **40** (`/seguranca` + `/redteam`) — não se sobrepõem.
+
 ## Objetivo
 
 Criar um processo repetível para responder:

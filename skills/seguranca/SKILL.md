@@ -1,11 +1,11 @@
 ---
 name: seguranca
 description: >-
-  Roda a etapa de Segurança da esteira (disciplina 40), com exploração dinâmica
-  autorizada do ambiente vivo mapeada aos invariantes de segurança: token vazando,
-  authz/IDOR, sessão, audit, CSP, redirect/SSRF e bypass. Use quando o usuário
-  pedir "redteam", "testar segurança", "tentar invadir", "auditoria de
-  segurança", ou "/seguranca". Último portão antes do release.
+  Roda o gate de Segurança da esteira (disciplina 40) — confere cobertura e
+  severidade dos vetores executados pela exploração dinâmica (`/redteam`)
+  contra os invariantes de `.claude/rules/seguranca.md`. Use quando o usuário
+  pedir "auditoria de segurança", "gate de segurança", "validar antes do
+  release", ou "/seguranca". Último portão antes do release.
 ---
 
 # Skill: seguranca (disciplina 40)
@@ -20,17 +20,12 @@ exposto, IDOR, bypass…), use a skill **`/redteam`** — este `/seguranca` é o
 - Alvo: ambiente vivo **autorizado** (NÃO produção sem aceite explícito). Sem DoS.
 - Combina **estático** (`/security-review` quando existir) + **dinâmico** (tentar invadir).
 
-## Cenários (mapeados aos invariantes)
-| # | Cenário | Invariante violado se passar |
-|---|---|---|
-| A1 | Token/credencial vazando pro cliente | "nunca no browser/PageData" |
-| A2 | Credencial forjada aceita | authn na borda |
-| A3 | Escalonamento de privilégio / IDOR | authZ deny-by-default |
-| A4 | Sessão (httpOnly, replay) | cookie cifrado |
-| A5 | Audit forjado / UPDATE-DELETE | append-only + actor autenticado |
-| A6 | XSS / CSP fraca | CSP nonce |
-| A7 | Open redirect / SSRF / mass-assignment | borda controlada |
-| A8 | Validação afrouxada / bypass em prod | nunca em produção |
+## Cobertura (o gate confere, não redefine)
+O gate **não** redefine cenários próprios — confere se os vetores T1-T10 do
+`/redteam` cobriram os invariantes de `.claude/rules/seguranca.md` (token
+vazando, authn/authz, sessão, audit, CSP, redirect/SSRF, bypass em produção) e
+se a severidade de cada achado está classificada corretamente. Fonte única da
+matriz: `.claude/rules/seguranca.md`.
 
 ## Gate (DoD)
 - [ ] Cenários executados (ou N/A justificado).

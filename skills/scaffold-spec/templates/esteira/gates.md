@@ -37,6 +37,15 @@
 - Exceções explicitamente listadas nas regras (entry point fino, tokens de
   design sem lógica, components de apresentação pura via snapshot).
 
+## Nota de fronteira (processo × qualidade)
+
+Os 4 gates acima são da esteira de **qualidade** (sobre um diff). Existe um
+gate anterior, de **processo**, fora desta tabela: *"Plano de Sprints
+aprovado"* (saída da disciplina 00-Discovery) — bloqueante, precede a
+**1ª** esteira de qualidade de cada sprint derivado. Ele não é um 5º stage
+aqui; é o portão que decide "existe um diff pra rodar 00→30" antes de este
+arquivo entrar em cena.
+
 ## Registro
 
 Cada verificação de gate deve deixar rastro no `STATE.md` (ou equivalente do

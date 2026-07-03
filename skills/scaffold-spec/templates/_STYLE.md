@@ -1,5 +1,9 @@
 # _STYLE.md — Contrato de autoria dos templates `eng-esteira`
 
+> **Artefato do repo-fonte, NÃO instala no consumidor.** Este arquivo não é
+> copiado por nenhum `cp` do `scaffold-spec/SKILL.md` para o projeto-alvo —
+> existe só aqui, para orientar quem escreve template neste repo.
+
 > Fonte de verdade para **todos** que escrevem arquivos sob `scaffold-spec/templates/{rules,stacks,esteira,agents,commands}/`.
 > Workers leem isto antes de produzir. O Main Orchestrator propaga estas regras.
 

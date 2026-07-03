@@ -4,7 +4,7 @@ description: >-
   Roda a etapa de QA da esteira (disciplina 30), com validação real além de unit,
   provando que o incremento funciona e não regrediu, cobrindo critérios de
   aceitação, caminhos de erro e autorização. Use quando o usuário pedir "rodar
-  QA", "validar o incremento", "testar de verdade", "RPA", ou "/qa". Gate com
+  QA", "validar o incremento", "testar de verdade", ou "/qa". Gate com
   VERDICT=PASS e relatório.
 ---
 

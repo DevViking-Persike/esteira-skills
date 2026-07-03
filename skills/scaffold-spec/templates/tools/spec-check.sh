@@ -52,6 +52,19 @@ if [ -f AGENTS.md ] && ! grep -q '.spec/MANIFEST.md' AGENTS.md; then
   yel "AVISO: AGENTS.md não aponta para .spec/MANIFEST.md (deveria ser o roteador)."; warn=1
 fi
 
+# 5) roteador canônico (.claude/CLAUDE.md) — checagem positiva dos 3 links de
+#    bootstrap + guard de tamanho (roteador é ponteiro fino, não manual)
+for router in .claude/CLAUDE.md AGENTS.md; do
+  [ -f "$router" ] || continue
+  for bootstrap in '.spec/MANIFEST.md' '.spec/STATE.md' '.spec/sprints/RUNBOOK.md'; do
+    grep -q "$bootstrap" "$router" || { red "ROTEADOR SEM LINK DE BOOTSTRAP: $router -> $bootstrap"; err=1; }
+  done
+  lines=$(wc -l < "$router" | tr -d ' ')
+  if [ "$lines" -gt 60 ]; then
+    yel "AVISO: $router tem $lines linhas (> 60) — roteador gordo, mova conteúdo pro .spec/ ou pra uma rule."; warn=1
+  fi
+done
+
 echo
 [ "$err" = 0 ] && grn "spec-check: OK (estrutura íntegra, 0 link quebrado)${warn:+ — $warn aviso(s))}" \
               || red "spec-check: FALHOU — corrija os erros acima."
