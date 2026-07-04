@@ -23,6 +23,16 @@ consolida um relatório priorizado.
 > análise **ESTÁTICA** do diff (secret scan, authz por leitura de código,
 > superfície de risco); a exploração **DINÂMICA** do ambiente vivo é da
 > disciplina **40** (`/seguranca` + `/redteam`) — não se sobrepõem.
+>
+> **Foco Segurança (esteira derivada) = esta lane em escopo de REPO.** Quando o
+> pipeline é derivado com **foco Segurança** (o "Security Audit" das fases
+> LionClaw — ver `scaffold-spec/SKILL.md`), a lane Segurança **amplia o escopo
+> de *diff* para *repo*** (fan-out por tag/área, read-only) e **gera tasks de
+> remediação** (spec). Isso **REUSA** esta lane 25 — **não** cria uma skill nem
+> um 4º conceito. A taxonomia dos atores de segurança fica assim: **(1)** lane
+> estática 25 (diff **ou** repo, quando foco Segurança) → tasks; **(2)**
+> `/redteam` dinâmico (40) → PoC; **(3)** `/seguranca` gate (40) → veredito. O
+> "Security Audit" LionClaw é o caso **(1)** em escopo de repo, não um ator novo.
 
 ## Objetivo
 

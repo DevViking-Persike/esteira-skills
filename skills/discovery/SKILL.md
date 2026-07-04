@@ -121,6 +121,14 @@ Os eixos são independentes: combinações não-contíguas (ex.: `{negocio, refa
 são permitidas — a ordem canônica só fixa a **sequência de execução**, não restringe
 a combinação. (Alinha `rules/fluxo-desenvolvimento.md`.)
 
+### Do modo ao pipeline derivado (LINK — não repetir)
+O modo escolhido não é só "o que investigar": ele também **deriva a esteira de
+pipeline** (feature-first / development / arch-review / security-audit), e um **foco**
+opcional (Segurança / Arquitetura / UI-Design) injeta fases numa esteira mais
+específica. A tabela canônica **Modo N/D/R → esteira derivada (+ foco)** vive em
+`scaffold-spec/SKILL.md` (seção "Modo N/D/R → esteira derivada") — **fonte única**,
+não repetida aqui. Aqui o modo é o **seletor**; lá ele vira a esteira.
+
 ---
 
 ## Modo NEGÓCIO — banco de perguntas

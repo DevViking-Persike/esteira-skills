@@ -20,10 +20,16 @@ fluxo-desenvolvimento).
 - Plano técnico aprovado (Arquitetura **10a design**): camadas, contratos, ADR.
 
 ## Fluxo
-1. Quebrar em **tasks** (`task-NN-*.md`).
-2. Implementar **por camada** (respeitar a direção de dependência).
-3. **Testes junto** (não depois) — caminho feliz + erro; cobrir invariantes.
-4. **Validação local verde** antes de pedir review: build + lint + teste + RPA
+1. **Planner** — quebra a SPEC aceita em **sprints/tasks** (`task-NN-*.md`); é o
+   macro-stage **Execution** do pipeline: o Planner é o que transforma a SPEC nas
+   sprints de `20-desenvolvimento`.
+2. **Sprint Validator** (gate do plano) — o plano de sprints/tasks é são antes de
+   codar? Reprovou → replaneja. (Ver o mapa Execution→sprints em `scaffold-spec/SKILL.md`.)
+3. Implementar **por camada** (respeitar a direção de dependência), no **loop
+   Coder ↔ Evaluator**: o Coder escreve o incremento, o Evaluator avalia; itera por
+   rounds, com **gate humano no max-rounds** (não avança em fail silencioso).
+4. **Testes junto** (não depois) — caminho feliz + erro; cobrir invariantes.
+5. **Validação local verde** antes de pedir review: build + lint + teste + RPA
    (comandos no `.spec/MANIFEST.md`).
 > Modo **refatorar**: mudanças pequenas/reversíveis + teste de caracterização
 > antes de mexer (não-regressão). Modo **documentar**: o "dev" é escrever os docs.

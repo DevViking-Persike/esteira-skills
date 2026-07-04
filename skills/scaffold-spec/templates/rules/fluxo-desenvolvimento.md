@@ -56,6 +56,10 @@ scaffold-mode definido) abre a 1ª Arquitetura.
   revisa o que o dev entregou). Cada gate é **bloqueante**: reprovou, volta uma casa.
 - **Mesmo `NN`** em todas as disciplinas de um incremento (rastreia ponta a ponta).
 - Estado vivo em `.spec/STATE.md`; como rodar em `.spec/sprints/RUNBOOK.md`.
+- **Discovery e Arquitetura expandem nas fases LionClaw** (PRD, Tech, Spec); o **DEV
+  é o Execution**: o **Planner** quebra a SPEC em sprints (`desenvolvimento-NN-<tema>.md`,
+  um `NN` por sprint), o **Sprint Validator** é o gate do plano, e o loop **Coder/Evaluator**
+  implementa e avalia cada sprint. Ver a tabela de mapeamento em `scaffold-spec/SKILL.md`.
 
 ---
 

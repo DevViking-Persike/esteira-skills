@@ -26,6 +26,24 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 4. Precisa de **ADR**? (decisão estrutural → `.spec/reference/ADR-NNN`).
 → Veredito: aprovado (segue p/ Dev) ou reprovado (volta à Discovery/Dev).
 
+> **Expansão nas fases LionClaw (macro-stage Tech + Spec).** Onde o incremento
+> exigir profundidade de design, o design gate cobre as **4 entrevistas de design
+> técnico** como sub-checklist — cada uma um gate de decisão por área:
+> - **Database** — modelo de dados, migrações, integridade, índices;
+> - **Backend** — contratos/API, camadas, invariantes de domínio;
+> - **Frontend** — apresentação, estado, contrato com o backend;
+> - **Security** — superfície, authz, segredos (ancorado em `seguranca.md`).
+>
+> **Saída do design** = **Spec Generation → Spec Enricher**: as 4 decisões
+> materializam a SPEC implementável (o Enricher é o gate final que a entrega ao
+> Dev). Ver o mapa macro-stage→disciplina em `scaffold-spec/SKILL.md`.
+
+> **Variação Refatoração / foco Arquitetura — Entrevista de Decisão ≥3 DN.**
+> Quando o modo é Refatoração ou o foco é Arquitetura, o design gate exige uma
+> **Entrevista de Decisão** com **≥3 Decisões de Negócio/arquitetura (`## DN`)
+> completas** como critério de saída reforçado (atual×alvo com trade-offs
+> registrados) — é uma variação do gate existente, **não** uma skill nova.
+
 > **Fronteira:** o review gate (10b) é um gate **fino** — julga camadas, ACs e
 > ADR sobre o diff já pronto; não é onde o diff é produzido. Quem produz os
 > achados de review por lane é a disciplina 25 (`/review-codigo-subagents`) —
