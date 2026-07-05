@@ -23,13 +23,25 @@ validado em produção. Funciona em projeto novo (greenfield) ou existente.
 
 ## Compatibilidade Claude Code + Codex
 
-- Mantenha as skills do Claude Code como fonte de verdade.
-- Para Codex, no projeto consumidor, crie `.codex/skills` como symlink para
-  `.claude/skills`.
-- Não crie cópias divergentes de `SKILL.md`; se precisar ajustar uma skill,
-  ajuste a fonte e deixe o symlink refletir.
+- **Fonte canônica única: `.opennjord/`** — rules, skills, commands, agents,
+  hooks, tools, stacks e esteira vivem SÓ lá. `.claude/{rules,skills,commands,
+  agents}` são symlinks por-subdiretório pra dentro de `.opennjord/*`;
+  `.agents/skills` (onde o Codex de fato descobre skills — não `.codex/skills`)
+  também symlinka pra `.opennjord/skills`. `.codex/` fica mínimo: só
+  `config.toml` (se existir) + um README-ponte.
+- `AGENTS.md` (raiz) é o arquivo REAL — índice mestre, lido nativamente pelo
+  Codex e por 30+ ferramentas do padrão `agents.md`. `CLAUDE.md` (raiz) é
+  **symlink → `AGENTS.md`** (padrão oficialmente suportado pelo Claude Code).
+- Não crie cópias divergentes de `SKILL.md` nem `.claude/CLAUDE.md` (não deve
+  existir — só `AGENTS.md`/`CLAUDE.md` na raiz); se precisar ajustar algo,
+  ajuste a fonte em `.opennjord/**` e deixe os symlinks refletirem.
 - Arquivos TOML não são necessários para skills Codex neste formato. Use
   `SKILL.md` com frontmatter YAML e, quando existir, `agents/openai.yaml`.
+- **`.opennjord/agents/` é compartilhado com o runtime do orchestrator njord**
+  (dual-write FS+DB de agentes por-projeto): o scaffold só instala os
+  templates `.tpl` (inertes) + `README.md`; agentes reais `.md` — instanciados
+  à mão ou gravados pelo njord — convivem no mesmo diretório sem conflito
+  (extensões diferentes, descoberta ignora `.tpl`).
 
 ## Ecossistema — `scaffold-spec` é o hub
 
@@ -49,7 +61,7 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 30  /qa  →  /qa-rpa                         → validação real front+back de cada tela (RPA)
 40  /seguranca  →  /redteam                → pentest autorizado (próprio local/dev)
     /deploy                                → build → registry → apply → smoke
-    .claude/tools/spec-check.sh            → valida a entrega (estrutura + links)
+    .opennjord/tools/spec-check.sh          → valida a entrega (estrutura + links)
 ```
 
 | Skill | Papel | Etapa |
@@ -64,12 +76,12 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 | `deploy` | sobe o projeto (build → apply → smoke) | transversal |
 
 > **Esteira de qualidade (transversal):** além da esteira de *processo* acima, o
-> scaffold instala uma esteira de *qualidade de código* em `.claude/esteira/`
+> scaffold instala uma esteira de *qualidade de código* em `.opennjord/esteira/`
 > (gates bloqueantes `00-check → 10-refactor → 20-test/cov/mutation → 30-review`),
-> com presets de stack em `.claude/stacks/` e templates de orquestração multi-agente
-> em `templates/agents/`. Roda autônoma sobre um diff/branch ou wired após
+> com presets de stack em `.opennjord/stacks/` e templates de orquestração multi-agente
+> em `.opennjord/agents/`. Roda autônoma sobre um diff/branch ou wired após
 > `/desenvolvimento`, alimentando `/arquitetura review` e `/review-codigo-subagents`.
-> Valide com `bash .claude/tools/esteira-check.sh`.
+> Valide com `bash .opennjord/tools/esteira-check.sh`.
 
 > **Relação bidirecional:** o `scaffold` instala e referencia todas; cada skill de
 > etapa aponta de volta pra sua disciplina em `.spec/sprints/` e pras regras do projeto.
@@ -185,8 +197,8 @@ confirmar):
 **`MANIFEST.md`** — ponto de entrada único. Seções: *Bootstrap de sessão* (ordem
 de leitura: MANIFEST → STATE → RUNBOOK → disciplina atual); *Mapa do `.spec/`*
 (tabela caminho→o quê); *Disciplinas → onde olhar* (tabela etapa→README→docs de
-referência); *Regras de execução* (tabela apontando `.claude/rules/*` e, no
-Codex, para a regra equivalente do projeto);
+referência); *Regras de execução* (tabela apontando `.opennjord/rules/*` —
+mesma fonte pra Claude Code e Codex, via `.claude/rules`/`AGENTS.md`);
 *Maquinário de validação* (comandos de teste/build/lint do projeto); *Regra-mãe*
 (o que governa o escopo — preencher com o contrato/escopo do projeto).
 
@@ -229,36 +241,84 @@ de uma instância.
 > conteúdo, **generalizando** o que for específico de domínio (regras fiscais,
 > Zitadel, etc.) para placeholders `<...>`.
 
-## Passo 2 — Instalar rules, commands, skills de etapa, deploy, tools e hooks
+## Passo 2 — Instalar em `.opennjord/` (canônico) + espelhar `.claude`/`.codex`/`.agents`
 
 A esteira é **dirigida por skills** (uma por etapa) que o `scaffold` orquestra.
-Copie tudo para o projeto-alvo em `.claude/skills` e, quando usar Codex, crie um
-symlink para essa árvore canônica:
+Instale TUDO na fonte canônica `.opennjord/` e depois crie os symlinks
+por-subdiretório que fazem Claude Code e Codex enxergarem o mesmo conteúdo sem
+duplicar. Use sempre `-L` explícito no `cp` (materializa conteúdo real — o
+default de `cp -R` diverge entre BSD/macOS e GNU/Linux quando a origem contém
+um symlink):
 
 ```bash
-S=.claude/skills/scaffold-spec/templates
+S=.opennjord/skills/scaffold-spec/templates
+mkdir -p .opennjord/{rules,commands,stacks,esteira,tools,skills,agents,hooks}
+
 # rules de engenharia (3 camadas) + segurança/fluxo
-mkdir -p .claude/{rules,commands,stacks,esteira,tools,skills}
-cp -R $S/rules/eng/. .claude/rules/
-cp $S/rules/seguranca.md $S/rules/fluxo-desenvolvimento.md $S/rules/README.md .claude/rules/ 2>/dev/null || true
+cp -RL $S/rules/eng/. .opennjord/rules/eng/
+cp -L $S/rules/seguranca.md $S/rules/fluxo-desenvolvimento.md $S/rules/README.md .opennjord/rules/ 2>/dev/null || true
 # runbooks LLM-agnostic (ative o frontmatter comentado p/ Claude Code; cole como prompt em outros LLMs)
-cp -R $S/commands/eng/. .claude/commands/
+cp -RL $S/commands/eng/. .opennjord/commands/
 # catálogo de stacks — Camada 2 das rules referencia estes comandos concretos
-cp -R $S/stacks/. .claude/stacks/
+cp -RL $S/stacks/. .opennjord/stacks/
 # esteira de qualidade de código (gates bloqueantes + stages + RUNBOOK)
-cp -R $S/esteira/. .claude/esteira/
+cp -RL $S/esteira/. .opennjord/esteira/
 # skills da esteira de processo — copiar do repo-fonte, ou já globais em ~/.claude/skills/
-cp -R .claude/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam,review-codigo-subagents} <dest>/.claude/skills/ 2>/dev/null || true
+cp -RL .opennjord/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam,review-codigo-subagents} <dest>/.opennjord/skills/ 2>/dev/null || true
 # skill de deploy (copiar a pasta para preservar agents/openai.yaml)
-cp -R $S/skills/deploy .claude/skills/
-# Codex: manter .claude/skills como fonte canônica e apontar para ela
-mkdir -p .codex
-[ -e .codex/skills ] || ln -s ../.claude/skills .codex/skills
+cp -RL $S/skills/deploy .opennjord/skills/
+# templates de orquestração multi-agente — instalados como .tpl (INERTES: descoberta
+# de agent ignora extensão != .md); README explica quando instanciar sob demanda
+cp -RL $S/agents/. .opennjord/agents/
+# hooks (template — mesclado em .claude/settings.json no Passo 3, nunca symlink)
+cp -L $S/hooks/settings.hooks.json .opennjord/hooks/ 2>/dev/null || true
+cp -L $S/hooks/README.md .opennjord/hooks/ 2>/dev/null || true
 # tools de validação
-cp $S/tools/spec-check.sh $S/tools/esteira-check.sh .claude/tools/ && chmod +x .claude/tools/*.sh
-# hooks (opt-in): ver $S/hooks/README.md
-# agents/*.tpl NÃO são auto-instalados — instancie sob demanda substituindo {{...}} (ver agents/README.md)
+cp -L $S/tools/spec-check.sh $S/tools/esteira-check.sh .opennjord/tools/ && chmod +x .opennjord/tools/*.sh
+
+# ponte .claude/ (diretório REAL contendo symlinks relativos por-subdiretório)
+mkdir -p .claude
+for d in rules skills commands agents; do
+  [ -e ".claude/$d" ] || ln -s "../.opennjord/$d" ".claude/$d"
+done
+# settings.json/settings.local.json NUNCA symlink — reais, ver Passo 3/hooks
+[ -f .claude/settings.local.json ] || : > .claude/settings.local.json
+grep -qxF '.claude/settings.local.json' .gitignore 2>/dev/null || echo '.claude/settings.local.json' >> .gitignore
+
+# ponte .agents/ — é AQUI que o Codex de fato descobre skills (não .codex/skills)
+mkdir -p .agents
+[ -e .agents/skills ] || ln -s ../.opennjord/skills .agents/skills
+
+# ponte .codex/ — mínima: o Codex só lê config.toml (opcional) daqui
+mkdir -p .codex
+cp -L $S/router/codex-README.md .codex/README.md
 ```
+
+- **`rules/eng/`** — 11 regras de engenharia em **3 camadas** (princípio universal
+  + preset por stack + exemplo) + `seguranca.md` + `fluxo-desenvolvimento.md`.
+  Preencha placeholders `<preencher: ...>` conforme o projeto.
+- **`stacks/`** — catálogo de presets (backend/frontend/mobile/RPA); a Camada 2
+  das rules referencia estes comandos concretos.
+- **`esteira/`** — esteira de qualidade de código (gates bloqueantes
+  `00-check → 10-refactor → 20-test/cov/mutation → 30-review` + `RUNBOOK`).
+- **`commands/eng/`** — runbooks LLM-agnostic (`check-rules`, `refactor`,
+  `responsive-pass`, `dead-code-cleansing`). Para Claude Code, ative o frontmatter
+  comentado no topo de cada um; em outros LLMs, cole o corpo como prompt.
+- **`agents/`** — templates de orquestração multi-agente (`main-orchestrator`,
+  `sub-orchestrator`, `worker-{build,test,validate}`), instalados como `.tpl`
+  (**inertes** — descoberta de agent só lê `.md`). **Não auto-instanciados** —
+  instancie sob demanda substituindo `{{...}}` (ver `agents/README.md`). Este é
+  o MESMO diretório onde o orchestrator do njord grava agentes de projeto reais
+  (`.md`) quando o repo é gerenciado por ele — os dois convivem sem conflito.
+- **`deploy/SKILL.md`** — runbook de deploy (build→registry→apply→smoke).
+- **`tools/spec-check.sh`** + **`tools/esteira-check.sh`** — validam a entrega
+  (`.spec/` + a ponte `.opennjord`/`.claude`/`.codex`/`.agents`) e a engenharia
+  (agnosticidade LLM + estrutura + smoke install).
+- **hooks** (`hooks/settings.hooks.json`) — rodam o `spec-check` automaticamente
+  (Stop / PostToolUse), referenciando `${CLAUDE_PROJECT_DIR}/.opennjord/tools/spec-check.sh`
+  (tools NÃO é symlinkado — hooks apontam direto pro canônico). **Opt-in:**
+  mesclar no `.claude/settings.json` (não auto-aplicar). No Codex, use
+  validação manual ou mecanismo equivalente.
 
 **Skills de etapa — a esteira chama em ordem:**
 | Etapa | Skill |
@@ -274,59 +334,35 @@ cp $S/tools/spec-check.sh $S/tools/esteira-check.sh .claude/tools/ && chmod +x .
 > `~/.codex/skills/`), não precisa copiar — só garanta que existem. O `RUNBOOK.md`
 > invoca cada uma na etapa certa.
 
-- **`rules/eng/`** — 11 regras de engenharia em **3 camadas** (princípio universal
-  + preset por stack + exemplo) + `seguranca.md` + `fluxo-desenvolvimento.md`.
-  Preencha placeholders `<preencher: ...>` conforme o projeto.
-- **`stacks/`** — catálogo de presets (backend/frontend/mobile/RPA); a Camada 2
-  das rules referencia estes comandos concretos.
-- **`esteira/`** — esteira de qualidade de código (gates bloqueantes
-  `00-check → 10-refactor → 20-test/cov/mutation → 30-review` + `RUNBOOK`).
-- **`commands/eng/`** — runbooks LLM-agnostic (`check-rules`, `refactor`,
-  `responsive-pass`, `dead-code-cleansing`). Para Claude Code, ative o frontmatter
-  comentado no topo de cada um; em outros LLMs, cole o corpo como prompt.
-- **`agents/`** — templates de orquestração multi-agente (`main-orchestrator`,
-  `sub-orchestrator`, `worker-{build,test,validate}`). **Não auto-instalados** —
-  instancie sob demanda substituindo `{{...}}` (ver `agents/README.md`).
-- **`deploy/SKILL.md`** — runbook de deploy (build→registry→apply→smoke).
-- **`tools/spec-check.sh`** + **`tools/esteira-check.sh`** — validam a entrega
-  (`.spec/`) e a engenharia (agnosticidade LLM + estrutura + smoke install).
-- **hooks** (`templates/hooks/`) — rodam o `spec-check` automaticamente (Stop /
-  PostToolUse). **Opt-in:** mesclar no `.claude/settings.json` no Claude Code
-  (não auto-aplicar). No Codex, use validação manual ou mecanismo equivalente.
-
 ## Passo 3 — Cabear o roteador do agente
 
-**Não reescreva o roteador à mão.** Copie o template canônico e preencha os
-`<...>`:
+**Não reescreva o roteador à mão.** Copie o template canônico (agora o
+**índice mestre**, `AGENTS.md`) e preencha os `<...>`:
 
 ```bash
-mkdir -p .claude
-cp .claude/skills/scaffold-spec/templates/router/CLAUDE.md.tpl .claude/CLAUDE.md
-# preencher <projeto>, <regra-mãe> etc. em .claude/CLAUDE.md
+cp .opennjord/skills/scaffold-spec/templates/router/AGENTS.md.tpl AGENTS.md
+# preencher <projeto>, <regra-mãe> etc. em AGENTS.md
+ln -sf AGENTS.md CLAUDE.md
 ```
 
-A **versão instalável pelo orchestrator é `.claude/CLAUDE.md`** (dentro de
-`ROOTS` — o `CLAUDE.md` da raiz do projeto não é instalável pelo pipeline). O
-template já traz, prontos e sem precisar redigitar: regra-mãe, bootstrap
-(`MANIFEST.md` → `STATE.md` → `RUNBOOK.md`), a esteira 00→40 e as autoridades
-(rules/skills/segurança). Não adicione conteúdo operacional aqui — se precisou
+`AGENTS.md` **é o arquivo real** — fica na raiz porque é a única forma
+garantida do Codex e das 30+ ferramentas do padrão `agents.md` o lerem.
+`CLAUDE.md` (raiz) é **symlink pra `AGENTS.md`** — padrão oficialmente
+suportado pelo Claude Code (`ln -s AGENTS.md CLAUDE.md`), zero drift entre os
+dois. **Não crie `.claude/CLAUDE.md`** — o Claude Code aceita tanto
+`./CLAUDE.md` quanto `./.claude/CLAUDE.md`; ter os dois é fonte de drift.
+
+O template já traz, prontos e sem precisar redigitar: regra-mãe, bootstrap
+(`MANIFEST.md` → `STATE.md` → `RUNBOOK.md`), a esteira 00→40 e o mapa da
+config `.opennjord/`. Não adicione conteúdo operacional aqui — se precisou
 detalhar, o lugar é o `.spec/` ou uma `rule`.
-
-Quando o scaffold roda **dentro do projeto-consumidor** (não no repo-fonte),
-crie também o stub de 2 linhas na raiz apontando para o roteador real:
-
-```bash
-printf '# <projeto>\nEste projeto usa a esteira. Roteador: `.claude/CLAUDE.md` · Mapa: `.spec/MANIFEST.md`.\n' > CLAUDE.md
-```
-
-Para Codex, gere `AGENTS.md` a partir do **mesmo template** (gêmeo do
-`CLAUDE.md.tpl`) — `spec-check.sh` valida os dois.
 
 ## Passo 4 — Fechar
 
-- **Validar a entrega:** `bash .claude/tools/spec-check.sh` — deve dar OK (0 link
-  quebrado, arquivos obrigatórios presentes). Corrija o que apontar.
-- **Validar a engenharia:** `bash .claude/tools/esteira-check.sh` — valida
+- **Validar a entrega:** `bash .opennjord/tools/spec-check.sh` — deve dar OK (0
+  link quebrado, arquivos obrigatórios presentes, symlinks íntegros). Corrija o
+  que apontar.
+- **Validar a engenharia:** `bash .opennjord/tools/esteira-check.sh` — valida
   agnosticidade LLM, resíduo de stack específica, estrutura (≤300 linhas) e
   smoke install dos templates de engenharia.
 - Liste o que foi criado e o que tem placeholder `<...>` a preencher.

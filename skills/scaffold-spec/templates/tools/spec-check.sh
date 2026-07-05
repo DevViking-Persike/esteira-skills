@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# spec-check.sh — valida a base operacional `.spec/` (entrega clara e funcionando).
-# Checa: arquivos obrigatórios presentes, assets .claude instalados, links .md
-# internos não-quebrados, e avisa se o STATE.md parece desatualizado. Exit 1 se
-# houver erro.
+# spec-check.sh — valida a base operacional `.spec/` + a ponte de config
+# canônica (`.opennjord/` <-> `.claude`/`.codex`/`.agents`). Checa: arquivos
+# obrigatórios presentes em `.opennjord/`, symlinks da ponte íntegros (não
+# dirs/arquivos reais divergentes), links .md internos não-quebrados, e avisa
+# se o STATE.md parece desatualizado. Exit 1 se houver erro.
 # Uso: ./spec-check.sh            (roda na raiz do projeto)
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd || pwd)"
@@ -11,23 +12,48 @@ cd "$ROOT"
 err=0; warn=0
 red(){ printf '\033[31m%s\033[0m\n' "$*"; }; grn(){ printf '\033[32m%s\033[0m\n' "$*"; }; yel(){ printf '\033[33m%s\033[0m\n' "$*"; }
 
-# 1) arquivos obrigatórios
+# 1) arquivos obrigatórios (fonte canônica .opennjord/)
 req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/README.md .spec/sprints/RUNBOOK.md
      .spec/sprints/00-discovery/README.md .spec/sprints/10-arquitetura/README.md
      .spec/sprints/20-desenvolvimento/README.md
      .spec/sprints/25-review-codigo/README.md .spec/sprints/30-qa/README.md
      .spec/sprints/40-seguranca/README.md
-     .claude/rules/README.md .claude/rules/01-file-size.md .claude/rules/02-unit-tests.md
-     .claude/rules/03-solid.md .claude/rules/04-clean-architecture.md
-     .claude/rules/05-simplicity.md .claude/rules/06-continuous-refactoring.md
-     .claude/rules/07-install-binary.md .claude/rules/08-delegate-execution.md
-     .claude/rules/09-responsive-ui.md .claude/rules/10-frontend-architecture.md
-     .claude/rules/seguranca.md .claude/rules/fluxo-desenvolvimento.md
-     .claude/commands/check-rules.md .claude/commands/refactor.md
-     .claude/commands/responsive-pass.md .claude/commands/dead-code-cleansing.md)
+     .opennjord/rules/README.md .opennjord/rules/eng/01-file-size.md .opennjord/rules/eng/02-unit-tests.md
+     .opennjord/rules/eng/03-solid.md .opennjord/rules/eng/04-clean-architecture.md
+     .opennjord/rules/eng/05-simplicity.md .opennjord/rules/eng/06-continuous-refactoring.md
+     .opennjord/rules/eng/07-build-and-run.md .opennjord/rules/eng/08-delegate-execution.md
+     .opennjord/rules/eng/09-responsive-ui.md .opennjord/rules/eng/10-frontend-architecture.md
+     .opennjord/rules/eng/11-external-parity-source.md
+     .opennjord/rules/seguranca.md .opennjord/rules/fluxo-desenvolvimento.md
+     .opennjord/commands/check-rules.md .opennjord/commands/refactor.md
+     .opennjord/commands/responsive-pass.md .opennjord/commands/dead-code-cleansing.md)
 for f in "${req[@]}"; do
   [ -f "$f" ] || { red "FALTA: $f"; err=1; }
 done
+
+# 1b) ponte .opennjord <-> .claude/.codex/.agents — symlinks íntegros, não cópias
+is_symlink_to_opennjord() {
+  local path="$1" target
+  [ -L "$path" ] || return 1
+  target="$(readlink "$path")"
+  case "$target" in *.opennjord*) return 0 ;; *) return 1 ;; esac
+}
+for d in rules skills commands agents; do
+  p=".claude/$d"
+  [ -e "$p" ] || { red "FALTA (symlink): $p"; err=1; continue; }
+  is_symlink_to_opennjord "$p" || { red "DRIFT: $p deveria ser symlink -> ../.opennjord/$d (achei dir/arquivo real)"; err=1; }
+done
+if [ -e .agents/skills ]; then
+  is_symlink_to_opennjord .agents/skills || { red "DRIFT: .agents/skills deveria ser symlink -> ../.opennjord/skills"; err=1; }
+else
+  red "FALTA (symlink): .agents/skills (é aqui que o Codex descobre skills, não .codex/skills)"; err=1
+fi
+if [ -e .claude/CLAUDE.md ] && [ ! -L .claude/CLAUDE.md ]; then
+  red "DRIFT: .claude/CLAUDE.md existe como arquivo REAL — não deveria existir (só CLAUDE.md/AGENTS.md na raiz)"; err=1
+fi
+if [ -f .gitignore ] && ! grep -qxF '.claude/settings.local.json' .gitignore; then
+  yel "AVISO: .claude/settings.local.json não está no .gitignore (é local/pessoal, nunca deveria versionar)."; warn=1
+fi
 
 # 2) links .md internos quebrados (dentro de .spec/)
 while IFS= read -r src; do
@@ -44,26 +70,35 @@ if [ -f .spec/STATE.md ] && grep -q 'nenhum incremento ativo' .spec/STATE.md; th
   yel "AVISO: .spec/STATE.md sem incremento ativo (ok se o projeto está recém-scaffoldado)."; warn=1
 fi
 
-# 4) roteadores do agente apontam pro .spec?
-if [ -f CLAUDE.md ] && ! grep -q '.spec/MANIFEST.md' CLAUDE.md; then
-  yel "AVISO: CLAUDE.md não aponta para .spec/MANIFEST.md (deveria ser o roteador)."; warn=1
-fi
+# 4) AGENTS.md (o índice mestre real) aponta pro .spec?
 if [ -f AGENTS.md ] && ! grep -q '.spec/MANIFEST.md' AGENTS.md; then
-  yel "AVISO: AGENTS.md não aponta para .spec/MANIFEST.md (deveria ser o roteador)."; warn=1
+  yel "AVISO: AGENTS.md não aponta para .spec/MANIFEST.md (deveria ser o índice mestre)."; warn=1
 fi
 
-# 5) roteador canônico (.claude/CLAUDE.md) — checagem positiva dos 3 links de
-#    bootstrap + guard de tamanho (roteador é ponteiro fino, não manual)
-for router in .claude/CLAUDE.md AGENTS.md; do
-  [ -f "$router" ] || continue
-  for bootstrap in '.spec/MANIFEST.md' '.spec/STATE.md' '.spec/sprints/RUNBOOK.md'; do
-    grep -q "$bootstrap" "$router" || { red "ROTEADOR SEM LINK DE BOOTSTRAP: $router -> $bootstrap"; err=1; }
-  done
-  lines=$(wc -l < "$router" | tr -d ' ')
-  if [ "$lines" -gt 60 ]; then
-    yel "AVISO: $router tem $lines linhas (> 60) — roteador gordo, mova conteúdo pro .spec/ ou pra uma rule."; warn=1
+# 5) CLAUDE.md (raiz) precisa ser symlink -> AGENTS.md (zero drift, ver §2 da análise)
+if [ -e CLAUDE.md ]; then
+  if [ -L CLAUDE.md ]; then
+    case "$(readlink CLAUDE.md)" in
+      AGENTS.md) : ;;
+      *) red "DRIFT: CLAUDE.md é symlink mas não aponta pra AGENTS.md"; err=1 ;;
+    esac
+  else
+    red "DRIFT: CLAUDE.md deveria ser symlink -> AGENTS.md (achei arquivo real — risco de divergência)"; err=1
   fi
-done
+fi
+
+# 6) AGENTS.md — checagem positiva dos 3 links de bootstrap + guard de tamanho
+#    (índice mestre é ponteiro fino, não manual — e o Codex concatena com teto
+#    de 32 KiB, então precisa ficar curto)
+if [ -f AGENTS.md ]; then
+  for bootstrap in '.spec/MANIFEST.md' '.spec/STATE.md' '.spec/sprints/RUNBOOK.md'; do
+    grep -q "$bootstrap" AGENTS.md || { red "AGENTS.md SEM LINK DE BOOTSTRAP: $bootstrap"; err=1; }
+  done
+  lines=$(wc -l < AGENTS.md | tr -d ' ')
+  if [ "$lines" -gt 60 ]; then
+    yel "AVISO: AGENTS.md tem $lines linhas (> 60) — índice gordo, mova conteúdo pro .spec/ ou pra uma rule."; warn=1
+  fi
+fi
 
 echo
 [ "$err" = 0 ] && grn "spec-check: OK (estrutura íntegra, 0 link quebrado)${warn:+ — $warn aviso(s))}" \

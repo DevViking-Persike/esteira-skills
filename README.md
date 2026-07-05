@@ -7,15 +7,28 @@ Genérico e reutilizável em qualquer projeto.
 > Princípio: `rule` = fonte de verdade (conhecimento); `skill` = runbook que aplica.
 > O `.spec/` é o manual operacional; roteadores como `CLAUDE.md` só apontam pra ele.
 
-## Compatibilidade Codex
+## Compatibilidade Claude Code + Codex
 
 Os arquivos em `skills/` continuam sendo a fonte de verdade deste repositório.
-Em um projeto consumidor, instale ou copie essas skills em `.claude/skills` e faça
-o Codex apontar para essa mesma árvore com um symlink em `.codex/skills`. Não
-crie uma cópia separada para Codex.
+Num projeto consumidor, o `scaffold-spec` instala **tudo** — rules, skills,
+commands, agents, hooks, tools, stacks, esteira — numa única fonte canônica,
+`.opennjord/`. `.claude/{rules,skills,commands,agents}` viram **symlinks**
+por-subdiretório pra dentro dela; nunca crie cópias divergentes.
+
+Codex é um caso à parte: ele **não lê** `.codex/skills`/`.codex/rules`/
+`.codex/agents` nativamente — só `.codex/config.toml`. Skills, pro Codex, moram
+em `.agents/skills` (symlink pra `.opennjord/skills`); regras e instruções
+entram via `AGENTS.md` (raiz), o arquivo real — `CLAUDE.md` (raiz) é symlink
+pra ele (`ln -s AGENTS.md CLAUDE.md`, padrão oficialmente suportado pelo
+Claude Code). Ver `skills/scaffold-spec/SKILL.md` (Passo 2/3) pro instalador
+completo.
 
 Cada skill também possui `agents/openai.yaml`, metadata opcional recomendada para
 o Codex. Arquivos TOML não são necessários para este formato de skill.
+
+> **Windows:** a ponte acima depende de symlinks — hoje só validada em
+> macOS/Linux. Suporte Windows (fallback de cópia real + step de sync) é uma
+> pendência conhecida, ainda não resolvida.
 
 ## As skills
 
@@ -54,15 +67,17 @@ evita disparar a skill errada.
 
 O `scaffold-spec` também instala **rules de engenharia em 3 camadas** (princípio
 universal + preset por stack + exemplo) para Rust, Node-TS, Python, Go, C#, KMP,
-Svelte/Angular/React e RPA; um **catálogo de stacks** (`.claude/stacks/`); uma
-**esteira de qualidade de código** com gates bloqueantes (`.claude/esteira/`:
+Svelte/Angular/React e RPA; um **catálogo de stacks** (`.opennjord/stacks/`); uma
+**esteira de qualidade de código** com gates bloqueantes (`.opennjord/esteira/`:
 `00-check → 10-refactor → 20-test/cov/mutation → 30-review`); **templates de
-orquestração multi-agente** (`agents/`); **commands** do Claude Code
-(`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`) — todos
-LLM-agnostic (rodam no Claude Code e em outros LLMs, via prompt); uma **skill de
-deploy**; um **roteador `CLAUDE.md`** (`scaffold-spec/templates/router/CLAUDE.md.tpl`,
-instalado em `.claude/CLAUDE.md` + stub na raiz); e as **tools** de validação
-`spec-check.sh` e `esteira-check.sh`.
+orquestração multi-agente** (`.opennjord/agents/` — mesmo diretório onde o
+orchestrator do njord grava agentes reais de projeto, se o repo for gerenciado
+por ele); **commands** do Claude Code (`check-rules`, `refactor`,
+`responsive-pass`, `dead-code-cleansing`) — todos LLM-agnostic (rodam no Claude
+Code e em outros LLMs, via prompt); uma **skill de deploy**; um **índice mestre
+`AGENTS.md`** (`scaffold-spec/templates/router/AGENTS.md.tpl`, real na raiz —
+`CLAUDE.md` é symlink pra ele); e as **tools** de validação `spec-check.sh` e
+`esteira-check.sh` (só em `.opennjord/tools/`, sem espelho).
 
 ## Fluxo
 
@@ -84,24 +99,24 @@ Cada item do Plano de Sprints (saída do `/discovery`) reabre o ciclo
 
 ## Instalação
 
-Copie as skills para o diretório de skills do Claude Code:
+**Global** (todos os projetos, sem ponte — o Claude Code lê `~/.claude/skills`
+nativamente, não precisa de `.opennjord` no `$HOME`):
 
 ```bash
-# global (todos os projetos)
 cp -R skills/* ~/.claude/skills/
-# ou por projeto
-cp -R skills/* <seu-projeto>/.claude/skills/
 ```
 
-Para usar no Codex em um projeto mantendo os arquivos do Claude Code como fonte
-canônica, aponte `.codex/skills` para `.claude/skills` no projeto consumidor:
+**Por projeto** — semeie a fonte canônica; `.claude/skills` (e o resto da
+ponte: `.codex/`, `.agents/skills`, `CLAUDE.md`) é criado automaticamente pelo
+próprio `/scaffold-spec` (Passo 2/3 do `SKILL.md`), não à mão:
 
 ```bash
-mkdir -p <seu-projeto>/.codex
-ln -s ../.claude/skills <seu-projeto>/.codex/skills
+mkdir -p <seu-projeto>/.opennjord/skills
+cp -R skills/* <seu-projeto>/.opennjord/skills/
 ```
 
-Depois, num projeto, rode `/scaffold-spec criar` (ou `refatorar` / `documentar`).
+Depois, dentro do projeto, rode `/scaffold-spec criar` (ou `refatorar` /
+`documentar`) — ele monta o resto de `.opennjord/` e toda a ponte de symlinks.
 
 ## Fundamentos (discovery)
 

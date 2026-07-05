@@ -16,8 +16,9 @@ Mescle o conteúdo de `settings.hooks.json` no `.claude/settings.json` do projet
 `update-config` para isso — ou edite à mão:
 
 ```bash
-# pré-requisito: a tool instalada em .claude/tools/spec-check.sh
-ls .claude/tools/spec-check.sh
+# pré-requisito: a tool instalada em .opennjord/tools/spec-check.sh (NÃO symlinkado
+# em .claude/ — o comando do hook aponta direto pro canônico via ${CLAUDE_PROJECT_DIR})
+ls .opennjord/tools/spec-check.sh
 # depois, adicione o bloco "hooks" de settings.hooks.json ao seu .claude/settings.json
 ```
 
