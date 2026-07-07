@@ -100,10 +100,14 @@ Cada item do Plano de Sprints (saída do `/discovery`) reabre o ciclo
 ## Instalação
 
 **Global** (todos os projetos, sem ponte — o Claude Code lê `~/.claude/skills`
-nativamente, não precisa de `.opennjord` no `$HOME`):
+nativamente, não precisa de `.opennjord` no `$HOME`). **Exceção:
+`review-codigo-subagents` (disciplina 25) nunca vai pro global** — ela roda
+adaptada ao diff e às regras locais e arquiva relatório em
+`.spec/sprints/25-review-codigo/`, então só existe como **instância por-projeto**
+(instalada pelo `/scaffold-spec`):
 
 ```bash
-cp -R skills/* ~/.claude/skills/
+cp -R skills/{scaffold-spec,discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam} ~/.claude/skills/
 ```
 
 **Por projeto** — semeie a fonte canônica; `.claude/skills` (e o resto da

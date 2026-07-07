@@ -264,6 +264,8 @@ cp -RL $S/stacks/. .opennjord/stacks/
 # esteira de qualidade de código (gates bloqueantes + stages + RUNBOOK)
 cp -RL $S/esteira/. .opennjord/esteira/
 # skills da esteira de processo — copiar do repo-fonte, ou já globais em ~/.claude/skills/
+# (exceção: review-codigo-subagents NUNCA é global — a 25 é sempre instância por-projeto;
+#  a cópia abaixo é obrigatória pra ela)
 cp -RL .opennjord/skills/{discovery,arquitetura,desenvolvimento,qa,qa-rpa,seguranca,redteam,review-codigo-subagents} <dest>/.opennjord/skills/ 2>/dev/null || true
 # skill de deploy (copiar a pasta para preservar agents/openai.yaml)
 cp -RL $S/skills/deploy .opennjord/skills/
@@ -338,7 +340,9 @@ cp -L $S/router/codex-README.md .codex/README.md
 
 > Se as skills de etapa já estiverem **globais** (`~/.claude/skills/` ou
 > `~/.codex/skills/`), não precisa copiar — só garanta que existem. O `RUNBOOK.md`
-> invoca cada uma na etapa certa.
+> invoca cada uma na etapa certa. **Exceção: `review-codigo-subagents` (25)
+> nunca fica global** — instale-a sempre como instância do projeto em
+> `.opennjord/skills/` (a cópia do Passo 2 acima já cobre isso).
 
 ## Passo 3 — Cabear o roteador do agente
 
