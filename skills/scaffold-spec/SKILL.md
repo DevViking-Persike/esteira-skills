@@ -273,6 +273,9 @@ cp -RL $S/agents/. .opennjord/agents/
 # hooks (template — mesclado em .claude/settings.json no Passo 3, nunca symlink)
 cp -L $S/hooks/settings.hooks.json .opennjord/hooks/ 2>/dev/null || true
 cp -L $S/hooks/README.md .opennjord/hooks/ 2>/dev/null || true
+# guarda de arquivos das runs (recomendado pra rodar a esteira; invocado via python3,
+# não precisa de chmod +x)
+cp -L $S/hooks/njord-ask-permission .opennjord/hooks/ 2>/dev/null || true
 # tools de validação
 cp -L $S/tools/spec-check.sh $S/tools/esteira-check.sh .opennjord/tools/ && chmod +x .opennjord/tools/*.sh
 
@@ -314,11 +317,14 @@ cp -L $S/router/codex-README.md .codex/README.md
 - **`tools/spec-check.sh`** + **`tools/esteira-check.sh`** — validam a entrega
   (`.spec/` + a ponte `.opennjord`/`.claude`/`.codex`/`.agents`) e a engenharia
   (agnosticidade LLM + estrutura + smoke install).
-- **hooks** (`hooks/settings.hooks.json`) — rodam o `spec-check` automaticamente
-  (Stop / PostToolUse), referenciando `${CLAUDE_PROJECT_DIR}/.opennjord/tools/spec-check.sh`
-  (tools NÃO é symlinkado — hooks apontam direto pro canônico). **Opt-in:**
-  mesclar no `.claude/settings.json` (não auto-aplicar). No Codex, use
-  validação manual ou mecanismo equivalente.
+- **hooks** (`hooks/settings.hooks.json`) — `njord-ask-permission` (PreToolUse)
+  é a guarda de arquivos das runs da esteira: nega paths sensíveis (SSH/AWS/
+  keychain/`secrets.yaml`) e segura escrita fora do workspace (worktree); os
+  demais rodam o `spec-check` automaticamente (Stop / PostToolUse). Comandos
+  referenciam `${CLAUDE_PROJECT_DIR}/.opennjord/{hooks,tools}/...` (NÃO
+  symlinkado — hooks apontam direto pro canônico). **Opt-in:** mesclar no
+  `.claude/settings.json` (não auto-aplicar). No Codex, use validação manual
+  ou mecanismo equivalente.
 
 **Skills de etapa — a esteira chama em ordem:**
 | Etapa | Skill |
