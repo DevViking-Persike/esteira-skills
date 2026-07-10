@@ -20,6 +20,9 @@
 > Numeração: **NN fresco** por sprint derivado (não `NN.M`). A coluna
 > `discoveries-fonte` rastreia a rodada de origem. `scaffold-mode` = como executar
 > cada sprint (criar/refatorar/documentar). `ordem` fixa a sequência de execução.
+> Sprint entregue **fora da esteira** (manual): marque `✅` na célula NN
+> (`| NN ✅ |`) — a aba Planos deriva "Entregue", bloqueia re-disparo e
+> destrava quem depende dele.
 
 | NN | scaffold-mode | ACs do sprint | discoveries-fonte | depende-de | ordem |
 |---|---|---|---|---|---|
