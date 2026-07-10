@@ -29,7 +29,8 @@ Objetivo é **defensivo**: achar → PoC mínimo → remediar.
 3. Para cada brecha: **PoC reproduzível** (passos), **impacto**, **invariante violado**
    (`.claude/rules/seguranca.md` no Claude Code, ou regra equivalente no Codex),
    **remediação**, **severidade** (Crítico/Alto/Médio/Baixo).
-4. Achado bloqueante → vira task de Dev (volta uma casa).
+4. Achado bloqueante → vira task em `<sprint>/tasks/` (template
+   `desenvolvimento/templates/task.md`; volta ao Dev, uma casa).
 
 ## Vetores (cada um REFERENCIA o invariante — não redefine a matriz)
 

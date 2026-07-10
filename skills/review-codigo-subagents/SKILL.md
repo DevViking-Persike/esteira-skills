@@ -81,7 +81,9 @@ Criar um processo repetível para responder:
 
 Defina o alvo do review:
 
-- diff atual, branch, PR, pasta, módulo, arquivo ou incremento da `.spec`;
+- diff atual, branch, PR, pasta, módulo, arquivo ou incremento da `.spec` —
+  `sprint-NN-<tema>/tasks/` e o `discovery-sprint.md` do sprint são insumos
+  válidos;
 - objetivo: pre-merge, pre-refatoração, regressão, arquitetura, segurança, UX,
   documentação, limpeza ou auditoria geral;
 - restrições: read-only, comandos permitidos, ambiente local/dev, tempo e escopo.

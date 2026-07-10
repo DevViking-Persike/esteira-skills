@@ -17,7 +17,8 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 
 ## Entrada
 - `design` (antes do dev) ou `review` (depois do dev), em ARGUMENTS.
-- Discovery aprovado (design) ou branch/diff pronto (review).
+- Discovery aprovado — o do sprint (`discovery-sprint.md`) quando existir,
+  fallback: ver `fluxo-desenvolvimento.md` — (design) ou branch/diff pronto (review).
 
 ## design gate (antes do dev)
 1. A abordagem respeita **camadas/contratos/stack** do projeto?
@@ -25,6 +26,10 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 3. Dependência cross-módulo só pelo contrato definido?
 4. Precisa de **ADR**? (decisão estrutural → `.spec/reference/ADR-NNN`).
 → Veredito: aprovado (segue p/ Dev) ou reprovado (volta à Discovery/Dev).
+
+> **Fronteira com o 00s:** o discovery-de-sprint traz o QUÊ; as decisões de
+> design (camadas/contratos/ADR) são produzidas AQUI — se vieram antecipadas,
+> retrabalhar aqui.
 
 > **Expansão nas fases LionClaw (macro-stage Tech + Spec).** Onde o incremento
 > exigir profundidade de design, o design gate cobre as **4 entrevistas de design
@@ -53,7 +58,8 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 1. **0 violação de camada / direção de dependência** (lint de camadas verde).
 2. Sem segredo vazando; nenhuma regra de `seguranca.md` quebrada.
 3. Lógica na camada certa (não no controller/handler/componente).
-4. Bate com os **critérios de aceitação** da Discovery.
+4. Bate com os **critérios de aceitação** — do `discovery-sprint.md` do sprint
+   quando presente, senão da Discovery.
 5. Débito técnico **registrado** (não escondido).
 → Veredito: aprovado p/ QA, ou lista de correções (volta ao Dev).
 

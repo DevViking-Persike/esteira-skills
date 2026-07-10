@@ -196,8 +196,15 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
     ├── README.md            # framework das 6 disciplinas + fluxo da esteira
     ├── RUNBOOK.md           # como rodar a esteira (ordem + gates bloqueantes)
     └── sprint-NN-<tema>/    # 1 dir por sprint/incremento de desenvolvimento
-        └── README.md        # objetivo, escopo, tasks e progresso da sprint
+        ├── README.md                # spec do sprint: objetivo, escopo, progresso
+        ├── discovery-sprint.md      # discovery-de-sprint (00s) — entrada do 10a
+        └── tasks/task-NN-<slug>.md  # tasks materializadas pelo Planner
 ```
+
+> A instância `sprint-NN-<tema>/` é **criada por sprint via RUNBOOK, não pelo
+> scaffold**; layouts legados (tasks na raiz do dir, sem `discovery-sprint.md`)
+> permanecem válidos pra histórico — ver a convenção canônico × legado em
+> `rules/fluxo-desenvolvimento.md`.
 
 > `discovery/`, `arquitetura/`, `plano/`, `qa/` e as instâncias `sprint-NN-*`
 > são **populados incrementalmente** pela esteira — o scaffold cria a base
@@ -229,7 +236,9 @@ fluxo da esteira
 (`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
 Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre
 disciplinas) e a convenção de nomes: docs de disciplina avulsos por tema nas
-pastas de topo; incrementos de dev em `sprints/sprint-NN-<tema>/`. O
+pastas de topo; **instância de sprint** em
+`sprints/sprint-NN-<tema>/{README.md, discovery-sprint.md, tasks/task-NN-<slug>.md}`,
+com o **mesmo `NN` em toda a esteira** do incremento. O
 **Discovery** (00) fecha com fan-in: emite `.spec/discovery/plano-de-sprints-NN.md`
 (1 linha por sprint derivado — scaffold-mode + ACs + discoveries-fonte + ordem),
 o backlog fatiado que o RUNBOOK consome a seguir.
@@ -238,8 +247,9 @@ o backlog fatiado que o RUNBOOK consome a seguir.
 **seletor de modos do Discovery** (`/discovery [negocio|dev|refatoracao]`,
 default por scaffold-mode — ver `discovery/SKILL.md`); ler STATE → retomar
 etapa; depois do Discovery aprovar o `plano-de-sprints-NN.md`, **loop "para
-cada item do backlog: `10→20→25→30→40`"** — cada sprint derivado do plano
-entra na esteira pela Arquitetura, invocando a skill de cada etapa
+cada item do backlog: `00s→10→20→25→30→40`"** — cada sprint derivado do plano
+abre com `/discovery sprint <NN>` (discovery-de-sprint, entrada do 10a) e
+segue invocando a skill de cada etapa
 (`/arquitetura` → `/desenvolvimento` → `/arquitetura review` →
 `/review-codigo-subagents` → `/qa`+`/qa-rpa` → `/seguranca`+`/redteam` →
 `/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
@@ -257,8 +267,8 @@ modos).
 
 **`sprints/sprint-NN-<tema>/README.md`** — Objetivo; Definition of Ready
 (entrada); Escopo/Tasks; Definition of Done (saída); Anti-patterns. Um dir por
-incremento de desenvolvimento — outros artefatos da sprint (tasks, notas)
-vivem ao lado do README dentro do mesmo dir.
+incremento de desenvolvimento — os demais artefatos da sprint
+(`discovery-sprint.md`, `tasks/`, notas) vivem dentro do mesmo dir.
 
 > Use o `.spec/` de referência (um projeto já estruturado) como referência de qualidade do
 > conteúdo, **generalizando** o que for específico de domínio (regras fiscais,

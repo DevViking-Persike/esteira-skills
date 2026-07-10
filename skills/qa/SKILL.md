@@ -20,7 +20,9 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex. Par
 Diff aprovado no review gate (Arquitetura 10b) + build verde.
 
 ## Montar o QA
-1. Traduzir **cada critério de aceitação** (Discovery) em uma checagem real.
+1. Traduzir **cada critério de aceitação** (do `discovery-sprint.md` do sprint
+   quando existir, senão da Discovery global — incluindo os ACs por task em
+   `<sprint>/tasks/`) em uma checagem real.
 2. Cobrir os **invariantes** tocados (regressão).
 3. Cobrir **caminho de erro** (input inválido → 4xx, etc.).
 4. **AuthZ/RBAC**: cada papel vê só o que deve.

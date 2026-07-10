@@ -31,7 +31,8 @@ matriz: `.claude/rules/seguranca.md`.
 - [ ] Cenários executados (ou N/A justificado).
 - [ ] Achados classificados (Crítico/Alto/Médio/Baixo) + **PoC** + remediação.
 - [ ] **0 Crítico/Alto aberto** (ou aceite de risco registrado).
-- [ ] Relatório arquivado **sem segredos colados**. Achados bloqueantes → tasks (volta ao Dev).
+- [ ] Relatório arquivado **sem segredos colados**. Achados bloqueantes → tasks
+  em `<sprint>/tasks/` (template `desenvolvimento/templates/task.md`; volta ao Dev).
 
 ## Anti-patterns
 - ❌ Rodar contra produção/terceiros sem autorização. ❌ DoS como "teste".

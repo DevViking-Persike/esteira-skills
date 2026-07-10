@@ -30,16 +30,20 @@ canônica) fecha com **um único artefato de consolidação**:
 `.spec/discovery/plano-de-sprints-NN.md` — 1 linha por sprint derivado
 (scaffold-mode do sprint + ACs + discoveries-fonte + ordem/dependências).
 
-A partir daí, **cada sprint do plano é uma esteira própria**: começa sempre
-em **Arquitetura** (não repete a Discovery), reaproveitando os artefatos da
-rodada compartilhada:
+A partir daí, **cada sprint do plano é uma esteira própria**: não repete a
+Discovery de rodada, mas **abre com um discovery-de-sprint escopado**
+(`/discovery sprint <NN>` → `.spec/sprints/sprint-NN-<tema>/discovery-sprint.md`),
+que aterra a linha do plano no código real e propõe as tasks; ele é a
+**entrada do design gate (10a)** — sub-etapa da disciplina 00 (etiqueta `00s`),
+não uma disciplina nova nem um gate próprio. O restante da esteira reaproveita
+os artefatos da rodada compartilhada:
 
 ```
 1 Discovery (negocio/dev/refatoracao) → plano-de-sprints-NN.md
         │
-        ├─ sprint 1 → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
-        ├─ sprint 2 → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
-        └─ sprint N → 10 Arquitetura → 20 Dev → 10 Arquitetura(review) → 25 → 30 → 40
+        ├─ sprint 1 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
+        ├─ sprint 2 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
+        └─ sprint N → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
 ```
 
 O **gate de saída da Discovery** é o "Plano de Sprints aprovado pelo usuário"
@@ -49,17 +53,34 @@ scaffold-mode definido) abre a 1ª Arquitetura.
 ## A esteira de um sprint (comum aos 3 scaffold-modes)
 
 ```
-00 DISCOVERY → 10 ARQUITETURA(design) → 20 DEV → 10 ARQUITETURA(review) → 25 REVIEW CÓDIGO → 30 QA → 40 SEGURANÇA → release
+00 DISCOVERY (rodada) → [por sprint: 00s → 10 ARQ(design) → 20 DEV → 10 ARQ(review) → 25 REVIEW → 30 QA → 40 SEG] → release
 ```
 
 - **Arquitetura é gate transversal** (roda 2×: valida o plano antes do dev e
   revisa o que o dev entregou). Cada gate é **bloqueante**: reprovou, volta uma casa.
+- **`00s` (discovery-de-sprint) não é gate**: é a entrada do 10a — o 10a é quem
+  reprova se o contexto não estiver aterrado ou task proposta ficar sem AC
+  verificável. Fronteira: 00s = o QUÊ; camadas/contratos/ADR = 10a.
 - **Mesmo `NN`** em todas as disciplinas de um incremento (rastreia ponta a ponta).
 - Estado vivo em `.spec/STATE.md`; como rodar em `.spec/sprints/RUNBOOK.md`.
 - **Discovery e Arquitetura expandem nas fases LionClaw** (PRD, Tech, Spec); o **DEV
-  é o Execution**: o **Planner** quebra a SPEC em sprints (`desenvolvimento-NN-<tema>.md`,
-  um `NN` por sprint), o **Sprint Validator** é o gate do plano, e o loop **Coder/Evaluator**
-  implementa e avalia cada sprint. Ver a tabela de mapeamento em `scaffold-spec/SKILL.md`.
+  é o Execution**: o **Planner** materializa as tasks em
+  `.spec/sprints/sprint-NN-<tema>/tasks/task-NN-<slug>.md` (template
+  `desenvolvimento/templates/task.md`) **direto da tabela do discovery-de-sprint**
+  (sem re-transcrição, enriquecendo com as decisões do 10a), o **Sprint
+  Validator** é o gate do plano, e o loop **Coder/Evaluator** implementa e
+  avalia cada task. Ver a tabela de mapeamento em `scaffold-spec/SKILL.md`.
+
+### Convenção de artefatos por sprint (canônico × legado)
+
+1. **Canônico:** `sprint-NN-<tema>/{README.md, discovery-sprint.md,
+   tasks/task-NN-<slug>.md}`.
+2. **Fallback de leitura (vale pra TODAS as skills da esteira):** discovery do
+   sprint = `<sprint>/discovery-sprint.md` quando existir, senão os artefatos
+   globais de `.spec/discovery/`; tasks = `<sprint>/tasks/` quando existir,
+   senão `task-*.md` na raiz do dir do sprint (legado).
+3. **Sprints históricas não migram** — o layout legado permanece válido pra
+   histórico; só sprints novas seguem o canônico.
 
 ---
 

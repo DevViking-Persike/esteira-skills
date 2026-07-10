@@ -29,9 +29,17 @@ for f in "${req[@]}"; do
   [ -f "$f" ] || { red "FALTA: $f"; err=1; }
 done
 
-# 1b) cada sprint-NN-<tema>/ de desenvolvimento tem README.md
+# 1b) cada sprint-NN-<tema>/ de desenvolvimento tem README.md; convenção
+#     canônica nova (discovery-sprint.md + tasks/) é WARN-only — sprints
+#     históricas em layout legado não quebram o check
 while IFS= read -r d; do
   [ -f "$d/README.md" ] || { red "FALTA: $d/README.md"; err=1; }
+  if ls "$d"/task-*.md >/dev/null 2>&1; then
+    yel "AVISO: ${d#./} tem task-*.md na raiz — tasks fora de tasks/ (layout legado; novas sprints usam tasks/)."; warn=1
+  fi
+  if [ -d "$d/tasks" ] && [ ! -f "$d/discovery-sprint.md" ]; then
+    yel "AVISO: ${d#./} tem tasks/ mas não tem discovery-sprint.md ao lado (novas sprints abrem com /discovery sprint <NN>)."; warn=1
+  fi
 done < <(find .spec/sprints -mindepth 1 -maxdepth 1 -type d -name 'sprint-*' 2>/dev/null)
 
 # 1c) ponte .opennjord <-> .claude/.codex/.agents — symlinks íntegros, não cópias
