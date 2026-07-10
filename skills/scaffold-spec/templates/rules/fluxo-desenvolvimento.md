@@ -41,9 +41,9 @@ os artefatos da rodada compartilhada:
 ```
 1 Discovery (negocio/dev/refatoracao) → plano-de-sprints-NN.md
         │
-        ├─ sprint 1 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
-        ├─ sprint 2 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
-        └─ sprint N → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 10 Arq(review) → 25 → 30 → 40
+        ├─ sprint 1 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 25 → 10 Arq(review) → 30 → 40
+        ├─ sprint 2 → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 25 → 10 Arq(review) → 30 → 40
+        └─ sprint N → 00s discovery-de-sprint → 10 Arquitetura → 20 Dev → 25 → 10 Arq(review) → 30 → 40
 ```
 
 O **gate de saída da Discovery** é o "Plano de Sprints aprovado pelo usuário"
@@ -53,7 +53,7 @@ scaffold-mode definido) abre a 1ª Arquitetura.
 ## A esteira de um sprint (comum aos 3 scaffold-modes)
 
 ```
-00 DISCOVERY (rodada) → [por sprint: 00s → 10 ARQ(design) → 20 DEV → 10 ARQ(review) → 25 REVIEW → 30 QA → 40 SEG] → release
+00 DISCOVERY (rodada) → [por sprint: 00s → 10 ARQ(design) → 20 DEV → 25 REVIEW → 10 ARQ(review) → 30 QA → 40 SEG] → release
 ```
 
 - **Arquitetura é gate transversal** (roda 2×: valida o plano antes do dev e

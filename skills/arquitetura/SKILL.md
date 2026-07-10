@@ -56,6 +56,10 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 > o 10b consome/julga esse resultado, não o refaz.
 
 ## review gate (depois do dev) — revisar o DIFF
+> **DoR (10b):** relatório da 25 disponível em
+> `.spec/sprints/sprint-NN-<tema>/review-codigo.md` + diff pronto do dev. A 25
+> executa os achados por lane ANTES; o 10b consome/julga (ver Fronteira acima).
+
 1. **0 violação de camada / direção de dependência** (lint de camadas verde).
 2. Sem segredo vazando; nenhuma regra de `seguranca.md` quebrada.
 3. Lógica na camada certa (não no controller/handler/componente).

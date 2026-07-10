@@ -56,10 +56,10 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 00  /discovery [negocio|dev|refatoracao]   → contexto (seletor de modos: skills/discovery/SKILL.md)
 10  /arquitetura design                    → gate: a abordagem é sã?
 20  /desenvolvimento                       → implementa (testes junto)
-10  /arquitetura review                    → gate: o diff bate com plano/ADR? 0 violação de camada
-25  /review-codigo-subagents               → review técnico por lanes/subagents
-30  /qa  →  /qa-rpa                         → validação real front+back de cada tela (RPA)
-40  /seguranca  →  /redteam                → pentest autorizado (próprio local/dev)
+25  /review-codigo-subagents               → executa review técnico por lanes/subagents
+10  /arquitetura review                    → gate: julga diff + achados da 25; 0 violação de camada
+30  /qa-rpa  →  /qa                         → RPA front+back de cada tela → gate ratifica a matriz
+40  /redteam  →  /seguranca                → pentest do próprio local/dev → gate confere cobertura
     /deploy                                → build → registry → apply → smoke
     .opennjord/tools/spec-check.sh          → valida a entrega (estrutura + links)
 ```
@@ -224,8 +224,8 @@ Claude Code e Codex, via `.claude/rules`/`AGENTS.md`); *Maquinário de validaç�
 
 **`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, branch,
 etapa atual — narrada como prosa encadeada pelos códigos da disciplina, ex.:
-`✅ 00 Discovery → ✅ 10 Arq(design) → 🟡 20 Dev → ⬜ 10 Arq(review) → ⬜ 25
-Review → ⬜ 30 QA → ⬜ 40 Segurança`, atualizado em); último resultado de
+`✅ 00 Discovery → ✅ 10 Arq(design) → 🟡 20 Dev → ⬜ 25 Review → ⬜ 10
+Arq(review) → ⬜ 30 QA → ⬜ 40 Segurança`, atualizado em); último resultado de
 validação; pendências e itens aguardando aprovação; histórico de incrementos
 anteriores (mais recente primeiro); protocolo de atualização (atualizar ao
 entrar/sair de cada etapa; nunca avançar com gate reprovado).
@@ -233,7 +233,7 @@ entrar/sair de cada etapa; nunca avançar com gate reprovado).
 **`sprints/README.md`** — as 6 disciplinas (00 Discovery, 10 Arquitetura [gate
 transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
 fluxo da esteira
-(`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
+(`00 → 10-design → 20 → 25-review-codigo → 10-review → 30 → 40 → release`,
 Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre
 disciplinas) e a convenção de nomes: docs de disciplina avulsos por tema nas
 pastas de topo; **instância de sprint** em
@@ -250,8 +250,8 @@ etapa; depois do Discovery aprovar o `plano-de-sprints-NN.md`, **loop "para
 cada item do backlog: `00s→10→20→25→30→40`"** — cada sprint derivado do plano
 abre com `/discovery sprint <NN>` (discovery-de-sprint, entrada do 10a) e
 segue invocando a skill de cada etapa
-(`/arquitetura` → `/desenvolvimento` → `/arquitetura review` →
-`/review-codigo-subagents` → `/qa`+`/qa-rpa` → `/seguranca`+`/redteam` →
+(`/arquitetura` → `/desenvolvimento` → `/review-codigo-subagents` →
+`/arquitetura review` → `/qa-rpa`+`/qa` → `/redteam`+`/seguranca` →
 `/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
 obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
 produção, gate reprovado 2×, decisão estrutural sem registro, segredo.

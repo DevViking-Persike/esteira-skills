@@ -69,7 +69,8 @@ for p in /.env /.git/config /server/.env; do echo -n "$p "; curl -s -o /dev/null
 - [ ] T1–T10 executados (ou N/A justificado).
 - [ ] Achados com **PoC + severidade + remediação**; segredos mascarados.
 - [ ] **0 Crítico/Alto aberto** (ou aceite de risco registrado).
-- [ ] Relatório arquivado sem segredos; bloqueantes viraram tasks de Dev.
+- [ ] Relatório arquivado em `.spec/sprints/sprint-NN-<tema>/seguranca.md` sem
+  segredos; bloqueantes viraram tasks de Dev.
 
 ## Anti-patterns
 - ❌ Rodar fora do próprio local/dev sem autorização escrita. ❌ DoS. ❌ Baixar a base.

@@ -12,7 +12,8 @@ description: >-
 # Skill: review-codigo-subagents (disciplina 25)
 
 Orquestra a **sprint 25 — Review de Código** por subagents. Roda depois de
-`/desenvolvimento` e do gate `/arquitetura review`, antes de `/qa`. A skill não
+`/desenvolvimento`, **antes** do gate `/arquitetura review` (10b) — a 25 executa
+os achados por lane; o 10b consome/julga. A skill não
 assume stack, framework, arquitetura ou ferramenta específica: primeiro descobre
 o projeto, depois escolhe lanes de análise, executa subagents read-only e
 consolida um relatório priorizado.
@@ -48,14 +49,14 @@ Criar um processo repetível para responder:
 
 **Entrada (Definition of Ready):**
 
-- Diff pronto e aprovado no gate `/arquitetura review`.
+- Diff pronto do `/desenvolvimento` (validação local verde).
 - Plano/spec/ADR relevantes disponíveis em `.spec/`.
 - Regras locais disponíveis em `.claude/rules/` ou equivalente do projeto.
 - Comandos de validação identificados ou lacuna registrada.
 
 **Saída (Definition of Done):**
 
-- Relatório arquivado em `.spec/sprints/25-review-codigo/review-codigo-NN-<tema>.md`.
+- Relatório arquivado em `.spec/sprints/sprint-NN-<tema>/review-codigo.md`.
 - Veredito geral `PASS`, `PASS_WITH_WARNINGS` ou `FAIL`.
 - Achados com evidência, severidade e próximo passo.
 - Comandos executados/não executados registrados.

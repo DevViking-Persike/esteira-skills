@@ -17,7 +17,8 @@ Prova que o incremento **funciona de verdade** e que nada regrediu. Método em
 **`/qa-rpa`** — este `/qa` é o gate; o `/qa-rpa` é a execução.
 
 ## Entrada
-Diff aprovado no review gate (Arquitetura 10b) + build verde.
+`VERDICT: PASS` da 25 (`.spec/sprints/sprint-NN-<tema>/review-codigo.md`) + diff
+aprovado no review gate (Arquitetura 10b) + build verde.
 
 ## Montar o QA
 1. Traduzir **cada critério de aceitação** (do `discovery-sprint.md` do sprint
