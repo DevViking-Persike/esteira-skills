@@ -11,7 +11,7 @@ description: >-
 # Skill: seguranca (disciplina 40)
 
 Tenta **quebrar/invadir** o que subiu, como um atacante. Método em
-`.spec/sprints/40-seguranca/README.md`; invariantes em `.claude/rules/seguranca.md`
+`.spec/sprints/README.md`; invariantes em `.claude/rules/seguranca.md`
 quando rodar no Claude Code, ou na regra equivalente do projeto quando rodar no Codex.
 Para a **execução ofensiva** (pentest autorizado do próprio local/dev — SQLi, token
 exposto, IDOR, bypass…), use a skill **`/redteam`** — este `/seguranca` é o gate.

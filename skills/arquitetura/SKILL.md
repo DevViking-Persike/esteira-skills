@@ -11,9 +11,10 @@ description: >-
 # Skill: arquitetura (gate transversal — disciplina 10)
 
 Roda o gate de Arquitetura **2×** por incremento. Método em
-`.spec/sprints/10-arquitetura/README.md`; regras em `.claude/rules/` quando rodar
+`.spec/sprints/README.md`; regras em `.claude/rules/` quando rodar
 no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
-(arquitetura, seguranca). Cada gate é **bloqueante**: reprovou → volta uma casa.
+(`rules/eng/03-solid.md`, `rules/eng/04-clean-architecture.md`,
+`rules/seguranca.md`). Cada gate é **bloqueante**: reprovou → volta uma casa.
 
 ## Entrada
 - `design` (antes do dev) ou `review` (depois do dev), em ARGUMENTS.
@@ -64,7 +65,7 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 → Veredito: aprovado p/ QA, ou lista de correções (volta ao Dev).
 
 ## Saída
-- Preencher a instância `arquitetura-NN-<tema>.md` (template da disciplina).
+- Preencher a instância `.spec/arquitetura/arquitetura-NN-<tema>.md` (template da disciplina).
 - Atualizar `.spec/STATE.md` (status + veredito). Reprovou 2× → parada (pedir humano).
 
 > Para o review do diff, apoie-se em `/code-review` quando existir; o gate de

@@ -40,7 +40,7 @@ erros de console, e tira screenshot.
    - `templates/rpa-telas.mjs` — itera a matriz: navega, captura status do documento,
      console, marcador, screenshot; depois bate no `endpointBack` e checa envelope + 0 token.
 3. **Rodar** contra o ambiente alvo (`WC_HOST=https://<host>`); por perfil.
-4. **Relatório PASS/FAIL** por tela (Markdown), arquivado (ex.: `docs/relatorios/<data>/`).
+4. **Relatório PASS/FAIL** por tela (Markdown), arquivado em `.spec/qa/sprint-NN-<tema>/`.
    FAIL bloqueia o gate da QA → volta ao Dev.
 
 ## Critérios de uma RPA boa (DoD)

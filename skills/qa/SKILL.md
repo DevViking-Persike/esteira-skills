@@ -11,8 +11,8 @@ description: >-
 # Skill: qa (disciplina 30)
 
 Prova que o incremento **funciona de verdade** e que nada regrediu. Método em
-`.spec/sprints/30-qa/README.md`; regras em `.claude/rules/testes.md` quando rodar
-no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex. Para a
+`.spec/sprints/README.md`; regras em `rules/eng/02-unit-tests.md` (via
+`.claude/rules/` no Claude Code, ou o equivalente do projeto no Codex). Para a
 **automação** (RPA de navegador validando cada tela front+back), use a skill
 **`/qa-rpa`** — este `/qa` é o gate; o `/qa-rpa` é a execução.
 

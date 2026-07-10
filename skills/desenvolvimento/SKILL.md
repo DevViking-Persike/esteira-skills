@@ -10,10 +10,11 @@ description: >-
 
 # Skill: desenvolvimento (disciplina 20)
 
-Implementa o incremento. Método em `.spec/sprints/20-desenvolvimento/README.md`;
+Implementa o incremento. Método em `.spec/sprints/README.md`;
 regras em `.claude/rules/` quando rodar no Claude Code, ou nas regras equivalentes
-do projeto quando rodar no Codex (arquitetura, testes, seguranca,
-fluxo-desenvolvimento).
+do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
+`rules/eng/04-clean-architecture.md`, `rules/eng/02-unit-tests.md`,
+`rules/seguranca.md`, `rules/fluxo-desenvolvimento.md`).
 
 ## Definition of Ready (não começar sem)
 - Spec aceita + critérios de aceitação (Discovery).
