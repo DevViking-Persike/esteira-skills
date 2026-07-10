@@ -105,7 +105,7 @@ esta expansão — não só as disciplinas nuas.
 | **5 Execution** | **Planner → Sprint Validator → Coder → Evaluator** | `20-desenvolvimento` | **as sprints** — Planner quebra em `NN`, Coder/Evaluator executa+revisa cada uma |
 
 > **Chave do vínculo:** o **Planner** (Execution) transforma a SPEC nas **sprints de
-> `20-desenvolvimento`** (`desenvolvimento-NN-<tema>.md`, um `NN` por sprint); o **Sprint
+> `20-desenvolvimento`** (`.spec/sprints/sprint-NN-<tema>/`, um `NN` por sprint); o **Sprint
 > Validator** é o gate do plano; o loop **Coder/Evaluator** implementa e avalia cada sprint,
 > que então fecha com `30-qa` + `40-seguranca`. É assim que "discovery + development viram
 > as sprints de desenvolvimento" — o pipeline do orquestrador e o `.spec/` são um modelo só.
@@ -173,48 +173,63 @@ critérios de aceitação e a ênfase).
 ## Passo 1 — Gerar o esqueleto `.spec/`
 
 Crie esta árvore na raiz do projeto-alvo (não sobrescreva o que já existir sem
-confirmar):
+confirmar). É a estrutura **flat validada em produção** — pastas de topo por
+DISCIPLINA (documentos avulsos, nomeados por tema, não aninhados por `NN`
+compartilhado) + `sprints/` reservado especificamente para os incrementos de
+**desenvolvimento**:
 
 ```
 .spec/
 ├── MANIFEST.md              # mapa read-first (índice de tudo)
 ├── STATE.md                 # estado vivo do incremento atual
-├── reference/               # docs de referência do projeto (arquitetura, roadmap, etc.)
+├── discovery/               # discovery por tema — um .md por assunto/rodada (+ plano-de-sprints-NN.md)
+│   └── <tema-ou-sprint-NN>.md
+├── arquitetura/             # decisões/ADRs/reviews de arquitetura
+│   └── <tema-ou-sprint-NN>.md
+├── plano/                   # planos técnicos avulsos (quando não cabem em discovery/arquitetura)
+│   └── <tema>.md
+├── qa/
+│   └── sprint-NN-<tema>/    # evidências de QA/RPA por sprint
+├── reference/               # docs de referência do projeto (roadmap, glossário, etc.)
 │   └── README.md
 └── sprints/
-    ├── README.md            # framework das 5 disciplinas + fluxo da esteira
+    ├── README.md            # framework das 6 disciplinas + fluxo da esteira
     ├── RUNBOOK.md           # como rodar a esteira (ordem + gates bloqueantes)
-    ├── 00-discovery/        { README.md, _TEMPLATE-discovery.md }
-    ├── 10-arquitetura/      { README.md, _TEMPLATE-arquitetura.md }
-    ├── 20-desenvolvimento/  { README.md, _TEMPLATE-desenvolvimento.md }
-    ├── 25-review-codigo/    { README.md, _TEMPLATE-review-codigo.md }
-    ├── 30-qa/               { README.md, _TEMPLATE-qa.md }
-    └── 40-seguranca/        { README.md, _TEMPLATE-seguranca.md }
+    └── sprint-NN-<tema>/    # 1 dir por sprint/incremento de desenvolvimento
+        └── README.md        # objetivo, escopo, tasks e progresso da sprint
 ```
+
+> `discovery/`, `arquitetura/`, `plano/`, `qa/` e as instâncias `sprint-NN-*`
+> são **populados incrementalmente** pela esteira — o scaffold cria a base
+> (MANIFEST, STATE, RUNBOOK, reference, READMEs), não instâncias vazias nem
+> `_TEMPLATE-*.md` por disciplina (os moldes vivem nas skills de etapa).
 
 ### Conteúdo de cada arquivo (blueprint)
 
 **`MANIFEST.md`** — ponto de entrada único. Seções: *Bootstrap de sessão* (ordem
-de leitura: MANIFEST → STATE → RUNBOOK → disciplina atual); *Mapa do `.spec/`*
-(tabela caminho→o quê); *Disciplinas → onde olhar* (tabela etapa→README→docs de
-referência); *Regras de execução* (tabela apontando `.opennjord/rules/*` —
-mesma fonte pra Claude Code e Codex, via `.claude/rules`/`AGENTS.md`);
-*Maquinário de validação* (comandos de teste/build/lint do projeto); *Regra-mãe*
-(o que governa o escopo — preencher com o contrato/escopo do projeto).
+de leitura: MANIFEST → STATE → RUNBOOK → sprint ativa); *Regra-mãe* (1 parágrafo
+— o que governa o escopo, preencher com o contrato/escopo do projeto); *Mapa do
+`.spec/`* (tabela caminho→papel, cobrindo cada pasta de disciplina —
+`discovery/`, `arquitetura/`, `plano/`, `qa/`, `sprints/`, `reference/`);
+*Regras de execução* (tabela apontando `.opennjord/rules/*` — mesma fonte pra
+Claude Code e Codex, via `.claude/rules`/`AGENTS.md`); *Maquinário de validação*
+(comandos de teste/build/lint do projeto).
 
-**`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, etapa, branch,
-atualizado em); tabela de progresso da esteira
-(00→10→20→10-review→25-review-codigo→30→40 com
-status ⬜🟡✅🔴); último resultado de validação; pendências; itens aguardando
-aprovação; histórico de incrementos; protocolo de atualização (atualizar ao
+**`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, branch,
+etapa atual — narrada como prosa encadeada pelos códigos da disciplina, ex.:
+`✅ 00 Discovery → ✅ 10 Arq(design) → 🟡 20 Dev → ⬜ 10 Arq(review) → ⬜ 25
+Review → ⬜ 30 QA → ⬜ 40 Segurança`, atualizado em); último resultado de
+validação; pendências e itens aguardando aprovação; histórico de incrementos
+anteriores (mais recente primeiro); protocolo de atualização (atualizar ao
 entrar/sair de cada etapa; nunca avançar com gate reprovado).
 
 **`sprints/README.md`** — as 6 disciplinas (00 Discovery, 10 Arquitetura [gate
 transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
 fluxo da esteira
 (`00 → 10-design → 20 → 10-review → 25-review-codigo → 30 → 40 → release`,
-Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre disciplinas) e a convenção de
-instância (`<disciplina>-NN-<tema>.md`, mesmo NN em toda a esteira). O
+Arquitetura roda 2× como gate bloqueante), os handoffs (contrato entre
+disciplinas) e a convenção de nomes: docs de disciplina avulsos por tema nas
+pastas de topo; incrementos de dev em `sprints/sprint-NN-<tema>/`. O
 **Discovery** (00) fecha com fan-in: emite `.spec/discovery/plano-de-sprints-NN.md`
 (1 linha por sprint derivado — scaffold-mode + ACs + discoveries-fonte + ordem),
 o backlog fatiado que o RUNBOOK consome a seguir.
@@ -231,11 +246,19 @@ entra na esteira pela Arquitetura, invocando a skill de cada etapa
 obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
 produção, gate reprovado 2×, decisão estrutural sem registro, segredo.
 
-**Disciplinas (`NN-*/README.md`)** — cada uma com: Propósito; Quando roda
-(gate/ordem); Definition of Ready (entrada); Atividades/Checklist; Definition of
-Done (saída); Anti-patterns; link pro `_TEMPLATE`. Adapte a ênfase ao MODO
-escolhido (ver tabela de modos). O `_TEMPLATE-*.md` é o molde fill-in-the-blank
-de uma instância.
+**Documentos de disciplina** (`discovery/`, `arquitetura/`, `plano/`) — um
+`.md` avulso por tema ou rodada, sem `_TEMPLATE` fill-in-the-blank nem
+subdiretório por disciplina: o nome do arquivo já carrega o tema (ex.:
+`discovery-NN-<tema>.md`) ou o `sprint-NN-<tema>` quando amarrado a um
+incremento específico. Cada um cobre o que essa disciplina produz
+(contexto/riscos para discovery; decisão/ADR/review para arquitetura), usando
+os templates das skills de etapa e adaptado ao MODO escolhido (ver tabela de
+modos).
+
+**`sprints/sprint-NN-<tema>/README.md`** — Objetivo; Definition of Ready
+(entrada); Escopo/Tasks; Definition of Done (saída); Anti-patterns. Um dir por
+incremento de desenvolvimento — outros artefatos da sprint (tasks, notas)
+vivem ao lado do README dentro do mesmo dir.
 
 > Use o `.spec/` de referência (um projeto já estruturado) como referência de qualidade do
 > conteúdo, **generalizando** o que for específico de domínio (regras fiscais,

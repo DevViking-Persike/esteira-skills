@@ -12,12 +12,10 @@ cd "$ROOT"
 err=0; warn=0
 red(){ printf '\033[31m%s\033[0m\n' "$*"; }; grn(){ printf '\033[32m%s\033[0m\n' "$*"; }; yel(){ printf '\033[33m%s\033[0m\n' "$*"; }
 
-# 1) arquivos obrigatórios (fonte canônica .opennjord/)
-req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/README.md .spec/sprints/RUNBOOK.md
-     .spec/sprints/00-discovery/README.md .spec/sprints/10-arquitetura/README.md
-     .spec/sprints/20-desenvolvimento/README.md
-     .spec/sprints/25-review-codigo/README.md .spec/sprints/30-qa/README.md
-     .spec/sprints/40-seguranca/README.md
+# 1) arquivos obrigatórios (baseline de um scaffold recém-criado — discovery/
+#    arquitetura/plano/qa/sprints/sprint-NN-* são populados incrementalmente,
+#    não exigidos no dia 1; fonte canônica de config = .opennjord/)
+req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/RUNBOOK.md .spec/reference/README.md
      .opennjord/rules/README.md .opennjord/rules/eng/01-file-size.md .opennjord/rules/eng/02-unit-tests.md
      .opennjord/rules/eng/03-solid.md .opennjord/rules/eng/04-clean-architecture.md
      .opennjord/rules/eng/05-simplicity.md .opennjord/rules/eng/06-continuous-refactoring.md
@@ -31,7 +29,12 @@ for f in "${req[@]}"; do
   [ -f "$f" ] || { red "FALTA: $f"; err=1; }
 done
 
-# 1b) ponte .opennjord <-> .claude/.codex/.agents — symlinks íntegros, não cópias
+# 1b) cada sprint-NN-<tema>/ de desenvolvimento tem README.md
+while IFS= read -r d; do
+  [ -f "$d/README.md" ] || { red "FALTA: $d/README.md"; err=1; }
+done < <(find .spec/sprints -mindepth 1 -maxdepth 1 -type d -name 'sprint-*' 2>/dev/null)
+
+# 1c) ponte .opennjord <-> .claude/.codex/.agents — symlinks íntegros, não cópias
 is_symlink_to_opennjord() {
   local path="$1" target
   [ -L "$path" ] || return 1
@@ -55,13 +58,17 @@ if [ -f .gitignore ] && ! grep -qxF '.claude/settings.local.json' .gitignore; th
   yel "AVISO: .claude/settings.local.json não está no .gitignore (é local/pessoal, nunca deveria versionar)."; warn=1
 fi
 
-# 2) links .md internos quebrados (dentro de .spec/)
+# 2) links .md internos quebrados (dentro de .spec/). Tenta relativo ao
+#    diretório do arquivo-fonte primeiro (convenção `./sibling.md`); se não
+#    existir, tenta relativo à RAIZ do repo (convenção comum nos docs da
+#    esteira: `.spec/MANIFEST.md`, `.claude/rules/x.md` já vêm root-relative).
 while IFS= read -r src; do
   dir=$(dirname "$src")
   while IFS= read -r l; do
     case "$l" in http*|\#*|"") continue;; esac
-    t="$dir/${l%%#*}"
-    [ -e "$t" ] || { red "LINK QUEBRADO: ${src#./} -> $l"; err=1; }
+    rel="${l%%#*}"
+    t_local="$dir/$rel"
+    [ -e "$t_local" ] || [ -e "$rel" ] || { red "LINK QUEBRADO: ${src#./} -> $l"; err=1; }
   done < <(grep -oE '\]\(([^)]+\.md)\)' "$src" 2>/dev/null | sed -E 's/\]\(([^)]+)\)/\1/')
 done < <(find .spec -name '*.md' 2>/dev/null)
 
