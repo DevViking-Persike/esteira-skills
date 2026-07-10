@@ -99,6 +99,9 @@ espaço ou vírgula), rodados sempre na **ordem canônica 1→2→3**. Aliases:
 - `all` = os 3 (`negocio dev refatoracao`).
 - `1 2` = os dois primeiros (`negocio dev`); `1`/`2`/`3` = índices dos modos.
 - Nomes longos e de transição: `desenvolvimento`→`dev`, `produto`→`negocio`.
+- `/discovery sprint <NN>` roda o **Discovery de sprint** (sub-fluxo fora da
+  ordem canônica N→D→R — detalha 1 linha do plano já aprovado; ver seção
+  `## Discovery de sprint`).
 
 ### Menu interativo
 Se ARGUMENTS vier vazio **e** não houver scaffold-mode, pergunte ao usuário qual
@@ -281,10 +284,48 @@ não repetida aqui. Aqui o modo é o **seletor**; lá ele vira a esteira.
    `discoveries-fonte` rastreia a rodada de origem.
 4. **Gate de saída (bloqueante):** o **Plano de Sprints aprovado pelo usuário** é
    pré-condição da 1ª Arquitetura. Só com o backlog fatiado (cada item com ACs
-   verificáveis + scaffold-mode) abre o gate 10.
+   verificáveis + scaffold-mode) abre o gate 10. Aprovado o plano, cada sprint
+   abre com o **discovery-de-sprint** (ver seção própria) antes do gate 10
+   daquele sprint.
 5. **No njord:** cada item do Plano vira uma run iniciada no entry_point
    `arquitetura`, reaproveitando os artefatos do discovery compartilhado — zero
    mudança de domínio para "N sprints". O Plano é output/Report da stage Discovery.
+
+---
+
+## Discovery de sprint (detalhamento por linha do plano)
+
+Depois do **Plano de Sprints aprovado**, cada sprint abre com
+`/discovery sprint <NN>` → gera
+`.spec/sprints/sprint-NN-<tema>/discovery-sprint.md` (template
+`templates/discovery-de-sprint.md`). É uma **sub-etapa da disciplina 00
+aplicada por sprint** (etiqueta `00s`) — não uma disciplina nova.
+
+- **Aterrar, não re-entrevistar:** reusa o contrato de subagents read-only de
+  `## Subagents de discovery` pra aterrar a linha do plano no código real
+  (paths + linhas medidos, base git registrada). Não repete a entrevista da
+  rodada: lê os artefatos `.spec/discovery/` e só **confronta lacunas** com o
+  usuário.
+- **Entrada do 10a, não gate próprio:** não tem DoD nem aprovação independente
+  — pode rodar na mesma sessão que o design gate (10a) com **uma única
+  aprovação**. O 10a **reprova** se o contexto não estiver aterrado ou se
+  alguma task proposta ficar sem AC verificável.
+- **Fronteira dura:** aqui é o **QUÊ** (escopo, ACs, riscos, tasks propostas);
+  camadas, contratos e ADR são o **COMO** — pertencem ao 10a. Se o
+  discovery-de-sprint antecipar decisão de design, a Arquitetura retrabalha.
+- **Tasks direto da tabela:** o Planner do `/desenvolvimento` materializa
+  `tasks/task-NN-<slug>.md` **direto da tabela de tasks propostas** (sem
+  re-transcrição intermediária), enriquecendo cada task com as decisões do 10a.
+- **Critérios de spike** (marcar `Spike? sim` exige ≥1): viabilidade técnica
+  não provada; fonte externa não medida; decisão 1-way door aberta que só
+  investigação resolve; escopo de escrita não delimitável sem ler o código.
+  Spike = investigação **timeboxada registrada na própria task**
+  (`## Resultado`), nunca arquivo de discovery separado — **não existe
+  discovery-por-task**.
+- **Fallback legado:** sprints antigas sem `discovery-sprint.md` usam os
+  artefatos globais de `.spec/discovery/` — convenção de fallback declarada em
+  `scaffold-spec/templates/rules/fluxo-desenvolvimento.md` (instalada no
+  projeto como `rules/fluxo-desenvolvimento.md`).
 
 ---
 

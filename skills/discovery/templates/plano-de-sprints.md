@@ -4,7 +4,9 @@
 > rodados (`.negocio.md` / `.dev.md` / `.refatoracao.md`) num backlog fatiado de
 > sprints. **Gate de saída bloqueante:** só com este plano **aprovado pelo
 > usuário** abre a 1ª Arquitetura (gate 10). Artefato canônico:
-> `.spec/discovery/plano-de-sprints-NN.md`.
+> `.spec/discovery/plano-de-sprints-NN.md`. Cada linha aprovada abre com um
+> **discovery-de-sprint** (`.spec/sprints/sprint-NN-<tema>/discovery-sprint.md`)
+> antes da Arquitetura do sprint.
 >
 > No njord, cada linha vira uma **run** iniciada no entry_point `arquitetura`
 > (reaproveitando os artefatos do discovery compartilhado) — zero mudança de
@@ -38,3 +40,5 @@
 - [ ] Toda linha aponta seu `discoveries-fonte`
 - [ ] Dependências e ordem coerentes (sem ciclo)
 - [ ] **Aprovado pelo usuário** (gate bloqueante) → libera a 1ª Arquitetura
+
+> Pós-aprovação: cada sprint inicia por `/discovery sprint <NN>`.
