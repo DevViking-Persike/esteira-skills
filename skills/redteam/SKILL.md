@@ -16,6 +16,11 @@ Disciplina 40 → `/seguranca` é o gate; esta skill é a execução ofensiva co
 Objetivo é **defensivo**: achar → PoC mínimo → remediar.
 
 ## ⚠️ Autorização (inegociável)
+- **Alvo = campo `redteam_target` do `.spec/MANIFEST.md`** (registrado UMA vez, não
+  re-perguntado por tick). **Validação obrigatória por tick:** só
+  `localhost`/`127.0.0.1`/rede privada (`10.0.0.0/8`, `172.16.0.0/12`,
+  `192.168.0.0/16`, `*.local`). Alvo **fora** desse padrão ⇒ `awaiting: humano` —
+  **nunca executa** (a autorização one-shot no arquivo NÃO vale pra alvo público).
 - **Só infra do próprio projeto:** `localhost`/dev autorizados. **Nunca produção**
   nem terceiros sem aceite **escrito**.
 - **Sem DoS/stress.** Sem exfiltração real de dados (PoC mínimo prova a falha — não

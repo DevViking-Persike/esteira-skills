@@ -36,6 +36,11 @@ matriz: `.claude/rules/seguranca.md`.
   **sem segredos colados**. Achados bloqueantes → tasks em `<sprint>/tasks/`
   (template `desenvolvimento/templates/task.md`; volta ao Dev).
 
+**Headless:** contagem **automática** de Crítico/Alto a partir dos achados do
+`/redteam`. `0 Crítico/Alto aberto` ⇒ `VERDICT: PASS`; `>0` sem correção nem
+aceite ⇒ `awaiting: humano:aceite-risco` (H5) — não é `VERDICT`. **Linha final
+grepável:** `VERDICT: PASS` | `VERDICT: FAIL` + upsert no `esteira-state.yaml`.
+
 ## Anti-patterns
 - ❌ Rodar contra produção/terceiros sem autorização. ❌ DoS como "teste".
 - ❌ Colar segredo no relatório. ❌ "Seguro" sem tentar token/authz.

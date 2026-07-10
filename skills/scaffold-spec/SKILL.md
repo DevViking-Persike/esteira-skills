@@ -216,13 +216,16 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
 ### Conteúdo de cada arquivo (blueprint)
 
 **`MANIFEST.md`** — ponto de entrada único. Seções: *Bootstrap de sessão* (ordem
-de leitura: MANIFEST → STATE → RUNBOOK → sprint ativa); *Regra-mãe* (1 parágrafo
-— o que governa o escopo, preencher com o contrato/escopo do projeto); *Mapa do
-`.spec/`* (tabela caminho→papel, cobrindo cada pasta de disciplina —
-`discovery/`, `arquitetura/`, `plano/`, `qa/`, `sprints/`, `reference/`);
-*Regras de execução* (tabela apontando `.opennjord/rules/*` — mesma fonte pra
-Claude Code e Codex, via `.claude/rules`/`AGENTS.md`); *Maquinário de validação*
-(comandos de teste/build/lint do projeto).
+de leitura: MANIFEST → `esteira-state.yaml` (cursor) → STATE → RUNBOOK → sprint
+ativa); *Regra-mãe* (1 parágrafo — o que governa o escopo, preencher com o
+contrato/escopo do projeto); *Mapa do `.spec/`* (tabela caminho→papel, cobrindo
+`esteira-state.yaml` e cada pasta de disciplina — `discovery/`, `arquitetura/`,
+`plano/`, `qa/`, `sprints/`, `reference/`); *Regras de execução* (tabela apontando
+`.opennjord/rules/*` — mesma fonte pra Claude Code e Codex, via
+`.claude/rules`/`AGENTS.md`); *Maquinário de validação* (comandos de
+teste/build/lint do projeto, + **`dev_server`** — comando/URL que sobe o ambiente
+vivo pro `/qa-rpa` — e **`redteam_target`** — alvo do `/redteam`, restrito a
+localhost/127.0.0.1/rede privada).
 
 **`STATE.md`** — **diário narrativo humano** (append, espelho). Campos:
 incremento ativo (NN, tema, branch, etapa atual — narrada como prosa encadeada

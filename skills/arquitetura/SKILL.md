@@ -70,7 +70,18 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 
 ## Saída
 - Preencher a instância `.spec/arquitetura/arquitetura-NN-<tema>.md` (template da disciplina).
-- Atualizar `.spec/STATE.md` (status + veredito). Reprovou 2× → parada (pedir humano).
+- Atualizar `.spec/STATE.md` (status + veredito) + upsert no `esteira-state.yaml`.
+  Reprovou 2× → parada (pedir humano).
+- **Linha final grepável (headless):** `VERDICT: PASS` (aprovado) | `VERDICT: FAIL`
+  (reprovado → lista de correções vira tasks). O relatório fica acima; o tick lê só
+  esta linha. **AWAITING não é VERDICT** — é o campo `awaiting` no cursor.
 
-> Para o review do diff, apoie-se em `/code-review` quando existir; o gate de
-> arquitetura é o humano-no-loop sobre o resultado.
+> Para o review do diff, apoie-se em `/code-review` quando existir.
+>
+> **Humano-no-loop do 10b — com delegação (headless):** o gate de arquitetura é o
+> humano-no-loop sobre o resultado, **mas** delega o caminho verde: se os itens
+> **mecânicos** (1 grep de camada/direção + 2 secret scan) estão verdes **E** o
+> `review-codigo.md` da 25 fecha com `VERDICT: PASS` (cobre o item 3 — lógica na
+> camada — pela lane arquitetura da 25; o item 4/ACs é reconferido no QA 30) ⇒
+> **auto-`VERDICT: PASS`**. **PARK humano (`awaiting: humano:10b`) só** em `FAIL`
+> mecânico/da 25 **ou** decisão estrutural nova sem ADR.

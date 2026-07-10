@@ -32,11 +32,19 @@ aprovado no review gate (Arquitetura 10b) + build verde.
 > Modo **documentar**: os comandos/links da doc executam/resolvem (doc bate com código).
 
 ## Gate (DoD)
-- [ ] **VERDICT=PASS** + relatório arquivado.
+- [ ] Relatório arquivado em `.spec/qa/sprint-NN-<tema>/`.
 - [ ] Todos os critérios de aceitação cobertos.
 - [ ] Invariantes tocados sem regressão. [ ] ≥1 caminho de erro por endpoint.
 - [ ] AuthZ validado. [ ] Smoke verde (se deploy).
-- [ ] `.spec/STATE.md` atualizado. FAIL → volta ao Dev.
+- [ ] `.spec/STATE.md` atualizado + upsert no `esteira-state.yaml`. FAIL → volta ao Dev.
+
+**Auto-ratificação headless:** o `/qa` ratifica automaticamente a **matriz
+estendida** do `/qa-rpa` **só se** ela mapear **cada AC → linha da matriz**, tiver
+**linha de AuthZ por papel** e **≥1 caminho de erro por endpoint** (o DoD acima).
+Matriz incompleta ⇒ `VERDICT: FAIL` — nunca auto-PASS de matriz que não cobre o DoD.
+
+**Linha final grepável:** `VERDICT: PASS` | `VERDICT: FAIL`. O relatório fica
+acima; o tick lê só esta linha (AWAITING não é VERDICT — vai no `awaiting` do cursor).
 
 ## Anti-patterns
 - ❌ Teste que passa com bug (falso negativo). ❌ Testar implementação interna.

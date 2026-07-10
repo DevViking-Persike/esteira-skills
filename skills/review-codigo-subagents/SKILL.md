@@ -58,10 +58,13 @@ Criar um processo repetível para responder:
 
 - Relatório arquivado em `.spec/sprints/sprint-NN-<tema>/review-codigo.md`.
 - Veredito geral `PASS`, `PASS_WITH_WARNINGS` ou `FAIL`.
+- **Linha final grepável:** `VERDICT: PASS` (inclui `PASS_WITH_WARNINGS` — os
+  warnings ficam listados acima) | `VERDICT: FAIL`. O gate 10b e o `/qa` leem
+  esta linha; **AWAITING não é VERDICT**.
 - Achados com evidência, severidade e próximo passo.
 - Comandos executados/não executados registrados.
-- `.spec/STATE.md` atualizado. `FAIL` volta para Desenvolvimento ou Arquitetura,
-  conforme a causa.
+- `.spec/STATE.md` atualizado + upsert no `esteira-state.yaml`. `FAIL` → os
+  achados viram tasks (Dev/Arquitetura conforme a causa); a 25 **nunca edita código**.
 
 ## Princípios
 
@@ -171,6 +174,12 @@ Depois que os subagents terminarem:
 
 Se o usuário pediu só review, pare no relatório. Se pediu correção, transforme o
 relatório em plano e peça confirmação antes de qualquer edição.
+
+> **Exceção LIMITADA no modo `/loop`:** pode **persistir**
+> `.spec/sprints/sprint-NN-<tema>/review-codigo.md` e **fazer upsert no
+> `esteira-state.yaml`** SEM confirmação (é evidência de estado, não código).
+> **NUNCA** edita código, cria commit de código, nem aplica correção — achados
+> `FAIL` viram tasks pro Dev. Todo o resto da lista abaixo segue exigindo confirmação.
 
 Peça confirmação antes de:
 

@@ -107,6 +107,14 @@ espaço ou vírgula), rodados sempre na **ordem canônica 1→2→3**. Aliases:
 Se ARGUMENTS vier vazio **e** não houver scaffold-mode, pergunte ao usuário qual
 combinação quer: (1) só negócio, (2) só dev, os 3, ou os 2 primeiros (negócio+dev).
 
+### Execução não-interativa (headless / `/loop`)
+Sem humano na sessão: o **modo deriva do scaffold-mode** (mapa "Default por
+scaffold-mode" abaixo) — **sem menu**. A **entrevista Mom Test vira "ler os
+artefatos existentes + preencher a seção §Lacunas"** do doc (não inventa
+respostas — marca o que falta). A saída **sempre faz PARK no gate do Plano de
+Sprints** (`awaiting: humano:plano`): o plano é aprovação humana obrigatória,
+nunca auto-aprovado.
+
 ### Default por scaffold-mode (mapa único — LINKE daqui, não repita)
 > Esta é a **fonte única** do mapa modo×scaffold-mode. `scaffold-spec` aponta pra cá.
 

@@ -40,6 +40,9 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
 4. **Testes junto** (não depois) — caminho feliz + erro; cobrir invariantes.
 5. **Validação local verde** antes de pedir review: build + lint + teste + RPA
    (comandos no `.spec/MANIFEST.md`).
+> **Guarda de idempotência (`/loop`):** antes de cada task, se o `## Resultado`
+> marca `Status: entregue` (`templates/task.md`), **pule** essa task. Sob `/loop`,
+> **1 tick = 1 task** (1 task = 1 commit) — o tick não varre a sprint de uma vez.
 > Modo **refatorar**: mudanças pequenas/reversíveis + teste de caracterização
 > antes de mexer (não-regressão). Modo **documentar**: o "dev" é escrever os docs.
 
