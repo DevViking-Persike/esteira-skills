@@ -1,0 +1,160 @@
+# pipeline-contract.yaml — FIXTURE canônica da esteira de PROCESSO
+#
+# ⚠️  NÃO é fonte de runtime. É uma FIXTURE DE TESTE/LINT: o `contract-lint.sh`
+#     valida os 9 SKILL.md + templates contra ESTE arquivo (ordem/DAG, homes de
+#     artefato, ordem executor→gate, ausência de ciclo de DoR). O runtime real
+#     (skills markdown + o cursor `.spec/esteira-state.yaml` do projeto) NÃO lê
+#     este arquivo — ele existe só para travar deriva entre as skills.
+#
+# Fonte da verdade do MÉTODO continua sendo cada `skills/<disciplina>/SKILL.md`.
+# Este contrato fixa o CONTRATO ENTRE elas: quem produz o quê, em que ordem, com
+# que veredito, e onde o artefato mora. Mudou uma skill? rode `contract-lint.sh`.
+
+schema: 1
+kind: pipeline-contract
+
+# --------------------------------------------------------------------------
+# Homes canônicos de artefato (blueprint flat de `scaffold-spec`).
+# O lint recusa qualquer skill que cite home de artefato fora desta lista.
+# --------------------------------------------------------------------------
+homes:
+  discovery:        .spec/discovery/                                   # discovery-NN-<tema>.<modo>.md + plano-de-sprints-NN.md
+  plano:            .spec/discovery/plano-de-sprints-NN.md             # backlog fatiado (fan-in do 00)
+  arquitetura:      .spec/arquitetura/arquitetura-NN-<tema>.md         # design (10a) + review (10b) do mesmo NN
+  discovery_sprint: .spec/sprints/sprint-NN-<tema>/discovery-sprint.md # 00s — entrada do 10a
+  tasks:            .spec/sprints/sprint-NN-<tema>/tasks/              # task-NN-<slug>.md materializadas pelo Planner
+  review_codigo:    .spec/sprints/sprint-NN-<tema>/review-codigo.md    # relatório da 25 (executor); o 10b julga
+  seguranca:        .spec/sprints/sprint-NN-<tema>/seguranca.md        # achados do /redteam + veredito do /seguranca
+  qa:               .spec/qa/sprint-NN-<tema>/                         # evidência/matriz de QA (qa-rpa + gate qa)
+  sprint_readme:    .spec/sprints/sprint-NN-<tema>/README.md           # spec do sprint
+  cursor:           .spec/esteira-state.yaml                           # estado machine-readable do tick (/loop)
+
+# --------------------------------------------------------------------------
+# DAG canônico (ordem de execução). Golden test: a sequência de `id:` abaixo
+# tem que bater IDÊNTICA com a ordem hardcoded no próprio `contract-lint.sh`.
+#
+#   00 discovery → plano → [POR SPRINT: 00s → 10a → 20 → 25 → 10b
+#                            → 30 (qa-rpa → qa) → 40 (redteam → seguranca)] → deploy
+#
+# Regra de ouro do par executor→gate: o EXECUTOR roda ANTES, o GATE consome e
+# julga o que o executor produziu. Nunca o gate antes do seu executor.
+#   25 (executa)      → 10b (julga)
+#   qa-rpa (executa)  → qa (julga)
+#   redteam (executa) → seguranca (julga)
+# --------------------------------------------------------------------------
+dag:
+  - id: 00-discovery
+    skill: discovery
+    papel: executor
+    escopo: rodada           # roda 1x por rodada, fora do loop de sprint
+    produz: [discovery, plano]
+    parada_humana: null
+
+  - id: plano
+    skill: discovery
+    papel: gate
+    escopo: rodada
+    consome: [plano]
+    produz: [plano]
+    parada_humana: H1        # Plano de Sprints aprovado pelo usuario (abre o loop)
+
+  - id: 00s
+    skill: discovery
+    papel: executor
+    escopo: sprint
+    metodo_args: "sprint <NN>"
+    consome: [plano, discovery]
+    produz: [discovery_sprint]
+    # 00s NUNCA da VERDICT — avanca por EXISTENCIA de discovery-sprint.md.
+    parada_humana: null
+
+  - id: 10a
+    skill: arquitetura
+    papel: gate
+    escopo: sprint
+    metodo_args: design
+    consome: [discovery_sprint]
+    produz: [arquitetura]
+    parada_humana: H2        # design gate — veredito autoral (humano-no-loop)
+
+  - id: 20
+    skill: desenvolvimento
+    papel: executor
+    escopo: sprint
+    consome: [arquitetura, discovery_sprint]
+    produz: [tasks]
+    parada_humana: H3        # condicional: dev nao convergiu (max-rounds)
+
+  - id: 25
+    skill: review-codigo-subagents
+    papel: executor
+    escopo: sprint
+    consome: [tasks]
+    produz: [review_codigo]
+    verdict: true
+    parada_humana: H4        # condicional: aplicar correcoes da 25 (fora do /loop; no loop vira task)
+
+  - id: 10b
+    skill: arquitetura
+    papel: gate
+    escopo: sprint
+    metodo_args: review
+    consome: [review_codigo, arquitetura]
+    produz: [arquitetura]
+    verdict: true
+    parada_humana: null      # auto-PASS se mecanico verde E review-codigo.md=PASS; PARK humano so em FAIL/decisao estrutural
+
+  - id: 30-qa-rpa
+    skill: qa-rpa
+    papel: executor
+    escopo: sprint
+    consome: [tasks]
+    produz: [qa]
+    verdict: true
+    parada_humana: null      # DoR sobe ambiente via dev_server; indisponivel => awaiting: ambiente:qa
+
+  - id: 30-qa
+    skill: qa
+    papel: gate
+    escopo: sprint
+    consome: [qa, review_codigo]
+    produz: [qa]
+    verdict: true
+    parada_humana: null      # ratifica a matriz estendida do qa-rpa
+
+  - id: 40-redteam
+    skill: redteam
+    papel: executor
+    escopo: sprint
+    consome: [tasks]
+    produz: [seguranca]
+    verdict: true
+    parada_humana: null      # alvo = redteam_target do MANIFEST (localhost/rede privada); fora disso => awaiting humano
+
+  - id: 40-seguranca
+    skill: seguranca
+    papel: gate
+    escopo: sprint
+    consome: [seguranca]
+    produz: [seguranca]
+    verdict: true
+    parada_humana: H5        # aceite de risco: Critico/Alto aberto que nao sera corrigido
+
+  - id: deploy
+    skill: deploy
+    papel: transversal
+    escopo: rodada
+    consome: [qa, seguranca]
+    parada_humana: H6        # deploy em producao
+
+# --------------------------------------------------------------------------
+# Paradas humanas (o que SOBREVIVE ao caminho autonomo /loop).
+# --------------------------------------------------------------------------
+paradas_humanas:
+  H0: scaffold-mode ausente no bootstrap
+  H1: Plano de Sprints aprovado (abre o loop de sprints)
+  H2: 10a design gate (veredito autoral)
+  H3: dev nao convergiu (max-rounds)
+  H4: aplicar correcoes da 25 (no /loop viram tasks; edicao direta so fora do loop)
+  H5: aceite de risco no 40 (Critico/Alto nao corrigido)
+  H6: deploy em producao
