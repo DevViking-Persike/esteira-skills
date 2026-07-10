@@ -41,8 +41,8 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 > - **Security** — superfície, authz, segredos (ancorado em `seguranca.md`).
 >
 > **Saída do design** = **Spec Generation → Spec Enricher**: as 4 decisões
-> materializam a SPEC implementável (o Enricher é o gate final que a entrega ao
-> Dev). Ver o mapa macro-stage→disciplina em `scaffold-spec/SKILL.md`.
+> materializam a **SPEC-implementável** (o Enricher é o gate final que a entrega
+> ao Dev). Ver o mapa macro-stage→disciplina em `scaffold-spec/SKILL.md`.
 
 > **Variação Refatoração / foco Arquitetura — Entrevista de Decisão ≥3 DN.**
 > Quando o modo é Refatoração ou o foco é Arquitetura, o design gate exige uma

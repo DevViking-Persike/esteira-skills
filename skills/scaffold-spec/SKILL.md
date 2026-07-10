@@ -101,7 +101,7 @@ esta expansão — não só as disciplinas nuas.
 | **1 Discovery** | Discovery | `00-discovery` | contexto (Mom Test / JTBD / 4 riscos) |
 | **2 PRD** | PRD Generator → Validator → Completo | `00-discovery` (negócio) | PRD aprovado (gate no Validator) |
 | **3 Tech** | Database, Backend, Frontend, Security (4 entrevistas de design) | `10-arquitetura` (design) | decisões técnicas por área (gate) |
-| **4 Spec** | Spec Generation → Spec Enricher | `10-arquitetura` (saída) | a SPEC implementável (gate no Enricher) |
+| **4 Spec** | Spec Generation → Spec Enricher | `10-arquitetura` (saída) | a **SPEC-implementável** (gate no Enricher) |
 | **5 Execution** | **Planner → Sprint Validator → Coder → Evaluator** | `20-desenvolvimento` → `25-review` | **as sprints** — Planner quebra em `NN`, Coder implementa e o **25 (review-codigo)** revisa cada uma antes de `30-qa`+`40-seg` |
 
 > **Chave do vínculo:** o **Planner** (Execution) transforma a SPEC nas **sprints de
@@ -143,6 +143,10 @@ Um **foco** especializa a esteira acrescentando/trocando fases da cabeça; ele *
 é uma disciplina nova nem uma skill nova. Em particular, o **foco Segurança** é
 distinto das duas skills de segurança da disciplina 40:
 
+> **Fonte única da taxonomia dos 3 atores de segurança:**
+> `review-codigo-subagents/SKILL.md` (Fronteira / Foco Segurança). A tabela
+> abaixo é o eco local, não a definição.
+
 | Ator | O que é | Quando | Disciplina |
 |---|---|---|---|
 | **foco Segurança** (esteira) | análise **estática** repo-wide → gera tasks de remediação (spec) | design-time, ao derivar a esteira | 25 (lane Segurança em escopo de repo) |
@@ -155,10 +159,12 @@ esteira `arch-review`, que **reusa** o gate `/arquitetura` — não uma skill à
 
 ## Entrada — MODO
 
-> **Dois eixos ORTOGONAIS** (não confundir): o **scaffold-mode** abaixo
-> (`criar`/`refatorar`/`documentar`) diz **como executar** cada sprint; o **modo
-> N/D/R** (`negocio`/`dev`/`refatoracao`, seção anterior) diz **o que investigar /
-> qual esteira derivar**. `refatorar` aparece nos dois eixos com sentidos diferentes.
+> **Dois eixos ORTOGONAIS** (não confundir) — **fonte única:**
+> `rules/fluxo-desenvolvimento.md` ("Os 2 eixos"). Resumo: o **scaffold-mode**
+> abaixo (`criar`/`refatorar`/`documentar`) diz **como executar** cada sprint; o
+> **modo N/D/R** (`negocio`/`dev`/`refatoracao`, seção anterior) diz **o que
+> investigar / qual esteira derivar**. `refatorar` aparece nos dois eixos com
+> sentidos diferentes.
 
 A skill aceita um modo em ARGUMENTS (default: perguntar):
 
@@ -198,7 +204,7 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
     ├── README.md            # framework das 6 disciplinas + fluxo da esteira
     ├── RUNBOOK.md           # como rodar a esteira (ordem + gates bloqueantes)
     └── sprint-NN-<tema>/    # 1 dir por sprint/incremento de desenvolvimento
-        ├── README.md                # spec do sprint: objetivo, escopo, progresso
+        ├── README.md                # README-do-sprint: objetivo, escopo, progresso
         ├── discovery-sprint.md      # discovery-de-sprint (00s) — entrada do 10a
         └── tasks/task-NN-<slug>.md  # tasks materializadas pelo Planner
 ```

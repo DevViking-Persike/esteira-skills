@@ -125,12 +125,13 @@ nunca auto-aprovado.
 | `documentar` | `[negocio]` (doc de produto); eng-reversa técnica → `[dev]` | sempre permitido |
 
 ### Desambiguação dos dois eixos (ORTOGONAIS)
+> **Fonte única:** `rules/fluxo-desenvolvimento.md` ("Os 2 eixos"). Resumo aqui:
 - **scaffold-mode** (`criar`/`refatorar`/`documentar`) = **como executar** cada sprint.
 - **discovery-mode** (`negocio`/`dev`/`refatoracao`) = **o que investigar** antes.
 
 Os eixos são independentes: combinações não-contíguas (ex.: `{negocio, refatoracao}`)
 são permitidas — a ordem canônica só fixa a **sequência de execução**, não restringe
-a combinação. (Alinha `rules/fluxo-desenvolvimento.md`.)
+a combinação. Detalhe e racional completos na fonte.
 
 ### Do modo ao pipeline derivado (LINK — não repetir)
 O modo escolhido não é só "o que investigar": ele também **deriva a esteira de

@@ -17,7 +17,7 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
 `rules/seguranca.md`, `rules/fluxo-desenvolvimento.md`).
 
 ## Definition of Ready (não começar sem)
-- Spec aceita + critérios de aceitação (Discovery).
+- **Artefatos de discovery** aceitos + critérios de aceitação (Discovery).
 - **Discovery de sprint** aprovado quando existir (convenção e fallback: ver
   `fluxo-desenvolvimento.md`).
 - Plano técnico aprovado (Arquitetura **10a design**): camadas, contratos, ADR.
