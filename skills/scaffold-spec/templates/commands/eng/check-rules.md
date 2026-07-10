@@ -154,7 +154,7 @@ git log --oneline -20
 
 ## Regra 7 — Build e execução
 
-Arquivo de referência: `rules/eng/07-install-binary.md`.
+Arquivo de referência: `rules/eng/07-build-and-run.md`.
 
 Rode o build e o typecheck/lint do seu stack (veja `stacks/` para `build_cmd`,
 `typecheck_cmd`, `lint_cmd`). Reporte falhas.
