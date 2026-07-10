@@ -18,7 +18,8 @@ exposto, IDOR, bypass…), use a skill **`/redteam`** — este `/seguranca` é o
 
 ## Escopo e autorização
 - Alvo: ambiente vivo **autorizado** (NÃO produção sem aceite explícito). Sem DoS.
-- Combina **estático** (`/security-review` quando existir) + **dinâmico** (tentar invadir).
+- Gate **só dinâmico**: confere a exploração do `/redteam` no ambiente vivo. A
+  análise **estática** do diff é 100% da lane Segurança da 25 — não se sobrepõem.
 
 ## Cobertura (o gate confere, não redefine)
 O gate **não** redefine cenários próprios — confere se os vetores T1-T10 do

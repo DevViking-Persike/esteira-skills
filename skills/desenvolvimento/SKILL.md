@@ -29,9 +29,11 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
    re-transcrição), enriquecendo com as decisões do design gate 10a; é o
    macro-stage **Execution** do pipeline.
 2. **Sprint Validator** (gate do plano) — o plano de tasks é são antes de
-   codar? Valida também: **AC funcional verificável por task**, dependência
-   declarada no próprio arquivo, escopo de escrita sem colisão. Reprovou →
-   replaneja. (Ver o mapa Execution→sprints em `scaffold-spec/SKILL.md`.)
+   codar? **NÃO re-julga o mérito do AC** (isso é do 10a); valida a
+   **fidelidade** — o AC da task materializada bate com o AC ratificado no 10a
+   (diff mecânico) — mais **colisão de escopo de escrita** e **dependência
+   declarada** no próprio arquivo. Reprovou → replaneja. (Ver o mapa
+   Execution→sprints em `scaffold-spec/SKILL.md`.)
 3. Implementar **por camada** (respeitar a direção de dependência), no **loop
    Coder ↔ Evaluator**: o Coder escreve o incremento, o Evaluator avalia; itera por
    rounds, com **gate humano no max-rounds** (não avança em fail silencioso).

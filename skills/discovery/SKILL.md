@@ -23,7 +23,7 @@ gerar um contexto que sustente as decisões seguintes. **Três modos** selecion�
 | # | Modo | Gera | Alimenta |
 |---|---|---|---|
 | 1 | **negocio** | o **porquê**: outcome, usuário, dor, valor, riscos de produto + **regras/fluxo de negócio** | documentação de produto + justificativa de feature; abre o modo DEV (risco "viabilidade técnica"); sprints `criar` |
-| 2 | **desenvolvimento** | o **como/escopo**: requisitos, NFR, **segurança (1ª classe)**, apresentação de dados, direção arquitetural, aceitação | gate 10 (design); ACs do QA (30); ACs de segurança do gate 40 |
+| 2 | **desenvolvimento** | o **como/escopo**: requisitos, NFR, **segurança (1ª classe)**, apresentação de dados, direção arquitetural, aceitação | gate 10 (design); review de código (25); ACs do QA (30); ACs de segurança do gate 40 |
 | 3 | **refatoracao** | o **como melhorar** um sistema existente: não-regressão, bugs, performance, design/código | sprints `refatorar` (ACs de não-regressão) |
 
 > **Seletor:** rode 1, 2, os 3 ou os 2 primeiros (negocio+dev) — ver `## Seletor

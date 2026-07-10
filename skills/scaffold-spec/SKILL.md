@@ -102,12 +102,13 @@ esta expansão — não só as disciplinas nuas.
 | **2 PRD** | PRD Generator → Validator → Completo | `00-discovery` (negócio) | PRD aprovado (gate no Validator) |
 | **3 Tech** | Database, Backend, Frontend, Security (4 entrevistas de design) | `10-arquitetura` (design) | decisões técnicas por área (gate) |
 | **4 Spec** | Spec Generation → Spec Enricher | `10-arquitetura` (saída) | a SPEC implementável (gate no Enricher) |
-| **5 Execution** | **Planner → Sprint Validator → Coder → Evaluator** | `20-desenvolvimento` | **as sprints** — Planner quebra em `NN`, Coder/Evaluator executa+revisa cada uma |
+| **5 Execution** | **Planner → Sprint Validator → Coder → Evaluator** | `20-desenvolvimento` → `25-review` | **as sprints** — Planner quebra em `NN`, Coder implementa e o **25 (review-codigo)** revisa cada uma antes de `30-qa`+`40-seg` |
 
 > **Chave do vínculo:** o **Planner** (Execution) transforma a SPEC nas **sprints de
 > `20-desenvolvimento`** (`.spec/sprints/sprint-NN-<tema>/`, um `NN` por sprint); o **Sprint
 > Validator** é o gate do plano; o loop **Coder/Evaluator** implementa e avalia cada sprint,
-> que então fecha com `30-qa` + `40-seguranca`. É assim que "discovery + development viram
+> que então passa pelo `25-review` (executor) + `10b` (gate) e fecha com `30-qa` +
+> `40-seguranca`. É assim que "discovery + development viram
 > as sprints de desenvolvimento" — o pipeline do orquestrador e o `.spec/` são um modelo só.
 > Fases `conversation` (PRD Validator, as 4 Tech, Spec Enricher, Sprint Validator) são
 > **gates bloqueantes** (`GateMode::Gated`); `auto` fluem sozinhas.
