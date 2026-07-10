@@ -16,15 +16,15 @@ ao fim de cada disciplina ou de forma autônoma sobre um diff/branch.
 ## Os 4 stages (sequenciais, gates bloqueantes)
 
 ```
-00-check → 10-refactor → 20-test-cov-mutation → 30-review
+Q00-check → Q10-refactor → Q20-test-cov-mutation → Q30-review
 ```
 
 | Stage | O que faz | Gate bloqueante |
 |-------|-----------|-----------------|
-| **00-check** | Auditoria contra `rules/eng/*` (tamanho, SOLID, camadas, simplicidade). Não edita. | 0 violação bloqueante |
-| **10-refactor** | Aplica Regra 6 (rede de segurança → split → DIP → simplificar → validar). 1 commit = 1 motivo. | Checks verdes + 0 violação restante |
-| **20-test-cov-mutation** | Garante testes + cobertura ≥84% + mutation ≥84%. Mutation roda junto dos testes. | cov≥84% E mutation≥84% E testes verde |
-| **30-review** | Review do diff: 0 violação de camada/dependência, lógica na camada certa, bate com ACs/ADR. | 0 violação de camada + diff bate com plano |
+| **Q00-check** | Auditoria contra `rules/eng/*` (tamanho, SOLID, camadas, simplicidade). Não edita. | 0 violação bloqueante |
+| **Q10-refactor** | Aplica Regra 6 (rede de segurança → split → DIP → simplificar → validar). 1 commit = 1 motivo. | Checks verdes + 0 violação restante |
+| **Q20-test-cov-mutation** | Garante testes + cobertura ≥84% + mutation ≥84%. Mutation roda junto dos testes. | cov≥84% E mutation≥84% E testes verde |
+| **Q30-review** | Review do diff: 0 violação de camada/dependência, lógica na camada certa, bate com ACs/ADR. | 0 violação de camada + diff bate com plano |
 
 Reprovado no gate → **volta uma casa**. Reprovado **2× no mesmo gate** → parar e
 pedir humano (ver `gates.md`).
@@ -66,7 +66,7 @@ Detalhes operacionais no `RUNBOOK.md` → "Modo self-test".
 
 ## Anti-patterns
 
-- Pular o 00-check e ir direto ao refactor ("já sei o que fazer").
+- Pular o Q00-check e ir direto ao refactor ("já sei o que fazer").
 - Rodar mutation separado dos testes (Regra 2: sempre juntos).
 - Desabilitar teste (`#[ignore]`, `it.skip`) para passar o gate.
 - Refatorar + bugfix no mesmo commit (Regra 6: um commit, um motivo).

@@ -29,7 +29,7 @@ camadas e `../stacks/` para os presets concretos de cada stack.
 
 ## Esteira de qualidade
 As regras são **aplicadas** pela esteira de qualidade em `../esteira/` (gates
-bloqueantes: `00-check → 10-refactor → 20-test/cov/mutation → 30-review`). Valide
+bloqueantes: `Q00-check → Q10-refactor → Q20-test/cov/mutation → Q30-review`). Valide
 os templates com `bash .claude/tools/esteira-check.sh`.
 
 Violação exige justificativa explícita no commit/PR.

@@ -77,7 +77,7 @@ as **instala** e o `RUNBOOK` as **invoca na ordem**:
 
 > **Esteira de qualidade (transversal):** além da esteira de *processo* acima, o
 > scaffold instala uma esteira de *qualidade de código* em `.opennjord/esteira/`
-> (gates bloqueantes `00-check → 10-refactor → 20-test/cov/mutation → 30-review`),
+> (gates bloqueantes `Q00-check → Q10-refactor → Q20-test/cov/mutation → Q30-review`),
 > com presets de stack em `.opennjord/stacks/` e templates de orquestração multi-agente
 > em `.opennjord/agents/`. Roda autônoma sobre um diff/branch ou wired após
 > `/desenvolvimento`, alimentando `/arquitetura review` e `/review-codigo-subagents`.
@@ -182,7 +182,8 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
 ```
 .spec/
 ├── MANIFEST.md              # mapa read-first (índice de tudo)
-├── STATE.md                 # estado vivo do incremento atual
+├── STATE.md                 # diário narrativo humano (espelho, append)
+├── esteira-state.yaml       # cursor machine-readable do tick (/loop) — FONTE de decisão
 ├── discovery/               # discovery por tema — um .md por assunto/rodada (+ plano-de-sprints-NN.md)
 │   └── <tema-ou-sprint-NN>.md
 ├── arquitetura/             # decisões/ADRs/reviews de arquitetura
@@ -223,13 +224,23 @@ de leitura: MANIFEST → STATE → RUNBOOK → sprint ativa); *Regra-mãe* (1 pa
 Claude Code e Codex, via `.claude/rules`/`AGENTS.md`); *Maquinário de validação*
 (comandos de teste/build/lint do projeto).
 
-**`STATE.md`** — estado vivo. Campos: incremento ativo (NN, tema, branch,
-etapa atual — narrada como prosa encadeada pelos códigos da disciplina, ex.:
-`✅ 00 Discovery → ✅ 10 Arq(design) → 🟡 20 Dev → ⬜ 25 Review → ⬜ 10
-Arq(review) → ⬜ 30 QA → ⬜ 40 Segurança`, atualizado em); último resultado de
-validação; pendências e itens aguardando aprovação; histórico de incrementos
-anteriores (mais recente primeiro); protocolo de atualização (atualizar ao
-entrar/sair de cada etapa; nunca avançar com gate reprovado).
+**`STATE.md`** — **diário narrativo humano** (append, espelho). Campos:
+incremento ativo (NN, tema, branch, etapa atual — narrada como prosa encadeada
+pelos códigos da disciplina, ex.: `✅ 00 Discovery → ✅ 10 Arq(design) → 🟡 20
+Dev → ⬜ 25 Review → ⬜ 10 Arq(review) → ⬜ 30 QA → ⬜ 40 Segurança`, atualizado
+em); último resultado de validação; pendências e aguardando aprovação; histórico
+de incrementos (mais recente primeiro). A prosa é **espelho**: a **fonte de
+decisão do tick é o cursor `esteira-state.yaml`** — toda DoD "atualize o STATE"
+vira **"upsert no yaml + 1 linha no STATE.md"**. **SEM coluna/casa pro `00s`**
+(não é gate — avança por existência do `discovery-sprint.md`).
+
+**`esteira-state.yaml`** — **cursor machine-readable**, fonte ÚNICA de decisão do
+tick (o `/loop` lê/escreve por lookup, nunca por parse de prosa). Copie o template
+`scaffold-spec/templates/esteira-state.yaml` e preencha `plano`/`atualizado`.
+Campos: `sprint_ativa`, `etapa` (enum `00-discovery|00s|10a|20-dev|25-review|10b|
+30-qa|40-seg|deploy|done`), `tentativa`, `awaiting` (`humano:<gate>` / `ambiente:
+<etapa>`), `veredito` (`PASS|FAIL|null`). Marcas `✅`/`Status:` em plano/task são
+espelhos write-only; reconciliação plano→yaml **só no bootstrap** (yaml ausente).
 
 **`sprints/README.md`** — as 6 disciplinas (00 Discovery, 10 Arquitetura [gate
 transversal], 20 Desenvolvimento, 25 Review de Código, 30 QA, 40 Segurança), o
@@ -244,18 +255,18 @@ com o **mesmo `NN` em toda a esteira** do incremento. O
 (1 linha por sprint derivado — scaffold-mode + ACs + discoveries-fonte + ordem),
 o backlog fatiado que o RUNBOOK consome a seguir.
 
-**`sprints/RUNBOOK.md`** — como rodar a esteira autonomamente: no início, o
-**seletor de modos do Discovery** (`/discovery [negocio|dev|refatoracao]`,
-default por scaffold-mode — ver `discovery/SKILL.md`); ler STATE → retomar
-etapa; depois do Discovery aprovar o `plano-de-sprints-NN.md`, **loop "para
-cada item do backlog: `00s→10→20→25→30→40`"** — cada sprint derivado do plano
-abre com `/discovery sprint <NN>` (discovery-de-sprint, entrada do 10a) e
-segue invocando a skill de cada etapa
-(`/arquitetura` → `/desenvolvimento` → `/review-codigo-subagents` →
-`/arquitetura review` → `/qa-rpa`+`/qa` → `/redteam`+`/seguranca` →
-`/deploy`), com os **gates bloqueantes**; comandos reais por etapa; **paradas
-obrigatórias** (pedir humano): item fora do escopo sem aprovação, ação destrutiva/
-produção, gate reprovado 2×, decisão estrutural sem registro, segredo.
+**`sprints/RUNBOOK.md`** — **materializado** do template
+`scaffold-spec/templates/sprints/RUNBOOK.md` (copie e ajuste os `<...>`). Traz o
+**contrato do tick** (lê o cursor → `awaiting`? para e pinga → executa UMA
+etapa/task → traduz veredito p/ `PASS|FAIL` → upsert no yaml + 1 linha no STATE +
+marca espelhos), a **ordem canônica por sprint**
+(`00s → 10a → 20-dev → 25-review → 10b → 30-qa (qa-rpa→qa) → 40-seg
+(redteam→seguranca) → deploy`), o **dono do `mkdir sprint-NN-<tema>/` (= 00s)**, a
+alocação do `NN` (próxima linha SEM `✅` do plano), o fechamento (`| NN ✅ |`), o
+contador `tentativa` (2ª reprovação ⇒ `awaiting: humano:<etapa>-2x`) e o protocolo
+`awaiting` (paradas H0–H6). Regra dura: **00s avança por EXISTÊNCIA de
+`discovery-sprint.md` — nunca dá VERDICT**. Em modo `/loop`, auto-commit **só** em
+paths de estado/evidência (`.spec/**`) — nunca código sem gate.
 
 **Documentos de disciplina** (`discovery/`, `arquitetura/`, `plano/`) — um
 `.md` avulso por tema ou rodada, sem `_TEMPLATE` fill-in-the-blank nem
@@ -314,6 +325,10 @@ cp -L $S/hooks/README.md .opennjord/hooks/ 2>/dev/null || true
 cp -L $S/hooks/njord-ask-permission .opennjord/hooks/ 2>/dev/null || true
 # tools de validação
 cp -L $S/tools/spec-check.sh $S/tools/esteira-check.sh .opennjord/tools/ && chmod +x .opennjord/tools/*.sh
+# cursor + RUNBOOK de PROCESSO materializados no .spec/ (Passo 1 já criou a árvore;
+# ajuste os <...> depois — o cursor é a fonte de decisão do tick /loop)
+cp -L $S/esteira-state.yaml .spec/esteira-state.yaml 2>/dev/null || true
+cp -L $S/sprints/RUNBOOK.md .spec/sprints/RUNBOOK.md 2>/dev/null || true
 
 # ponte .claude/ (diretório REAL contendo symlinks relativos por-subdiretório)
 mkdir -p .claude
@@ -339,7 +354,7 @@ cp -L $S/router/codex-README.md .codex/README.md
 - **`stacks/`** — catálogo de presets (backend/frontend/mobile/RPA); a Camada 2
   das rules referencia estes comandos concretos.
 - **`esteira/`** — esteira de qualidade de código (gates bloqueantes
-  `00-check → 10-refactor → 20-test/cov/mutation → 30-review` + `RUNBOOK`).
+  `Q00-check → Q10-refactor → Q20-test/cov/mutation → Q30-review` + `RUNBOOK`).
 - **`commands/eng/`** — runbooks LLM-agnostic (`check-rules`, `refactor`,
   `responsive-pass`, `dead-code-cleansing`). Para Claude Code, ative o frontmatter
   comentado no topo de cada um; em outros LLMs, cole o corpo como prompt.

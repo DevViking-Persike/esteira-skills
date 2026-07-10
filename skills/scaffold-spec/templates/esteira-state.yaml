@@ -1,0 +1,56 @@
+# esteira-state.yaml — CURSOR machine-readable da esteira de PROCESSO
+#
+# ⚠️  FONTE ÚNICA DE DECISÃO DO TICK. Quem decide "qual a próxima ação" é ESTE
+#     arquivo — por lookup, nunca por parse de prosa. O `STATE.md` é o diário
+#     narrativo humano (append); as marcas `✅` no `plano-de-sprints-NN.md` e
+#     `Status:` nas tasks são ESPELHOS write-only: o tick ESCREVE neles, mas
+#     NUNCA decide por eles.
+#
+#     Reconciliação `plano/task → yaml` acontece SÓ no bootstrap (quando este
+#     arquivo ainda não existe). Depois disso, o yaml manda; se divergir da
+#     prosa, o yaml vence.
+#
+# Gerado pelo `scaffold-spec` (Passo 1). Upsert-only — o tick sobrescreve os
+# campos; o histórico é o `STATE.md` + o `git log` dos ticks.
+
+schema: 1
+
+# backlog autoritativo (path relativo a `.spec/`) — o fan-in da Discovery.
+plano: discovery/plano-de-sprints-NN.md
+
+# sprint em execução (o `NN` do plano). null ⇒ o tick pega a próxima linha
+# SEM `✅` do plano e cria `.spec/sprints/sprint-NN-<tema>/` no 00s.
+sprint_ativa: null
+
+# etapa atual do sprint ativo. Enum na ordem canônica:
+#   00-discovery  — PRÉ-PLANO: rodada de discovery ainda aberta (bootstrap de
+#                   projeto recém-scaffoldado não trava aqui; PARK em humano:plano)
+#   00s           — discovery-de-sprint (aterra a linha do plano; NUNCA dá VERDICT)
+#   10a           — arquitetura design (gate; veredito autoral → H2)
+#   20-dev        — desenvolvimento (1 task por tick)
+#   25-review     — review-codigo-subagents (executor; emite VERDICT)
+#   10b           — arquitetura review (gate; consome a 25)
+#   30-qa         — qa-rpa (executa a matriz) → qa (julga)
+#   40-seg        — redteam (executa) → seguranca (julga)
+#   deploy        — transversal (produção ⇒ H6)
+#   done          — sprint fechado; o tick avança `sprint_ativa`
+etapa: 00-discovery
+
+# tentativas da etapa atual. Reseta ao TROCAR de etapa.
+# 2ª reprovação de gate ⇒ awaiting: humano:<etapa>-2x (parada obrigatória).
+tentativa: 1
+
+# token de bloqueio de 1ª classe. Distingue "⬜ ainda não cheguei" de
+# "⬜ bloqueado esperando algo". null ⇒ livre pra executar.
+#   humano:<gate>     — humano:scaffold-mode | humano:plano | humano:10a |
+#                       humano:dev-convergencia | humano:aceite-risco |
+#                       humano:deploy-prod | humano:<etapa>-2x
+#   ambiente:<etapa>  — ambiente:qa | ambiente:seg (dev_server / alvo indisponível)
+awaiting: null
+
+# veredito da última etapa de gate, traduzido pro dialeto ÚNICO.
+#   PASS | FAIL | null   (AWAITING não é veredito — vira o campo `awaiting` acima)
+veredito: null
+
+# ISO-8601 do último tick.
+atualizado: <preencher: YYYY-MM-DDThh:mm:ssZ>
