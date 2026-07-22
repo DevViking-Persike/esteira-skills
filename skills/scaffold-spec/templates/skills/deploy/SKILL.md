@@ -64,7 +64,7 @@ curl -sI https://<host>/         | head -3     # 200/30x
 curl -sI https://<host>/api/health | head -3   # 200
 ```
 Depois: login real (se houver auth) e o RPA de QA do incremento
-(`.spec/sprints/30-qa/`) com o host do ambiente.
+(`.spec/qa/sprint-NN-<tema>/`) com o host do ambiente.
 
 ## Restrições (de `.claude/rules/seguranca.md` ou equivalente Codex)
 

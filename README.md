@@ -55,24 +55,29 @@ deploy**; e as **tools** de validação `spec-check.sh` e `esteira-check.sh`.
 
 ## Instalação
 
-Copie as skills para o diretório de skills do Claude Code:
+Use o `install.sh` — **a instalação já materializa a esteira completa** no projeto
+(rules 01–11, commands, esteira, stacks, tools, sprints, esteira-state), então
+nenhuma pasta fica de fora esperando o scaffold:
 
 ```bash
-# global (todos os projetos)
-cp -R skills/* ~/.claude/skills/
-# ou por projeto
-cp -R skills/* <seu-projeto>/.claude/skills/
+# skills no usuário (~/.claude/skills, via symlink — git pull atualiza sozinho)
+./install.sh
+
+# skills no usuário + esteira completa num projeto (.opennjord + espelhos .claude/.agents/.codex)
+./install.sh --projeto <seu-projeto>
+
+# opt-in (por design ficam de fora sem as flags)
+./install.sh --projeto <seu-projeto> --com-agents --com-hooks
 ```
 
-Para usar no Codex em um projeto mantendo os arquivos do Claude Code como fonte
-canônica, aponte `.codex/skills` para `.claude/skills` no projeto consumidor:
+O instalador verifica ao final que todas as pastas e as 11 regras de engenharia
+foram materializadas — falha ruidosamente se algo faltar.
 
-```bash
-mkdir -p <seu-projeto>/.codex
-ln -s ../.claude/skills <seu-projeto>/.codex/skills
-```
-
-Depois, num projeto, rode `/scaffold-spec criar` (ou `refatorar` / `documentar`).
+Depois, no projeto, rode `/scaffold-spec criar` (ou `refatorar` / `documentar`):
+com a estrutura já no lugar, o scaffold só **adapta** — preenche placeholders,
+escolhe o preset de stack ativo e gera o `.spec/` (MANIFEST/STATE/RUNBOOK).
+Poda de presets exige registro no `MANIFEST.md` e nunca remove `stacks/README.md`
+nem o preset ativo.
 
 ## Fundamentos (discovery)
 

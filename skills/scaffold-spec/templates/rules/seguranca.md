@@ -56,7 +56,7 @@
   equivalente) antes do merge.
 - **Dinâmico:** a disciplina **40-segurança** da esteira (`.spec/sprints/`) tenta
   **invadir pelo navegador** o ambiente vivo (token vazando, authz, audit,
-  CSP, redirect) — ver `.spec/sprints/40-seguranca/README.md`.
+  CSP, redirect) — ver `.spec/sprints/README.md`.
 
 ## Proibido
 

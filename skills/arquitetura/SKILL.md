@@ -11,13 +11,15 @@ description: >-
 # Skill: arquitetura (gate transversal — disciplina 10)
 
 Roda o gate de Arquitetura **2×** por incremento. Método em
-`.spec/sprints/10-arquitetura/README.md`; regras em `.claude/rules/` quando rodar
+`.spec/sprints/README.md`; regras em `.claude/rules/` quando rodar
 no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
-(arquitetura, seguranca). Cada gate é **bloqueante**: reprovou → volta uma casa.
+(`rules/eng/03-solid.md`, `rules/eng/04-clean-architecture.md`,
+`rules/seguranca.md`). Cada gate é **bloqueante**: reprovou → volta uma casa.
 
 ## Entrada
 - `design` (antes do dev) ou `review` (depois do dev), em ARGUMENTS.
-- Discovery aprovado (design) ou branch/diff pronto (review).
+- Discovery aprovado — o do sprint (`discovery-sprint.md`) quando existir,
+  fallback: ver `fluxo-desenvolvimento.md` — (design) ou branch/diff pronto (review).
 
 ## design gate (antes do dev)
 1. A abordagem respeita **camadas/contratos/stack** do projeto?
@@ -26,17 +28,60 @@ no Claude Code, ou nas regras equivalentes do projeto quando rodar no Codex
 4. Precisa de **ADR**? (decisão estrutural → `.spec/reference/ADR-NNN`).
 → Veredito: aprovado (segue p/ Dev) ou reprovado (volta à Discovery/Dev).
 
+> **Fronteira com o 00s:** o discovery-de-sprint traz o QUÊ; as decisões de
+> design (camadas/contratos/ADR) são produzidas AQUI — se vieram antecipadas,
+> retrabalhar aqui.
+
+> **Expansão nas fases LionClaw (macro-stage Tech + Spec).** Onde o incremento
+> exigir profundidade de design, o design gate cobre as **4 entrevistas de design
+> técnico** como sub-checklist — cada uma um gate de decisão por área:
+> - **Database** — modelo de dados, migrações, integridade, índices;
+> - **Backend** — contratos/API, camadas, invariantes de domínio;
+> - **Frontend** — apresentação, estado, contrato com o backend;
+> - **Security** — superfície, authz, segredos (ancorado em `seguranca.md`).
+>
+> **Saída do design** = **Spec Generation → Spec Enricher**: as 4 decisões
+> materializam a **SPEC-implementável** (o Enricher é o gate final que a entrega
+> ao Dev). Ver o mapa macro-stage→disciplina em `scaffold-spec/SKILL.md`.
+
+> **Variação Refatoração / foco Arquitetura — Entrevista de Decisão ≥3 DN.**
+> Quando o modo é Refatoração ou o foco é Arquitetura, o design gate exige uma
+> **Entrevista de Decisão** com **≥3 Decisões de Negócio/arquitetura (`## DN`)
+> completas** como critério de saída reforçado (atual×alvo com trade-offs
+> registrados) — é uma variação do gate existente, **não** uma skill nova.
+
+> **Fronteira:** o review gate (10b) é um gate **fino** — julga camadas, ACs e
+> ADR sobre o diff já pronto; não é onde o diff é produzido. Quem produz os
+> achados de review por lane é a disciplina 25 (`/review-codigo-subagents`) —
+> o 10b consome/julga esse resultado, não o refaz.
+
 ## review gate (depois do dev) — revisar o DIFF
+> **DoR (10b):** relatório da 25 disponível em
+> `.spec/sprints/sprint-NN-<tema>/review-codigo.md` + diff pronto do dev. A 25
+> executa os achados por lane ANTES; o 10b consome/julga (ver Fronteira acima).
+
 1. **0 violação de camada / direção de dependência** (lint de camadas verde).
 2. Sem segredo vazando; nenhuma regra de `seguranca.md` quebrada.
 3. Lógica na camada certa (não no controller/handler/componente).
-4. Bate com os **critérios de aceitação** da Discovery.
+4. Bate com os **critérios de aceitação** — do `discovery-sprint.md` do sprint
+   quando presente, senão da Discovery.
 5. Débito técnico **registrado** (não escondido).
 → Veredito: aprovado p/ QA, ou lista de correções (volta ao Dev).
 
 ## Saída
-- Preencher a instância `arquitetura-NN-<tema>.md` (template da disciplina).
-- Atualizar `.spec/STATE.md` (status + veredito). Reprovou 2× → parada (pedir humano).
+- Preencher a instância `.spec/arquitetura/arquitetura-NN-<tema>.md` (template da disciplina).
+- Atualizar `.spec/STATE.md` (status + veredito) + upsert no `esteira-state.yaml`.
+  Reprovou 2× → parada (pedir humano).
+- **Linha final grepável (headless):** `VERDICT: PASS` (aprovado) | `VERDICT: FAIL`
+  (reprovado → lista de correções vira tasks). O relatório fica acima; o tick lê só
+  esta linha. **AWAITING não é VERDICT** — é o campo `awaiting` no cursor.
 
-> Para o review do diff, apoie-se em `/code-review` quando existir; o gate de
-> arquitetura é o humano-no-loop sobre o resultado.
+> Para o review do diff, apoie-se em `/code-review` quando existir.
+>
+> **Humano-no-loop do 10b — com delegação (headless):** o gate de arquitetura é o
+> humano-no-loop sobre o resultado, **mas** delega o caminho verde: se os itens
+> **mecânicos** (1 grep de camada/direção + 2 secret scan) estão verdes **E** o
+> `review-codigo.md` da 25 fecha com `VERDICT: PASS` (cobre o item 3 — lógica na
+> camada — pela lane arquitetura da 25; o item 4/ACs é reconferido no QA 30) ⇒
+> **auto-`VERDICT: PASS`**. **PARK humano (`awaiting: humano:10b`) só** em `FAIL`
+> mecânico/da 25 **ou** decisão estrutural nova sem ADR.

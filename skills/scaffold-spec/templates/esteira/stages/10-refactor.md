@@ -72,20 +72,6 @@ Para cada arquivo-alvo, executar **na ordem** (Regra 6):
 - Sanidade: `lint_cmd`, `typecheck_cmd`, `build_cmd`.
 - Tamanho: `file_glob` + contagem de linhas dos arquivos mexidos.
 
-## Runbooks opcionais (`commands/eng/`)
-
-O refactor pode acionar runbooks específicos conforme o alvo (não são gates
-obrigatórios — rodam **sob demanda** dentro deste stage):
-
-- **`/refactor <arquivo>`** — o fluxo padrão deste stage (checklist acima). Spine.
-- **`/responsive-pass <rota/componente>`** — quando o alvo é UI: aplica a **Regra 09**
-  (mobile-first, sem largura fixa, touch ≥44px, `rem` não `px`, breakpoints). Só
-  CSS/layout, sem tocar comportamento; um commit por componente.
-- **`/dead-code-cleansing`** — quando o 00-check ou o 30-review sinaliza código
-  morto, exports/types não usados ou dirs vazios: remove em fases com
-  **human-in-the-loop** (nunca sem verificação). Commit isolado
-  (`chore: remove código morto`).
-
 ## Composição graphify (opcional)
 
 Antes do split, entender a rede de dependências evita quebrar invariantes:

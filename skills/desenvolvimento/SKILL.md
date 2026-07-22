@@ -10,26 +10,45 @@ description: >-
 
 # Skill: desenvolvimento (disciplina 20)
 
-Implementa o incremento. Método em `.spec/sprints/20-desenvolvimento/README.md`;
+Implementa o incremento. Método em `.spec/sprints/README.md`;
 regras em `.claude/rules/` quando rodar no Claude Code, ou nas regras equivalentes
-do projeto quando rodar no Codex (arquitetura, testes, seguranca,
-fluxo-desenvolvimento).
+do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
+`rules/eng/04-clean-architecture.md`, `rules/eng/02-unit-tests.md`,
+`rules/seguranca.md`, `rules/fluxo-desenvolvimento.md`).
 
 ## Definition of Ready (não começar sem)
-- Spec aceita + critérios de aceitação (Discovery).
+- **Artefatos de discovery** aceitos + critérios de aceitação (Discovery).
+- **Discovery de sprint** aprovado quando existir (convenção e fallback: ver
+  `fluxo-desenvolvimento.md`).
 - Plano técnico aprovado (Arquitetura **10a design**): camadas, contratos, ADR.
 
 ## Fluxo
-1. Quebrar em **tasks** (`task-NN-*.md`).
-2. Implementar **por camada** (respeitar a direção de dependência).
-3. **Testes junto** (não depois) — caminho feliz + erro; cobrir invariantes.
-4. **Validação local verde** antes de pedir review: build + lint + teste + RPA
+1. **Planner** — materializa as tasks propostas no `discovery-sprint.md` em
+   `.spec/sprints/sprint-NN-<tema>/tasks/task-NN-<slug>.md` (template
+   `templates/task.md`), **direto da tabela** de tasks propostas (sem
+   re-transcrição), enriquecendo com as decisões do design gate 10a; é o
+   macro-stage **Execution** do pipeline.
+2. **Sprint Validator** (gate do plano) — o plano de tasks é são antes de
+   codar? **NÃO re-julga o mérito do AC** (isso é do 10a); valida a
+   **fidelidade** — o AC da task materializada bate com o AC ratificado no 10a
+   (diff mecânico) — mais **colisão de escopo de escrita** e **dependência
+   declarada** no próprio arquivo. Reprovou → replaneja. (Ver o mapa
+   Execution→sprints em `scaffold-spec/SKILL.md`.)
+3. Implementar **por camada** (respeitar a direção de dependência), no **loop
+   Coder ↔ Evaluator**: o Coder escreve o incremento, o Evaluator avalia; itera por
+   rounds, com **gate humano no max-rounds** (não avança em fail silencioso).
+4. **Testes junto** (não depois) — caminho feliz + erro; cobrir invariantes.
+5. **Validação local verde** antes de pedir review: build + lint + teste + RPA
    (comandos no `.spec/MANIFEST.md`).
+> **Guarda de idempotência (`/loop`):** antes de cada task, se o `## Resultado`
+> marca `Status: entregue` (`templates/task.md`), **pule** essa task. Sob `/loop`,
+> **1 tick = 1 task** (1 task = 1 commit) — o tick não varre a sprint de uma vez.
 > Modo **refatorar**: mudanças pequenas/reversíveis + teste de caracterização
 > antes de mexer (não-regressão). Modo **documentar**: o "dev" é escrever os docs.
 
 ## Definition of Done
-- [ ] Tasks por camada · [ ] testes novos verdes; sem regressão
+- [ ] Tasks em `<sprint>/tasks/` · `## Resultado` (status + commit) preenchido
+  em cada task entregue · [ ] testes novos verdes; sem regressão
 - [ ] build/lint/teste verdes · [ ] validação local **PASS**
 - [ ] diff pronto p/ review (Arquitetura 10b) · [ ] débito anotado
 - [ ] `.spec/STATE.md` atualizado

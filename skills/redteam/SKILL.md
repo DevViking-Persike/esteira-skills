@@ -16,6 +16,11 @@ Disciplina 40 → `/seguranca` é o gate; esta skill é a execução ofensiva co
 Objetivo é **defensivo**: achar → PoC mínimo → remediar.
 
 ## ⚠️ Autorização (inegociável)
+- **Alvo = campo `redteam_target` do `.spec/MANIFEST.md`** (registrado UMA vez, não
+  re-perguntado por tick). **Validação obrigatória por tick:** só
+  `localhost`/`127.0.0.1`/rede privada (`10.0.0.0/8`, `172.16.0.0/12`,
+  `192.168.0.0/16`, `*.local`). Alvo **fora** desse padrão ⇒ `awaiting: humano` —
+  **nunca executa** (a autorização one-shot no arquivo NÃO vale pra alvo público).
 - **Só infra do próprio projeto:** `localhost`/dev autorizados. **Nunca produção**
   nem terceiros sem aceite **escrito**.
 - **Sem DoS/stress.** Sem exfiltração real de dados (PoC mínimo prova a falha — não
@@ -29,22 +34,27 @@ Objetivo é **defensivo**: achar → PoC mínimo → remediar.
 3. Para cada brecha: **PoC reproduzível** (passos), **impacto**, **invariante violado**
    (`.claude/rules/seguranca.md` no Claude Code, ou regra equivalente no Codex),
    **remediação**, **severidade** (Crítico/Alto/Médio/Baixo).
-4. Achado bloqueante → vira task de Dev (volta uma casa).
+4. Achado bloqueante → vira task em `<sprint>/tasks/` (template
+   `desenvolvimento/templates/task.md`; volta ao Dev, uma casa).
 
-## Vetores (mapeados aos invariantes)
+## Vetores (cada um REFERENCIA o invariante — não redefine a matriz)
 
-| # | Brecha | Como testar | Esperado (seguro) |
+A fonte única dos invariantes é `.claude/rules/seguranca.md` (ou a regra
+equivalente do projeto no Codex). A tabela abaixo é só o "como testar" de cada
+vetor; o "seguro" esperado é o próprio invariante linkado — não redefinir aqui.
+
+| # | Brecha | Como testar | Invariante (`.claude/rules/seguranca.md`) |
 |---|---|---|---|
-| T1 | **Token exposto** | inspecionar `window.__*`/PageData, bundle JS, source maps, Network, páginas de erro | nenhum JWT/Bearer/accessToken no client |
-| T2 | **Bypass de auth** | chamar endpoint protegido sem sessão; `Authorization: Bearer dev-mock`/forjado; flags `*_BYPASS` | 401/403 |
-| T3 | **IDOR / escalonamento** | logar como papel baixo → acessar rota/endpoint de papel alto; trocar `id` de outro tenant na API | 403 / só os próprios dados |
-| T4 | **SQL injection** | inputs/params/headers com vetores: `' OR '1'='1`, `'--`, `1;SELECT pg_sleep(5)--` (time-based), aspas que causam erro 500 | rejeita/parametriza; **sem** 500, **sem** atraso, **sem** vazar erro de SQL |
-| T5 | **XSS / CSP** | injetar `<script>`/`"><img src=x onerror=alert(1)>` em campos refletidos/persistidos; conferir header CSP | sanitizado; CSP nonce bloqueia inline |
-| T6 | **CSRF** | request que muda estado **sem** token/SameSite a partir de origem externa | recusado (token/SameSite) |
-| T7 | **SSRF / mass-assignment** | forçar o back a buscar URL arbitrária; enviar campos extras no payload (ex.: `role:"admin"`) | recusa URL externa; ignora campos não esperados |
-| T8 | **Segredos expostos** | `grep` no bundle/`build/`, `.env`/`.git` acessíveis via HTTP, source maps, mensagens de erro com stack/credenciais | nada sensível servido |
-| T9 | **Sessão** | flags do cookie (httpOnly/Secure/SameSite); ler cookie via JS; replay após logout | httpOnly+Secure+SameSite; replay inválido |
-| T10 | **Rate limit / enumeração** | tentativas repetidas de login; mensagens que revelam se o user existe (sem DoS) | rate limit; mensagem genérica |
+| T1 | **Token exposto** | inspecionar `window.__*`/PageData, bundle JS, source maps, Network, páginas de erro | §Autenticação & Autorização — "token/credencial nunca chega ao browser/cliente" |
+| T2 | **Bypass de auth** | chamar endpoint protegido sem sessão; `Authorization: Bearer dev-mock`/forjado; flags `*_BYPASS` | §Autenticação & Autorização — "bypass de auth não pode ser caminho de produção" [INEGOCIÁVEL] |
+| T3 | **IDOR / escalonamento** | logar como papel baixo → acessar rota/endpoint de papel alto; trocar `id` de outro tenant na API | §Autenticação & Autorização — "AuthZ checada no servidor, deny-by-default" |
+| T4 | **SQL injection** | inputs/params/headers com vetores: `' OR '1'='1`, `'--`, `1;SELECT pg_sleep(5)--` (time-based), aspas que causam erro 500 | §Dados & Integridade — "nunca montar SQL/comando por concatenação de input" |
+| T5 | **XSS / CSP** | injetar `<script>`/`"><img src=x onerror=alert(1)>` em campos refletidos/persistidos; conferir header CSP | §Aplicação (web) — "CSP restritiva (nonce, sem `unsafe-inline`); sanitizar saída" |
+| T6 | **CSRF** | request que muda estado **sem** token/SameSite a partir de origem externa | §Aplicação (web) — borda controlada contra origem externa (mesmo bloco de open-redirect/SSRF) |
+| T7 | **SSRF / mass-assignment** | forçar o back a buscar URL arbitrária; enviar campos extras no payload (ex.: `role:"admin"`) | §Aplicação (web) — "sem SSRF" / "sem mass-assignment: aceitar só os campos esperados" |
+| T8 | **Segredos expostos** | `grep` no bundle/`build/`, `.env`/`.git` acessíveis via HTTP, source maps, mensagens de erro com stack/credenciais | §Segredos — "nunca abrir, colar, resumir ou logar valores de segredo" [INEGOCIÁVEL] |
+| T9 | **Sessão** | flags do cookie (httpOnly/Secure/SameSite); ler cookie via JS; replay após logout | §Autenticação & Autorização — "cookie httpOnly cifrado ou equivalente" |
+| T10 | **Rate limit / enumeração** | tentativas repetidas de login; mensagens que revelam se o user existe (sem DoS) | §Dados & Integridade — "mínimo privilégio" + baseline geral (sem invariante dedicado — registrar gap se faltar rate limit) |
 
 ## Ferramentas
 - **Navegador:** Playwright/Chromium (login real, ler DOM/PageData, adulterar request).
@@ -60,11 +70,13 @@ for p in /.env /.git/config /server/.env; do echo -n "$p "; curl -s -o /dev/null
 ```
 - Opcional (com cautela, só no próprio dev): `sqlmap`, OWASP ZAP, Burp — para varredura mais ampla.
 
-## Gate (DoD)
+## Gate (DoD do executor — o gate é `/seguranca`)
 - [ ] T1–T10 executados (ou N/A justificado).
 - [ ] Achados com **PoC + severidade + remediação**; segredos mascarados.
-- [ ] **0 Crítico/Alto aberto** (ou aceite de risco registrado).
-- [ ] Relatório arquivado sem segredos; bloqueantes viraram tasks de Dev.
+- [ ] Relatório em `.spec/sprints/sprint-NN-<tema>/seguranca.md` sem segredos;
+  bloqueantes viraram tasks de Dev.
+> O critério de release (**0 Crítico/Alto aberto** ou aceite de risco) é do **gate
+> `/seguranca`** — ver `seguranca/SKILL.md` "Gate (DoD)". O `/redteam` não o redefine.
 
 ## Anti-patterns
 - ❌ Rodar fora do próprio local/dev sem autorização escrita. ❌ DoS. ❌ Baixar a base.

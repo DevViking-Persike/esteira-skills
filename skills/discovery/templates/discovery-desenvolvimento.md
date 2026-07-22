@@ -1,7 +1,9 @@
 # Discovery NN — <tema> `[DISCOVERY · DESENVOLVIMENTO]`
 
 > Modo desenvolvimento: o **como/escopo**. Gera contexto técnico (base pra
-> construir/refatorar). Critérios verificáveis viram teste no QA.
+> construir). Critérios verificáveis viram teste no QA. Segurança entra como
+> **requisito de 1ª classe** (§7) — captura, não pentest; o gate 40 verifica.
+> Artefato canônico: `.spec/discovery/discovery-NN-<tema>.dev.md`.
 
 ## 1. Escopo
 - **Faz:** <casos de uso principais> · **NÃO faz:** <fora>
@@ -12,12 +14,14 @@
 - Atores e autorização (quem pode o quê): <...>
 
 ## 3. NFR — top 3–5 atributos de qualidade (com número)
+> Segurança saiu daqui — é bloco de 1ª classe (§7).
+
 | Atributo | Alvo mensurável |
 |---|---|
 | Performance/escala | <X req/s, p95 < Y ms, N usuários, volume de dados> |
 | Disponibilidade | <SLO %, comportamento em falha, recuperação> |
-| Segurança | <dados sensíveis, authn/authz, auditoria, LGPD/compliance> |
 | Manutenibilidade | <testabilidade, observabilidade, quem mantém> |
+| Compatibilidade/portabilidade | <plataformas, navegadores, integrações> |
 | <outro> | <...> |
 
 ## 4. Restrições
@@ -41,10 +45,34 @@
 - **Critérios de aceitação (verificáveis):**
   1. **Dado** <contexto> **quando** <ação> **então** <resultado observável>.
 
-> **Refatorar:** comportamento atual a preservar (não-regressão): <...> ·
-> caracterização (testes) que cobre: <...>
+## 8. Requisitos de Segurança (1ª classe)
+> Cada resposta **instancia** um invariante de `rules/seguranca.md` para este
+> incremento e vira **AC que o gate 40 (seguranca/redteam) verifica na execução**.
+> O discovery **captura**, não pentesta.
+
+| Dimensão (→ rule) | Requisito instanciado neste incremento | AC verificável (gate 40) |
+|---|---|---|
+| Superfície de ameaça | <endpoints/entradas expostas, atores hostis> | <...> |
+| Dado sensível (§Dados) | <o que é sensível, classificação, o que não logar> | <...> |
+| Authn/Authz (§Auth) | <como autentica; authz por papel deny-by-default> | <...> |
+| Tenancy/isolamento | <multi-tenant? fronteira de isolamento> | <...> |
+| Auditoria/log (§Dados) | <o que audita, append-only, actor do usuário autenticado> | <...> |
+| LGPD/compliance | <bases legais, consentimento, minimização> | <...> |
+| Manejo de segredos (§Segredos) | <onde vivem, nunca no cliente/git/log> | <...> |
+
+## 9. Apresentação de dados & superfície UX
+- **Tipo de apresentação:** <dashboard / grid / relatório / API / realtime>
+- **Volume & paginação:** <quantos itens, paginação/scroll, filtros/ordenação>
+- **Acessibilidade / i18n:** <requisitos a11y, idiomas, formatos regionais>
+
+## 10. Direção arquitetural
+- **Decisões/restrições técnicas de alta relevância a fechar ANTES do dev:** <...>
+- **Alternativas descartadas & porquê:** <...>
+- **O que alimenta o gate 10 (design):** <ponto que a Arquitetura precisa ratificar>
 
 ## Definition of Ready (DoD da Discovery dev)
 - [ ] Escopo (faz × não faz × slice) · [ ] requisitos funcionais
 - [ ] NFR top 3–5 **com número** · [ ] restrições/premissas/riscos mapeados
-- [ ] dependências · [ ] critérios de aceitação verificáveis · [ ] (refatorar) não-regressão definida
+- [ ] dependências · [ ] critérios de aceitação verificáveis
+- [ ] **Segurança** (§8) instanciada por invariante de `rules/seguranca.md` → AC pro gate 40
+- [ ] apresentação de dados/UX (§9) · [ ] direção arquitetural (§10) → gate 10

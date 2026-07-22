@@ -12,13 +12,13 @@ Cada arquivo neste diretório define uma regra de engenharia universal. Skills (
 | 4 | [Clean Architecture](04-clean-architecture.md) | sim (grep de imports entre camadas) |
 | 5 | [Simplicidade](05-simplicity.md) | não (code review) |
 | 6 | [Refatoração contínua](06-continuous-refactoring.md) | não (disciplina + histórico git) |
-| 7 | _Build e execução do app_ | _(a definir por stack — ver `stacks/`)_ |
-| 8 | _Delegar execução ao usuário_ | não (disciplina) |
-| 9 | _UI responsiva (mobile-first)_ | parcial (grep de larguras fixas + DevTools) |
-| 10 | _Arquitetura de frontend (MVVM + Atomic)_ | parcial (grep de camadas) |
-| 11 | _Repositório-fonte / paridade externa_ | não (referência) |
+| 7 | [Build e execução do app](07-build-and-run.md) | por stack (ver `stacks/`) |
+| 8 | [Delegar execução ao usuário](08-delegate-execution.md) | não (disciplina) |
+| 9 | [UI responsiva (mobile-first)](09-responsive-ui.md) | parcial (grep de larguras fixas + DevTools) |
+| 10 | [Arquitetura de frontend (MVVM + Atomic)](10-frontend-architecture.md) | parcial (grep de camadas) |
+| 11 | [Repositório-fonte / paridade externa](11-external-parity-source.md) | não (referência) |
 
-> Regras 07–11: o conjunto completo é 01–11. As regras 07–11 ainda não têm template neste diretório — são referenciadas por outros artefatos do `scaffold-spec` (esteira, runbooks) e serão adicionadas conforme a necessidade do projeto. As regras **01–06 são autocontidas e portáveis** hoje.
+> O conjunto completo é **01–11** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
 
 ## Formato: 3 camadas
 

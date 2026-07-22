@@ -12,10 +12,28 @@ description: >-
 # Skill: review-codigo-subagents (disciplina 25)
 
 Orquestra a **sprint 25 — Review de Código** por subagents. Roda depois de
-`/desenvolvimento` e do gate `/arquitetura review`, antes de `/qa`. A skill não
+`/desenvolvimento`, **antes** do gate `/arquitetura review` (10b) — a 25 executa
+os achados por lane; o 10b consome/julga. A skill não
 assume stack, framework, arquitetura ou ferramenta específica: primeiro descobre
 o projeto, depois escolhe lanes de análise, executa subagents read-only e
 consolida um relatório priorizado.
+
+> **Fronteira:** a disciplina 25 é **EXECUÇÃO** por lanes — produz os achados
+> que o gate `/arquitetura review` (10b) depois julga (aprovado/reprovado); a
+> 25 não substitui o gate. A **lane Segurança/privacidade** desta pipeline é
+> análise **ESTÁTICA** do diff (secret scan, authz por leitura de código,
+> superfície de risco); a exploração **DINÂMICA** do ambiente vivo é da
+> disciplina **40** (`/seguranca` + `/redteam`) — não se sobrepõem.
+>
+> **Foco Segurança (esteira derivada) = esta lane em escopo de REPO.** Quando o
+> pipeline é derivado com **foco Segurança** (o "Security Audit" das fases
+> LionClaw — ver `scaffold-spec/SKILL.md`), a lane Segurança **amplia o escopo
+> de *diff* para *repo*** (fan-out por tag/área, read-only) e **gera tasks de
+> remediação** (spec). Isso **REUSA** esta lane 25 — **não** cria uma skill nem
+> um 4º conceito. A taxonomia dos atores de segurança fica assim: **(1)** lane
+> estática 25 (diff **ou** repo, quando foco Segurança) → tasks; **(2)**
+> `/redteam` dinâmico (40) → PoC; **(3)** `/seguranca` gate (40) → veredito. O
+> "Security Audit" LionClaw é o caso **(1)** em escopo de repo, não um ator novo.
 
 ## Objetivo
 
@@ -31,19 +49,22 @@ Criar um processo repetível para responder:
 
 **Entrada (Definition of Ready):**
 
-- Diff pronto e aprovado no gate `/arquitetura review`.
+- Diff pronto do `/desenvolvimento` (validação local verde).
 - Plano/spec/ADR relevantes disponíveis em `.spec/`.
 - Regras locais disponíveis em `.claude/rules/` ou equivalente do projeto.
 - Comandos de validação identificados ou lacuna registrada.
 
 **Saída (Definition of Done):**
 
-- Relatório arquivado em `.spec/sprints/25-review-codigo/review-codigo-NN-<tema>.md`.
+- Relatório arquivado em `.spec/sprints/sprint-NN-<tema>/review-codigo.md`.
 - Veredito geral `PASS`, `PASS_WITH_WARNINGS` ou `FAIL`.
+- **Linha final grepável:** `VERDICT: PASS` (inclui `PASS_WITH_WARNINGS` — os
+  warnings ficam listados acima) | `VERDICT: FAIL`. O gate 10b e o `/qa` leem
+  esta linha; **AWAITING não é VERDICT**.
 - Achados com evidência, severidade e próximo passo.
 - Comandos executados/não executados registrados.
-- `.spec/STATE.md` atualizado. `FAIL` volta para Desenvolvimento ou Arquitetura,
-  conforme a causa.
+- `.spec/STATE.md` atualizado + upsert no `esteira-state.yaml`. `FAIL` → os
+  achados viram tasks (Dev/Arquitetura conforme a causa); a 25 **nunca edita código**.
 
 ## Princípios
 
@@ -64,7 +85,9 @@ Criar um processo repetível para responder:
 
 Defina o alvo do review:
 
-- diff atual, branch, PR, pasta, módulo, arquivo ou incremento da `.spec`;
+- diff atual, branch, PR, pasta, módulo, arquivo ou incremento da `.spec` —
+  `sprint-NN-<tema>/tasks/` e o `discovery-sprint.md` do sprint são insumos
+  válidos;
 - objetivo: pre-merge, pre-refatoração, regressão, arquitetura, segurança, UX,
   documentação, limpeza ou auditoria geral;
 - restrições: read-only, comandos permitidos, ambiente local/dev, tempo e escopo.
@@ -151,6 +174,12 @@ Depois que os subagents terminarem:
 
 Se o usuário pediu só review, pare no relatório. Se pediu correção, transforme o
 relatório em plano e peça confirmação antes de qualquer edição.
+
+> **Exceção LIMITADA no modo `/loop`:** pode **persistir**
+> `.spec/sprints/sprint-NN-<tema>/review-codigo.md` e **fazer upsert no
+> `esteira-state.yaml`** SEM confirmação (é evidência de estado, não código).
+> **NUNCA** edita código, cria commit de código, nem aplica correção — achados
+> `FAIL` viram tasks pro Dev. Todo o resto da lista abaixo segue exigindo confirmação.
 
 Peça confirmação antes de:
 

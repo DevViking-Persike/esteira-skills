@@ -5,7 +5,7 @@ vencimento de fatura** num SaaS de cobrança.
 
 ---
 
-## Exemplo A — modo PRODUTO
+## Exemplo A — modo NEGÓCIO
 
 **Outcome:** reduzir inadimplência (churn involuntário). Métrica: % de faturas
 pagas até o vencimento — hoje **71%**, alvo 85%.
@@ -27,6 +27,11 @@ Usabilidade — opt-in simples. Viab. técnica — gateway de WhatsApp já integ
 **Sucesso:** "menos faturas vencem sem aviso." Leading: % de faturas com lembrete
 entregue. Lagging: pagas-até-vencimento de 71% → 85%.
 **MVP:** 1 lembrete, 3 dias antes, WhatsApp, opt-in. **Fora:** régua multi-toque, e-mail, SMS.
+
+**Regras & Fluxo de negócio:** só cliente com **opt-in** ativo recebe (invariante
+de negócio + compliance LGPD); envio só na janela comercial 8h–20h; fluxo =
+fatura entra em D-3 → checa consentimento → dispara → registra. Caso-limite:
+fatura já paga antes do D-3 não gera lembrete.
 
 ---
 
@@ -59,3 +64,42 @@ Spike: validar rate limit real do gateway com 1k mensagens.
 
 **Definition of Ready:** ✅ escopo, ✅ NFR com número, ✅ restrições/compliance, ✅
 aceitação verificável → pronto pra Arquitetura.
+
+---
+
+## Exemplo C — modo REFATORAÇÃO
+
+Mesmo SaaS de cobrança; o job de lembretes já existe mas **está lento e duplica
+envios** sob reprocesso.
+
+**Alvo & motivação:** o job de D-3 leva **22 min** para 50k faturas (alvo era
+< 10 min) e, quando reprocessado após falha parcial, **reenvia** para quem já
+recebeu. Débito: seleção O(n²) e envio sem chave de idempotência. Por agora: um
+cliente reclamou de lembrete duplicado (risco de reputação + custo por msg).
+
+**Estado atual / inventário:** `jobs/lembrete_d3.rb` (seleção + envio no mesmo
+laço), `gateway/whatsapp_client.rb` (sem dedupe). Testes: só happy-path do envio,
+**sem** teste de reprocesso.
+
+**Não-regressão:** preservar — 1 lembrete por fatura opt-in em D-3, dentro da
+janela 8h–20h. Caracterização atual insuficiente → escrever teste de reprocesso
+**antes** de mexer (lacuna marcada).
+
+**Bug (duplicação):** repro = rodar o job, matar no meio, rodar de novo → faturas
+já enviadas recebem 2ª msg. Causa-raiz hipotética: ausência de registro de envio
+consultado antes do disparo. Correto: reprocesso **não** reenvia (idempotente).
+
+**Performance:** baseline 22 min / 50k. Alvo < 10 min. Hotspot: query de seleção
+por varredura completa. Medir com `EXPLAIN ANALYZE` + timing por lote.
+
+**Design/código:** separar **seleção** (query indexada por `vencimento`+`optin`)
+do **envio** (com chave de idempotência `fatura_id`); quebrar o laço único.
+
+**Raio de impacto:** NÃO tocar no contrato do gateway nem no schema de faturas
+(só adicionar tabela `envios`). Fatiar: (1) teste de caracterização de reprocesso;
+(2) tabela + chave de idempotência; (3) índice + seleção em lote.
+
+**Aceitação (verificável):**
+1. **Dado** o job interrompido no meio **quando** reprocessado **então** nenhuma
+   fatura já enviada recebe 2ª mensagem (não-regressão + bugfix).
+2. **Dado** 50k faturas **quando** o job roda **então** conclui em < 10 min (perf).

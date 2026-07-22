@@ -1,7 +1,24 @@
 # Agentes — convenção de orquestração multi-agente
 
 > Templates agnósticos para orquestrar builds multi-agente em qualquer projeto.
-> Instalados via `scaffold-spec` em `.claude/agents/` (ou equivalente noutro LLM).
+> Instalados via `scaffold-spec` em `.opennjord/agents/` — fonte canônica única
+> (Claude Code enxerga via `.claude/agents` → symlink; Codex, via `AGENTS.md`).
+
+## Um diretório, dois produtores — sem conflito
+
+`.opennjord/agents/` é compartilhado por duas origens que nunca colidem:
+
+1. **Templates `.tpl` (este pacote)** — `main-orchestrator.md.tpl`,
+   `sub-orchestrator.md.tpl`, `worker-{build,test,validate}.md.tpl`. Ficam
+   **inertes**: a extensão `.tpl` não é descoberta como agent (`.md` é o
+   contrato). Instancie sob demanda substituindo `{{...}}` (ver "Como
+   instanciar" abaixo) — o resultado vira um `.md` novo no mesmo diretório.
+2. **Agentes reais `.md`** — instanciados à mão a partir de um `.tpl`, OU
+   gravados pelo **orchestrator do njord** (dual-write FS+DB, categoria
+   `agent`, provenance `local`) quando este projeto é gerenciado por ele. As
+   duas origens escrevem no MESMO `.opennjord/agents/<nome>.md` — não há
+   necessidade de sincronizar nada à parte; editar pela UI do njord ou por
+   fora convergem no mesmo arquivo.
 
 ## Regra principal — orchestrator-always
 
@@ -60,8 +77,9 @@ Para tarefas pequenas, **não** use o sistema completo — custo/benefício nega
 ## Delegação de tools/hooks
 
 O Main Orchestrator pode **autorizar um worker** (escopo explícito no prompt) a:
-- Criar scripts em `.claude/tools/*.sh` (ex.: helper de validação específico).
-- Adicionar entries de hook em `.claude/settings.json` (ex.: lint pós-edit).
+- Criar scripts em `.opennjord/tools/*.sh` (ex.: helper de validação específico).
+- Adicionar entries de hook em `.claude/settings.json` (ex.: lint pós-edit — o
+  `settings.json` fica de fato em `.claude/`, real, nunca symlink).
 
 Sem essa autorização explícita, worker não cria tool nem hook — só edita código
 da sua área. O escopo deve definir nome do arquivo, comportamento esperado e

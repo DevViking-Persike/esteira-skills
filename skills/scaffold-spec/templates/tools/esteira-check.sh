@@ -9,7 +9,7 @@
 #
 # Uso:  bash esteira-check.sh [templates-dir]
 #   Sem arg: valida os templates ao lado do script (manutenção do repo esteira-skills).
-#   Com arg: valida o dir informado (ex.: .claude/skills/scaffold-spec/templates de um consumer).
+#   Com arg: valida o dir informado (ex.: .opennjord/skills/scaffold-spec/templates de um consumer).
 # Requer: rg (ripgrep), find, wc, mktemp.
 set -uo pipefail
 
@@ -79,16 +79,21 @@ done
 [ -f "$AGENTS/README.md" ] && ok "agents/README presente" || fail "agents/README ausente"
 
 # ---------- Frente 4 — Smoke install ----------
-section "Frente 4 — Smoke install (cp p/ tmpdir)"
+section "Frente 4 — Smoke install (cp -L p/ tmpdir, layout .opennjord/ + ponte .claude)"
 TMP="$(mktemp -d)"
-mkdir -p "$TMP/.claude"/{rules,commands,stacks,esteira}
-cp -R "$ENG_RULES/." "$TMP/.claude/rules/" 2>/dev/null || true
-cp -R "$CMD/."       "$TMP/.claude/commands/" 2>/dev/null || true
-cp -R "$STACKS/."    "$TMP/.claude/stacks/" 2>/dev/null || true
-cp -R "$ESTEIRA/."   "$TMP/.claude/esteira/" 2>/dev/null || true
-n_rules=$(find "$TMP/.claude/rules" -name '[0-9]*-*.md' | wc -l)
-{ [ "$n_rules" -ge 11 ] && [ -f "$TMP/.claude/esteira/RUNBOOK.md" ] && [ -d "$TMP/.claude/stacks/backend" ]; } \
-  && ok "smoke: $n_rules rules + esteira + stacks instalados em tmp" \
+mkdir -p "$TMP/.opennjord"/{rules/eng,commands,stacks,esteira,agents}
+cp -RL "$ENG_RULES/." "$TMP/.opennjord/rules/eng/" 2>/dev/null || true
+cp -RL "$CMD/."       "$TMP/.opennjord/commands/" 2>/dev/null || true
+cp -RL "$STACKS/."    "$TMP/.opennjord/stacks/" 2>/dev/null || true
+cp -RL "$ESTEIRA/."   "$TMP/.opennjord/esteira/" 2>/dev/null || true
+cp -RL "$AGENTS/."    "$TMP/.opennjord/agents/" 2>/dev/null || true
+# ponte .claude/ — mesma mecânica (symlink relativo por-subdiretório) que o instalador real cria
+mkdir -p "$TMP/.claude"
+for d in rules commands agents; do ln -s "../.opennjord/$d" "$TMP/.claude/$d"; done
+n_rules=$(find "$TMP/.opennjord/rules/eng" -name '[0-9]*-*.md' | wc -l)
+{ [ "$n_rules" -ge 11 ] && [ -f "$TMP/.opennjord/esteira/RUNBOOK.md" ] && [ -d "$TMP/.opennjord/stacks/backend" ] \
+  && [ -f "$TMP/.opennjord/agents/README.md" ] && [ -L "$TMP/.claude/rules" ] && [ -f "$TMP/.claude/rules/eng/01-file-size.md" ]; } \
+  && ok "smoke: $n_rules rules + esteira + stacks + agents instalados em .opennjord, ponte .claude resolve" \
   || fail "smoke: instalação incompleta (rules=$n_rules)"
 rm -rf "$TMP"
 

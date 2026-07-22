@@ -15,6 +15,11 @@ navegando como o usuário real, não só com `fetch`. Generaliza o padrão valid
 (padrão de RPA por sprint validado em produção). Disciplina 30 → `/qa` é o gate;
 esta skill é a **execução automatizada**.
 
+## Definition of Ready (ambiente vivo)
+Sobe o ambiente pelo comando **`dev_server`** do `.spec/MANIFEST.md` (é o alvo do
+`WC_HOST`). Ambiente **indisponível** (porta não responde / comando ausente) ⇒
+`awaiting: ambiente:qa` no cursor — **não** rode a matriz contra um alvo morto.
+
 ## Por que navegador real (não só fetch)
 O navegador reusa conexão e **renderiza** a resposta — pega classes de erro que o
 `fetch` não vê (ex.: 502 "too big header", erro de hidratação, console error,
@@ -32,15 +37,21 @@ erros de console, e tira screenshot.
 4. **RBAC:** rodar a matriz por **perfil** — cada papel vê só o que deve (403 onde não deve).
 
 ## Como montar (passos)
-1. **Levantar a matriz de telas** (todas as rotas de todos os fronts): para cada,
-   `{ path, perfilMin, marcador, endpointBack, acao? }`. Cobrir **todas as etapas**
-   de cada tela (índice + detalhe + ação).
+1. **Levantar a MATRIZ ESTENDIDA** (contrato que o gate `/qa` auto-ratifica): para
+   cada rota de cada front, `{ path, perfilMin, marcador, endpointBack, acao? }`, e
+   além disso, obrigatoriamente:
+   - **cada AC do sprint → 1 linha** da matriz (mapa AC→linha explícito);
+   - **1 linha de AuthZ por papel** (cada perfil vê só o que deve; 403 onde não deve);
+   - **≥1 caminho de erro por endpoint** (input inválido → 4xx tipado).
+   Cobrir **todas as etapas** de cada tela (índice + detalhe + ação). **Matriz
+   incompleta** (AC sem linha, papel sem AuthZ, endpoint sem erro) ⇒ o gate `/qa`
+   dá `VERDICT: FAIL` — não auto-ratifica.
 2. **Harness:** copie os templates desta skill e adapte:
    - `templates/lib-comum.mjs` — `HOST`, login real (ou bypass dev), helpers.
    - `templates/rpa-telas.mjs` — itera a matriz: navega, captura status do documento,
      console, marcador, screenshot; depois bate no `endpointBack` e checa envelope + 0 token.
 3. **Rodar** contra o ambiente alvo (`WC_HOST=https://<host>`); por perfil.
-4. **Relatório PASS/FAIL** por tela (Markdown), arquivado (ex.: `docs/relatorios/<data>/`).
+4. **Relatório PASS/FAIL** por tela (Markdown), arquivado em `.spec/qa/sprint-NN-<tema>/`.
    FAIL bloqueia o gate da QA → volta ao Dev.
 
 ## Critérios de uma RPA boa (DoD)
