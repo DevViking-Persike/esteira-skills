@@ -44,7 +44,10 @@
 00s → 10a → 20-dev → 25-review → 10b → 30-qa (qa-rpa→qa) → 40-seg (redteam→seguranca) → deploy
 ```
 
-- **`00s` abre o sprint** e é o **dono do `mkdir .spec/sprints/sprint-NN-<tema>/`**.
+- **`00s` abre o sprint** e é o **dono do `mkdir .spec/sprints/sprint-NN-<tema>/`**
+  (já criando `tasks/` dentro). **1 task = 1 arquivo** `tasks/task-NN-<slug>.md`
+  (template `desenvolvimento/templates/task.md`), materializadas pelo Planner do
+  `20-dev`; **`tasks.md` chapado é proibido** — o `spec-check` reprova.
   O `NN` é alocado lendo a **próxima linha SEM `✅`** do `plano-de-sprints-NN.md`.
 - **`00s` NUNCA dá VERDICT** — avança por **EXISTÊNCIA** de `discovery-sprint.md`.
   Quem reprova contexto não-aterrado é o `10a` (o 00s não é gate).
