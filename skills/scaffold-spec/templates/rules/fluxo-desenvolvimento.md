@@ -132,7 +132,7 @@ entram no DAG global e não criam uma quinta etapa na esteira Q.
 
 | Fase documental | Disciplina | Ênfase |
 |---|---|---|
-| **D00 — inventário e evidências** | Discovery/00s | engenharia reversa de módulos, fluxos, integrações e infra reais; evidência `path:linha`; Graphify opcional para `query`/`path`/`explain` |
+| **D00 — inventário e evidências** | Discovery/00s | recuperar contexto histórico com OpenViking opcional; engenharia reversa de módulos, fluxos, integrações e infra reais; evidência `path:linha`; Graphify opcional para `query`/`path`/`explain` |
 | **D10 — modelagem do diagrama** | Arquitetura (design/10a) | mapa vigente em `architecture`, `workflow`, `sequence`, `dataflow` ou `lifecycle`; Archify `guide` opcional; JSON sempre revisado contra as evidências |
 | **D20 — validação estrutural** | Dev documental/20 | validar o JSON autorado com `archify validate --quality showcase --json`, ou revisar schema/consistência manualmente |
 | **D30 — preview e revisão visual** | Dev documental/20 | conferir legibilidade, relações e rótulos com `archify preview`, ou Mermaid/ASCII; preview não é entrega |
@@ -140,14 +140,16 @@ entram no DAG global e não criam uma quinta etapa na esteira Q.
 | **D50 — fidelidade, delta e drift** | Review 25 → Arquitetura 10b → QA 30 | comparar doc com código, validar comandos/links/renderização e usar `archify compare` opcionalmente quando houver base/head |
 | — | Segurança/40 | documentar invariantes de segurança + uma passada `/security-review` |
 
-**Fronteira Graphify × Archify:** Graphify extrai relações do código real para o
-D00. Archify recebe JSON/texto autorado no D10–D50; ele **não analisa o repo** e
-não substitui evidência `path:linha`, review 10b ou QA.
+**Fronteira OpenViking × Graphify × Archify:** OpenViking recupera contexto
+histórico candidato; Graphify extrai relações do código real para o D00. Archify
+recebe JSON/texto autorado no D10–D50 e **não analisa o repo**. Nenhum substitui
+evidência `path:linha`, review 10b ou QA.
 
-**Fallback obrigatório:** sem Node ≥18, skill Archify ou `archify doctor` verde,
-escrever a fonte e o diagrama manualmente (Markdown + Mermaid/ASCII), revisar o
-diff entre versões e executar os mesmos gates. Ausência do Archify nunca reprova
-por si só.
+**Fallback obrigatório:** sem OpenViking, use busca/leitura direta, Graphify ou
+subagents read-only. Sem Node ≥18, skill Archify ou `archify doctor` verde,
+escreva a fonte e o diagrama manualmente (Markdown + Mermaid/ASCII), revise o
+diff entre versões e execute os mesmos gates. Ausência das ferramentas nunca
+reprova por si só.
 
 **DoD do incremento:** doc fiel ao código atual, sem referência quebrada/stale,
 verificável; diagramas indexados em `.spec/reference/README.md`; o roteador do

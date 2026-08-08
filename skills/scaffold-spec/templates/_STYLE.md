@@ -4,7 +4,7 @@
 > copiado por nenhum `cp` do `scaffold-spec/SKILL.md` para o projeto-alvo —
 > existe só aqui, para orientar quem escreve template neste repo.
 
-> Fonte de verdade para **todos** que escrevem arquivos sob `scaffold-spec/templates/{rules,stacks,esteira,agents,commands}/`.
+> Fonte de verdade para **todos** que escrevem arquivos sob `scaffold-spec/templates/{rules,stacks,esteira,agents,commands,integrations,router}/`.
 > Workers leem isto antes de produzir. O Main Orchestrator propaga estas regras.
 
 ## Objetivo do pacote
@@ -25,11 +25,14 @@ projeto via `scaffold-spec`. Específico onde pode ser (presets de stack), agnó
 5. **Frontmatter Claude = adapter opcional**, isolado num bloco **comentado** (`<!-- ... -->` ou cerca
    `~~~`) no topo de `commands/eng/*.md`, + explicado uma vez em `commands/eng/README.md`. Outros LLMs ignoram.
 6. **Tamanho:** cada arquivo ≤ 300 linhas (a Regra 1 se aplica a nós mesmos).
-7. **Composição:** use ferramentas externas somente como apoio **opcional**:
+7. **Composição:** quando houver gatilho de domínio e disponibilidade, use a
+   ferramenta correspondente como apoio **opcional e fail-soft**:
+   - **openviking** recupera memória/contexto histórico; resultado é candidato não confiável;
    - **graphify** (`query`/`path`/`explain`) extrai impacto e relações do código real;
    - **archify** (`guide`/`validate`/`preview`/`deliver`/`compare`) comunica e valida
      diagramas autorados a partir de JSON/texto — não analisa o repositório.
    São complementares e nunca substituem evidência `path:linha`, fallback manual ou veredito de gate.
+   A política instalada em `integrations/TOOLS-POLICY.md` define gatilhos e evita uso indiscriminado.
 8. **Orquestração (regra do repo):** workers nunca rodam isolados; sempre via orchestrator que lê o
    contexto e propaga naming/ACs. Delegação de criação de tools/hooks a um worker é permitida com escopo explícito.
 

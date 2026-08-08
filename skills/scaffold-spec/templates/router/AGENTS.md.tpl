@@ -31,6 +31,10 @@
 | Stack preset | `.opennjord/stacks/` | `.opennjord/stacks/README.md` |
 | Tools de validação | `.opennjord/tools/` | `spec-check.sh`, `esteira-check.sh` |
 
+## Composição externa
+Quando houver gatilho de domínio e a ferramenta estiver disponível, siga
+`.opennjord/integrations/TOOLS-POLICY.md`; ausência seleciona fallback, nunca gate.
+
 ## Ponte de compatibilidade (não editar pelos espelhos)
 `.claude/{rules,skills,commands,agents}`, `.agents/skills` e `.codex/` (config)
 apontam todos pra `.opennjord/*`. `CLAUDE.md` (raiz) é symlink pra este arquivo.

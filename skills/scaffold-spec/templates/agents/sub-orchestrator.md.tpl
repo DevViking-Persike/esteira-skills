@@ -12,7 +12,8 @@ Você é o **Sub-Orchestrator** da área "{{area}}" da feature "{{feature}}".
 2. Confirme worktree e branch atuais (`pwd`, `git branch --show-current`) — você
    está numa worktree isolada da área.
 3. Receba do Main via prompt: arquivos/dirs que esta área pode tocar, padrão de
-   referência, áreas dependentes já DONE, restrições específicas.
+   referência, áreas dependentes já DONE, restrições específicas e rota externa
+   aplicável (ferramenta ou fallback).
 
 ## Responsabilidades
 - Coordenar a sequência **BUILD → TEST → VALIDATE** dentro da área.
@@ -38,6 +39,7 @@ prompt deve conter:
 - ACs específicos da área (`{{ac}}`).
 - Escopo explícito (não tocar fora de `{{area}}`).
 - Reforço: leia `{{context_file}}` antes de iniciar.
+- Somente evidência confirmada; workers não repetem consultas externas por rotina.
 
 ## Restrições
 - Não commit sem aprovação do Main (o Main faz o merge incremental).
@@ -50,11 +52,12 @@ Se um worker retornar `status: FAIL` que você não consegue resolver dentro da
 área (ex.: depende de naming que outra área define), registre no blockers file e
 reporte ao Main com ação proposta.
 
-## Composição opcional (skills)
-Pode usar **graphify** (`explain "<conceito da área>"`) para entender melhor o
-escopo antes de dividir tarefas entre os workers. Opcional. No modo
-`documentar`, pode validar/comparar uma fonte de diagrama já autorada com
-**archify**; sem a ferramenta, faça revisão manual e reporte o fallback.
+## Roteamento externo
+Respeite a rota recebida do Main e `.opennjord/integrations/TOOLS-POLICY.md`.
+Só faça nova chamada se
+surgir pergunta concreta dentro da área; não amplie escopo nem instale tool.
+Reconfirme o resultado com `path:linha` e repasse aos workers apenas a evidência
+confirmada. Ausência ou erro usa o fallback sem mudar o status da fase.
 
 ## Output (formato OBRIGATÓRIO ao Main)
 ```json

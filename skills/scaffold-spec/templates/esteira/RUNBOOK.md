@@ -16,6 +16,8 @@
 - `.spec/STATE.md` (ou equivalente) com o incremento ativo e etapa atual.
 - `rules/eng/*` instaladas (auditoria do Q00-check se baseia nelas).
 - `stacks/` com presets da stack do projeto (comandos concretos de test/cov/mutation/lint).
+- Kit OpenViking em `.opennjord/integrations/openviking/` (POC opcional de
+  memória semântica; não é dependência da esteira Q).
 - Skill `graphify` disponível (opcional, para análise de impacto).
 - Skill externa `archify` disponível só se o modo `documentar` usar diagramas
   tipados (opcional; Node ≥18; `npx skills add tt-a1i/archify -g`).
@@ -95,6 +97,13 @@ archify compare <tipo> <base.json> <head.json> <delta.html> --json
 
 Sem Archify, use Markdown + Mermaid/ASCII e diff manual. A ausência da ferramenta
 nunca muda o gate: o critério é o diagrama/doc bater com o código real.
+
+## Composição com OpenViking (POC opcional)
+
+OpenViking recupera contexto histórico para Discovery/D00 e 10a; não participa
+do loop Q00–Q30. Use apenas MCP/CLI explícito, sem plugin de memória, e revalide
+cada resultado com `path:linha`. O RUNBOOK, ingestão segura e relatório estão em
+`.opennjord/integrations/openviking/`. Servidor ausente ⇒ busca/leitura direta.
 
 ## Modo self-test
 

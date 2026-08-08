@@ -23,6 +23,7 @@ req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/RUNBOOK.md .spec/reference/R
      .opennjord/rules/eng/09-responsive-ui.md .opennjord/rules/eng/10-frontend-architecture.md
      .opennjord/rules/eng/11-external-parity-source.md
      .opennjord/rules/seguranca.md .opennjord/rules/fluxo-desenvolvimento.md
+     .opennjord/integrations/TOOLS-POLICY.md
      .opennjord/commands/check-rules.md .opennjord/commands/refactor.md
      .opennjord/commands/responsive-pass.md .opennjord/commands/dead-code-cleansing.md)
 for f in "${req[@]}"; do
@@ -109,6 +110,8 @@ if [ -f AGENTS.md ]; then
   for bootstrap in '.spec/MANIFEST.md' '.spec/STATE.md' '.spec/sprints/RUNBOOK.md'; do
     grep -q "$bootstrap" AGENTS.md || { red "AGENTS.md SEM LINK DE BOOTSTRAP: $bootstrap"; err=1; }
   done
+  grep -q '.opennjord/integrations/TOOLS-POLICY.md' AGENTS.md \
+    || { red "AGENTS.md SEM POLÍTICA DE ROTEAMENTO: .opennjord/integrations/TOOLS-POLICY.md"; err=1; }
   lines=$(wc -l < AGENTS.md | tr -d ' ')
   if [ "$lines" -gt 60 ]; then
     yel "AVISO: AGENTS.md tem $lines linhas (> 60) — índice gordo, mova conteúdo pro .spec/ ou pra uma rule."; warn=1

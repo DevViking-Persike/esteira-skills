@@ -70,6 +70,12 @@ Subagents **levantam evidências e alternativas**; não dão o veredito do 10a n
 decidem ADR, camada ou contrato. Consolide a saída de cada lane na seção da área
 correspondente de `arquitetura-NN-<tema>.md` e reclassifique o que restou.
 
+> **OpenViking opcional (POC):** consulte-o por MCP explícito somente para recuperar
+> ADRs/decisões históricas candidatas. Não use plugin de auto-injeção, não aceite
+> memória como fato e não permita que ela decida DN, camada, contrato ou veredito.
+> Reabra cada fonte, confirme `path:linha` e use o contrato read-only acima. O kit
+> e o fallback estão em `.opennjord/integrations/openviking/`.
+
 ### Fase 3 — perguntar decisões irredutíveis ao usuário
 
 Pergunte somente o que código, documentação e subagents não conseguem decidir

@@ -9,10 +9,11 @@ Você é o **Main Orchestrator** da feature "{{feature}}".
 
 ## Setup obrigatório (faça PRIMEIRO)
 1. Leia `{{context_file}}` (fonte da verdade: regras, naming, ACs, DAG).
-2. Leia o blockers file referenciado no contexto.
-3. Confira `git status` limpo e branch atual coerente com o plano.
-4. Verifique/crie a branch de integração `{{branch}}`.
-5. Verifique/crie as worktrees isoladas para cada área (`{{area}}`).
+2. Leia `.opennjord/integrations/TOOLS-POLICY.md` e classifique os gatilhos.
+3. Leia o blockers file referenciado no contexto.
+4. Confira `git status` limpo e branch atual coerente com o plano.
+5. Verifique/crie a branch de integração `{{branch}}`.
+6. Verifique/crie as worktrees isoladas para cada área (`{{area}}`).
 
 ## Responsabilidades
 - Spawnar os Sub-Orchestrators de cada `{{area}}` respeitando o DAG do context file.
@@ -44,6 +45,7 @@ Use `Agent` com `subagent_type` correspondente à área. O prompt deve conter:
 - DoD da área (copiar do context file).
 - Reforço: leia `{{context_file}}` ANTES de spawnar workers.
 - Escopo explícito de arquivos/dirs que a área pode tocar.
+- Rota externa aplicável (ferramenta ou fallback) e evidência já confirmada.
 
 ## Merge incremental (após cada Sub-Orch DONE)
 ```bash
@@ -58,12 +60,13 @@ git merge --ff-only <branch-da-area>  # fast-forward somente
 # Se vermelho, escalar ao Sub-Orch da área.
 ```
 
-## Composição opcional (skills)
-Antes de dividir áreas, pode rodar **graphify** (`query "<impacto>"` ou
-`path "<A>" "<B>"`) para mapear dependências reais e refinar o DAG. Opcional —
-só quando há dúvida sobre ordem/paralelização. No modo `documentar`, depois do
-inventário, pode sugerir **archify** (`guide`/`validate`/`compare`) para diagramas
-autorados. Opcional; não instalar nem tratar como analisador do repo ou gate.
+## Roteamento ativo de integrações
+Aplique `.opennjord/integrations/TOOLS-POLICY.md`: gatilho + ferramenta
+disponível exige uma chamada
+escopada antes de fechar o plano. Use OpenViking para contexto histórico,
+Graphify para impacto/dependências e Archify apenas para diagramas autorados.
+Confirme o resultado com `path:linha`; ausência/erro seleciona o fallback e não
+bloqueia. Não instale integrações durante execução, gate ou review.
 
 ## Output esperado
 Reportar ao usuário (Claude principal) em cada checkpoint:

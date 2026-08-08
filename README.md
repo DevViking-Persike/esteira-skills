@@ -44,13 +44,17 @@ o Codex. Arquivos TOML não são necessários para este formato de skill.
 
 ### Composição externa opcional
 
+- **OpenViking** recupera memória/contexto histórico por significado; cada achado
+  deve ser reconfirmado com `path:linha`.
 - **Graphify** descobre impacto e relações no código real (`query`/`path`/`explain`).
 - **Archify** transforma JSON/texto autorado em diagramas validados e entregáveis
   (`guide`/`validate`/`preview`/`deliver`/`compare`). Não analisa o repositório.
 
-As duas ferramentas são externas, complementares, sem gate e sem nó no DAG. No
-modo `documentar`, os artefatos Archify ficam em `.spec/reference/`; sem a
-ferramenta, o fluxo usa Markdown + Mermaid/ASCII e revisão manual.
+As três ferramentas são externas, complementares, sem gate e sem nó no DAG. A
+POC OpenViking usa MCP explícito, sem plugin/auto-injeção; o kit reproduzível fica
+em `.opennjord/integrations/openviking/`. No modo `documentar`, os artefatos
+Archify ficam em `.spec/reference/`; sem as ferramentas, o fluxo usa busca/leitura
+direta, Markdown + Mermaid/ASCII e revisão manual.
 
 ### Fronteira dos 3 "reviews" (10b / 25 / etapa Q30-review)
 

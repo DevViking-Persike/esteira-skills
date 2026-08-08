@@ -4,7 +4,8 @@ description: >-
   Monta a base operacional .spec de um projeto e orquestra as skills da esteira
   (discovery, arquitetura, desenvolvimento, qa/qa-rpa, seguranca/redteam, deploy)
   para construir um projeto inteiro e bem estruturado. Cria cadência de sprints,
-  MANIFEST, STATE, RUNBOOK, reference, rules, commands, tools e hooks. Use quando
+  MANIFEST, STATE, RUNBOOK, reference, integrations, rules, commands, tools e
+  hooks. Use quando
   o usuário pedir "criar estrutura .spec", "scaffold spec", "montar um projeto do
   zero", "bootstrap operacional", "preparar projeto pra criar/refatorar/documentar
   um sistema", ou "/scaffold-spec [criar|refatorar|documentar]".
@@ -205,6 +206,7 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
 │   └── sprint-NN-<tema>/    # evidências de QA/RPA por sprint
 ├── reference/               # docs, ADRs e diagramas versionados
 │   ├── README.md
+│   ├── memory/                # criado somente por POCs aprovadas; não é lido pelo tick
 │   └── diagrams/<tipo>-NN-<tema>/
 └── sprints/
     ├── README.md            # framework das 6 disciplinas + fluxo da esteira
@@ -274,8 +276,12 @@ o backlog fatiado que o RUNBOOK consome a seguir.
 `scaffold-spec/templates/reference/README.md`. É o índice de docs, ADRs e
 `diagrams/<tipo>-NN-<tema>/`. No modo `documentar`, registra as fases internas
 `D00–D50`, a evidência de código que sustenta cada diagrama e o fallback manual.
-Graphify descobre relações do código; Archify opcionalmente valida/entrega a
-representação autorada. Nenhum dos dois é gate.
+OpenViking opcionalmente recupera contexto histórico; Graphify descobre relações
+do código; Archify valida/entrega a representação autorada. Nenhum é gate. A
+política `.opennjord/integrations/TOOLS-POLICY.md` define quando os agentes devem
+chamar cada ferramenta e qual fallback usar. O kit OpenViking mora em
+`.opennjord/integrations/openviking/` e só cria `memory/` quando a POC for
+executada explicitamente.
 
 **`sprints/RUNBOOK.md`** — **materializado** do template
 `scaffold-spec/templates/sprints/RUNBOOK.md` (copie e ajuste os `<...>`). Traz o
@@ -319,7 +325,7 @@ um symlink):
 
 ```bash
 S=.opennjord/skills/scaffold-spec/templates
-mkdir -p .opennjord/{rules,commands,stacks,esteira,tools,skills,agents,hooks}
+mkdir -p .opennjord/{rules,commands,stacks,esteira,tools,skills,agents,hooks,integrations}
 
 # rules de engenharia (3 camadas) + segurança/fluxo
 cp -RL $S/rules/eng/. .opennjord/rules/eng/
@@ -330,6 +336,8 @@ cp -RL $S/commands/eng/. .opennjord/commands/
 cp -RL $S/stacks/. .opennjord/stacks/
 # esteira de qualidade de código (gates bloqueantes + stages + RUNBOOK)
 cp -RL $S/esteira/. .opennjord/esteira/
+# políticas/kits opcionais — arquivos estáticos; não instalam/configuram runtime ou MCP
+cp -RL $S/integrations/. .opennjord/integrations/
 # skills da esteira de processo — copiar do repo-fonte, ou já globais em ~/.claude/skills/
 # (exceção: review-codigo-subagents NUNCA é global — a 25 é sempre instância por-projeto;
 #  a cópia abaixo é obrigatória pra ela)
@@ -352,6 +360,7 @@ cp -L $S/tools/spec-check.sh $S/tools/esteira-check.sh .opennjord/tools/ && chmo
 cp -L $S/esteira-state.yaml .spec/esteira-state.yaml 2>/dev/null || true
 cp -L $S/sprints/RUNBOOK.md .spec/sprints/RUNBOOK.md 2>/dev/null || true
 [ -e .spec/reference/README.md ] || cp -L $S/reference/README.md .spec/reference/README.md 2>/dev/null || true
+# integrations não recebem symlink e nunca criam store/.mcp.json/hooks automaticamente
 
 # ponte .claude/ (diretório REAL contendo symlinks relativos por-subdiretório)
 mkdir -p .claude

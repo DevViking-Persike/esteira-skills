@@ -85,22 +85,24 @@ Sem essa autorização explícita, worker não cria tool nem hook — só edita 
 da sua área. O escopo deve definir nome do arquivo, comportamento esperado e
 quando o hook dispara.
 
-## Composição com skills
+## Roteamento de ferramentas externas
 
-O Main Orchestrator pode invocar skills como passo de planejamento. Exemplo:
-antes de dividir áreas, rodar **graphify** (`query "<impacto>"` ou `path "<A>"
-"<B>"`) para mapear dependências reais do código e ajustar a ordem do DAG. Isso
-evita sub-orch em paralelo que colidem no mesmo arquivo.
+Antes de dividir áreas, o Main lê
+`.opennjord/integrations/TOOLS-POLICY.md`. Quando houver gatilho de domínio e a
+ferramenta já estiver disponível, deve executar uma chamada escopada:
+OpenViking para contexto histórico, Graphify para relações do código e Archify
+para diagramas autorados. Depois, confirma a evidência com `path:linha`.
 
-No modo `documentar`, depois desse inventário factual, **archify** pode apoiar a
-modelagem/validação de diagramas autorados (`guide`/`validate`/`compare`). É
-opcional, não lê o repo e tem fallback Markdown + Mermaid/ASCII.
+Se a ferramenta estiver ausente, falhar ou tiver baixa confiança, o Main aplica
+o fallback da política e continua. Nunca instala durante execução/gate/review,
+nunca transforma integração em gate e propaga aos Sub-Orchestrators apenas a
+rota escolhida e a evidência confirmada.
 
 ## Fluxo padrão (kick-off)
 
 1. Spawnar **Main Orchestrator** com prompt contendo feature, ACs, branches,
    caminho do `{{context_file}}`.
-2. Main lê o context file e o blockers file.
+2. Main lê o context file, `TOOLS-POLICY.md` e o blockers file.
 3. Main cria/verifica worktrees + branch de integração.
 4. Main spawna **Sub-Orchestrators** seguindo o DAG (paralelo onde permite).
 5. Cada Sub-Orch spawna seus 3 Workers sequencialmente: **BUILD → TEST → VALIDATE**.

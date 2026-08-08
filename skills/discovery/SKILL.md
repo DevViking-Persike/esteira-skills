@@ -86,6 +86,12 @@ Não use subagents para substituir a entrevista com o usuário. Consolide os
 achados como **evidência auxiliar** e deixe claro o que foi confirmado pelo
 usuário, o que veio do código/docs e o que ainda é hipótese.
 
+> **OpenViking opcional (POC):** antes de abrir lanes, uma consulta MCP explícita
+> pode recuperar ADRs, discoveries e arquiteturas relacionados. Trate o recall
+> como candidato não confiável: abra a fonte atual, confirme `path:linha` e descarte
+> conteúdo stale. Sem servidor, use busca/leitura direta; a ausência nunca bloqueia
+> Discovery nem altera o gate do Plano.
+
 ---
 
 ## Seletor de modos
