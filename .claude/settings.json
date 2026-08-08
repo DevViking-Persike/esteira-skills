@@ -1,0 +1,59 @@
+{
+  "//": "Settings compartilhadas do projeto (rastreado — viaja com o git pra qualquer PC e vale nos worktrees da esteira). Permissões SEM caminho absoluto: `~` = home do usuário da máquina, `*` = wildcard. O que é escolha da máquina (defaultMode, MCP local) fica no settings.local.json (gitignored).",
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "Bash(cargo check *)",
+      "Bash(cargo test *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git -C * branch *)",
+      "Bash(git -C * status *)",
+      "Bash(git -C * checkout *)",
+      "Bash(gh pr *)",
+      "Read(~/.config/njord/**)",
+      "Bash(asdf list *)",
+      "Bash(brew list *)",
+      "Bash(yt-dlp --version)",
+      "Bash(agy help *)",
+      "Bash(agy config *)",
+      "Bash(pkill -9 -f 'target/debug/njord-tauri')",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs -r kill)",
+      "Skill(dead-code-cleansing)",
+      "WebFetch(domain:github.com)",
+      "mcp__context7__resolve-library-id"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/njord-ask-permission"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/njord-sprint-memory-reminder",
+            "timeout": 10,
+            "statusMessage": "Verificando sincronização da memória da sprint"
+          }
+        ]
+      }
+    ]
+  }
+}
