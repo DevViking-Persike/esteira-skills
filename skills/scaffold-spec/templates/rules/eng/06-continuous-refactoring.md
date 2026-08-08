@@ -117,6 +117,6 @@ Cada commit é revertível isoladamente. O `git bisect` consegue apontar exatame
 # Não há automação direta para "refactor contínuo".
 # Verificação indireta:
 #   1. Histórico git com commits de refactor isolados (git log --oneline | grep '^refactor:')
-#   2. Stage 00-check da esteira roda testes+lint+typecheck antes de qualquer merge.
+#   2. Etapa Q00-check da esteira roda testes+lint+typecheck antes de qualquer merge.
 #   3. Code review: PR com "refactor + feat" juntos é rejeitado até split.
 ```

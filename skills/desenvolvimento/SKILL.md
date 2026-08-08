@@ -20,7 +20,10 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
 - **Artefatos de discovery** aceitos + critérios de aceitação (Discovery).
 - **Discovery de sprint** aprovado quando existir (convenção e fallback: ver
   `fluxo-desenvolvimento.md`).
-- Plano técnico aprovado (Arquitetura **10a design**): camadas, contratos, ADR.
+- Plano técnico aprovado (Arquitetura **10a design**):
+  `.spec/arquitetura/arquitetura-NN-<tema>.md` com `VERDICT: PASS`, camadas,
+  contratos, ADRs e nenhuma lacuna irredutível aberta. `FAIL` exige correção
+  antes de codar; `awaiting: humano:10a` faz PARK e não inicia o Dev.
 
 ## Fluxo
 1. **Planner** — materializa as tasks propostas no `discovery-sprint.md` em
@@ -44,7 +47,11 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
 > marca `Status: entregue` (`templates/task.md`), **pule** essa task. Sob `/loop`,
 > **1 tick = 1 task** (1 task = 1 commit) — o tick não varre a sprint de uma vez.
 > Modo **refatorar**: mudanças pequenas/reversíveis + teste de caracterização
-> antes de mexer (não-regressão). Modo **documentar**: o "dev" é escrever os docs.
+> antes de mexer (não-regressão). Modo **documentar**: o "dev" é escrever os docs
+> e executar D20–D40. Archify é opcional: `validate` checa o JSON, `preview`
+> permite revisão visual e `deliver` gera HTML + receipt em `.spec/reference/`.
+> Ele não lê o código. Sem a ferramenta, use schema/revisão manual e
+> Mermaid/ASCII; os gates seguintes continuam iguais.
 
 ## Definition of Done
 - [ ] Tasks em `<sprint>/tasks/` · `## Resultado` (status + commit) preenchido
@@ -52,6 +59,8 @@ do projeto quando rodar no Codex (`rules/eng/03-solid.md`,
 - [ ] build/lint/teste verdes · [ ] validação local **PASS**
 - [ ] diff pronto p/ review (Arquitetura 10b) · [ ] débito anotado
 - [ ] `.spec/STATE.md` atualizado
+- [ ] No modo documentar: fontes/entregas indexadas em `.spec/reference/README.md`
+  e evidências `path:linha` preservadas; Archify ausente não bloqueia a entrega
 
 ## Anti-patterns
 - ❌ Pedir review com build vermelho ou validação falhando.

@@ -1,4 +1,4 @@
-# Esteira de Qualidade de Código (eng-esteira)
+# Esteira de Qualidade de Código
 
 > Pipeline **gated** que garante código limpo, testado e aderente às regras de
 > engenharia. Transversal — roda sobre qualquer incremento, independente da
@@ -13,13 +13,13 @@ regras `rules/eng/*`, tem cobertura/mutation adequadas, respeita camadas e bate
 com os critérios de aceitação/ADRs. É ortogonal ao `.spec/` e pode ser invocada
 ao fim de cada disciplina ou de forma autônoma sobre um diff/branch.
 
-## Os 4 stages (sequenciais, gates bloqueantes)
+## As 4 etapas (sequenciais, gates bloqueantes)
 
 ```
 Q00-check → Q10-refactor → Q20-test-cov-mutation → Q30-review
 ```
 
-| Stage | O que faz | Gate bloqueante |
+| Etapa | O que faz | Gate bloqueante |
 |-------|-----------|-----------------|
 | **Q00-check** | Auditoria contra `rules/eng/*` (tamanho, SOLID, camadas, simplicidade). Não edita. | 0 violação bloqueante |
 | **Q10-refactor** | Aplica Regra 6 (rede de segurança → split → DIP → simplificar → validar). 1 commit = 1 motivo. | Checks verdes + 0 violação restante |
@@ -33,7 +33,7 @@ pedir humano (ver `gates.md`).
 
 Workers nunca rodam isolados. Quem dispara esta esteira é o **Main Orchestrator**
 (ex.: o do `scaffold-spec`), que lê o contexto, propaga naming/ACs e delega
-stage por stage a sub-orchestrators/workers. Tarefa micro (hotfix de 1 arquivo)
+etapa por etapa a sub-orchestrators/workers. Tarefa micro (hotfix de 1 arquivo)
 é exceção. Ver `agents/` para templates.
 
 ## Composição com skills e tools instaladas
@@ -43,9 +43,12 @@ stage por stage a sub-orchestrators/workers. Tarefa micro (hotfix de 1 arquivo)
   "<B>"`, `graphify explain "<conceito>"`. Retorna subgrafo scoped; útil para
   entender dependências antes do split e validar que o diff não quebrou
   invariantes de camada.
-- **`/check-rules`** (command) — implementa o stage 00 (auditoria read-only).
-- **`/refactor <arquivo>`** (command) —implementa o fluxo do stage 10 num arquivo.
-- **`/code-review`** (command) — complementa o stage 30 (bugs + cleanups).
+- **`archify`** (skill externa) — no modo `documentar`, comunica/valida diagramas
+  autorados: `guide`, `validate`, `preview`, `deliver`, `compare`. Não lê o código;
+  é opcional e tem fallback Markdown + Mermaid/ASCII em `.spec/reference/`.
+- **`/check-rules`** (command) — implementa a etapa Q00-check (auditoria read-only).
+- **`/refactor <arquivo>`** (command) —implementa o fluxo da etapa Q10-refactor num arquivo.
+- **`/code-review`** (command) — complementa a etapa Q30-review (bugs + cleanups).
 - **Hooks** (`templates/hooks/`) — rodam `spec-check`/checks automaticamente em
   Stop/PostToolUse. **Opt-in** — mesclar no `settings.json`, não auto-aplicar.
 - **`tools/spec-check.sh`** — valida a estrutura `.spec/` (não é desta esteira,
@@ -59,7 +62,7 @@ spawna um sub-orchestrator + workers para:
    particulares do projeto-fonte como prescrição (tokens listados no `_STYLE.md`).
 2. **Smoke de instalação** — instalar os templates num diretório temporário e
    rodar `spec-check.sh` + os greps de verificação das regras contra uma amostra.
-3. **`check-rules` contra amostra** — rodar o stage 00 sobre o próprio pacote
+3. **`check-rules` contra amostra** — rodar a etapa Q00-check sobre o próprio pacote
    gerado (regra 1 ≤300 linhas, links íntegros).
 
 Detalhes operacionais no `RUNBOOK.md` → "Modo self-test".
@@ -70,4 +73,4 @@ Detalhes operacionais no `RUNBOOK.md` → "Modo self-test".
 - Rodar mutation separado dos testes (Regra 2: sempre juntos).
 - Desabilitar teste (`#[ignore]`, `it.skip`) para passar o gate.
 - Refatorar + bugfix no mesmo commit (Regra 6: um commit, um motivo).
-- Worker escrevendo fora do seu stage/diretório designado.
+- Worker escrevendo fora da sua etapa/diretório designado.

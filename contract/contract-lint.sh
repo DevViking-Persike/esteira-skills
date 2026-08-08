@@ -145,7 +145,7 @@ def check_c():
         for i, ln in enumerate(lines(rel), 1):
             if deny.search(ln):
                 hits.append(f"{rel}:{i}: home 'docs/relatorios' fora do contrato (use .spec/qa/sprint-NN-<tema>/)")
-    # C2 — skill-produtora tem que citar seu home canonico
+    # C2 — skill-produtora cita seu home e procedimentos contratuais obrigatorios
     positives = [
         ("skills/review-codigo-subagents/SKILL.md", r"sprint-NN-<tema>/review-codigo\.md",
          "relatorio da 25 sem home canonico (.spec/sprints/sprint-NN-<tema>/review-codigo.md)"),
@@ -153,6 +153,19 @@ def check_c():
          "relatorio do 40 sem home canonico (.spec/sprints/sprint-NN-<tema>/seguranca.md)"),
         ("skills/qa-rpa/SKILL.md",                  r"\.spec/qa/sprint-NN-<tema>/",
          "evidencia de QA sem home canonico (.spec/qa/sprint-NN-<tema>/)"),
+        ("skills/arquitetura/SKILL.md",             r"Fase 1\s+—\s+identificar lacunas por área",
+         "design gate sem procedimento de levantamento de lacunas por area"),
+        ("skills/arquitetura/SKILL.md",             r"templates/arquitetura-de-sprint\.md",
+         "design gate sem referencia ao template arquitetura-de-sprint.md"),
+        ("skills/arquitetura/templates/arquitetura-de-sprint.md",
+         r"\.spec/arquitetura/arquitetura-NN-<tema>\.md",
+         "template do 10a sem home canonico (.spec/arquitetura/arquitetura-NN-<tema>.md)"),
+        ("contract/pipeline-contract.yaml", r"(?m)^\s*reference:\s+\.spec/reference/",
+         "contrato sem home canonico de referencia (.spec/reference/)"),
+        ("skills/arquitetura/SKILL.md", r"\.spec/reference/ADR-NNN",
+         "arquitetura sem home canonico para ADR (.spec/reference/ADR-NNN)"),
+        ("skills/scaffold-spec/templates/reference/README.md", r"diagrams/",
+         "template de reference sem indice canonico de diagrams/"),
     ]
     for rel, pat, desc in positives:
         txt = read(rel) or ""

@@ -28,6 +28,7 @@ homes:
   qa:               .spec/qa/sprint-NN-<tema>/                         # evidência/matriz de QA (qa-rpa + gate qa)
   sprint_readme:    .spec/sprints/sprint-NN-<tema>/README.md           # spec do sprint
   cursor:           .spec/esteira-state.yaml                           # estado machine-readable do tick (/loop)
+  reference:        .spec/reference/                                   # docs, ADRs e diagramas versionados; home transversal do scaffold
 
 # --------------------------------------------------------------------------
 # DAG canônico (ordem de execução). Golden test: a sequência de `id:` abaixo

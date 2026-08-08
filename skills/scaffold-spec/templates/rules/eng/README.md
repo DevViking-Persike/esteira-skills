@@ -1,6 +1,6 @@
 # Regras de engenharia — índice
 
-Cada arquivo neste diretório define uma regra de engenharia universal. Skills (`commands/`) e stages da esteira (`esteira/stages/`) referenciam regras específicas. A instalação num projeto concreto escolhe o **preset de stack** (Camada 2) e preenche os `<preencher>`.
+Cada arquivo neste diretório define uma regra de engenharia universal. Skills (`commands/`) e etapas da esteira (`esteira/stages/`) referenciam regras específicas. A instalação num projeto concreto escolhe o **preset de stack** (Camada 2) e preenche os `<preencher>`.
 
 ## Índice
 
@@ -37,7 +37,7 @@ E fecha com **Como verificar** (bash/verificação, concreto por stack quando co
 Violação de qualquer regra exige **justificativa explícita** no commit/PR. Exceções aceitas por regra estão listadas no corpo de cada uma (ex.: código vendorizado na Regra 1, módulos banhados em SDK na Regra 2/3).
 
 ## Verificação conjunta (esteira)
-A verificação de todas as regras roda no **stage `00-check`** da esteira (`esteira/stages/00-check.md`) — gate bloqueante antes de qualquer merge. O runbook `commands/eng/check-rules.md` orquestra a auditoria manual + automatizada contra este diretório.
+A verificação de todas as regras roda na **etapa `Q00-check`** da esteira (`esteira/stages/Q00-check.md`) — gate bloqueante antes de qualquer merge. O runbook `commands/eng/check-rules.md` orquestra a auditoria manual + automatizada contra este diretório.
 
 ### Relação com skills
 - `check-rules` — audita o repo contra todas as regras

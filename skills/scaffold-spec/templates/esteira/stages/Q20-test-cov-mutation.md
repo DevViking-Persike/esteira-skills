@@ -1,4 +1,4 @@
-# Stage 20 — testes + cobertura + mutation
+# Etapa Q20 — testes, cobertura e mutação
 
 > Garante que o diff produzido tem testes adequados, cobertura ≥ **84%** e
 > eficácia de mutation ≥ **84%**. **Mutation roda junto dos testes** (Regra 2) —
@@ -6,7 +6,7 @@
 
 ## Definition of Ready
 
-- Stage 10-refactor concluído (0 violação bloqueante, checks verdes).
+- Etapa Q10-refactor concluída (0 violação bloqueante, checks verdes).
 - Diferença de diff estável (commits granulares feitos).
 - `stacks/<stack>.md` com `test_cmd`, `cov_tool`, `mutation_tool` definidos.
 - Filesystem de teste isolado (`tempfile`/`tmp`) — nada escreve fora do tempdir.
@@ -53,8 +53,8 @@
 ## Gate (bloqueante)
 
 - cov ≥ 84% **E** mutation ≥ 84% **E** testes verde **E** sem teste desabilitado
-  → `ok`, avança ao 30-review.
-- Qualquer métrica abaixo → `fail`, volta ao 10-refactor (faltou rede de
+  → `ok`, avança à Q30-review.
+- Qualquer métrica abaixo → `fail`, volta à Q10-refactor (faltou rede de
   segurança/cobertura — o refactor precisa deixar o código testável).
 - **2× reprovado** → parar e pedir humano.
 

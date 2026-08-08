@@ -1,15 +1,15 @@
-# Stage 10 — refactor (corrige as violações)
+# Etapa Q10 — refatoração corretiva
 
 > Aplica a **Regra 6** (refatoração contínua): rede de segurança → split → DIP →
 > simplificar → validar. Um commit = um motivo. Bug pré-existente descoberto no
 > caminho → **parar e perguntar** (nunca corrigir no mesmo commit do refactor).
-> Implementa o fluxo do command `/refactor`, empacotado como stage gated.
+> Implementa o fluxo do command `/refactor`, empacotado como etapa com gate.
 
 ## Definition of Ready
 
-- Stage 00-check executado com relatório de violações bloqueantes.
-- Lista de arquivos-alvo definida (vinda do 00).
-- Suíte de testes atual verde (se não, o 20 ainda não rodou — mas os testes
+- Etapa Q00-check executada com relatório de violações bloqueantes.
+- Lista de arquivos-alvo definida (vinda da Q00-check).
+- Suíte de testes atual verde (se não, a Q20-test-cov-mutation ainda não rodou — mas os testes
   **existentes** devem passar; se um teste existente já falha, é bug pré-existente:
   parar e reportar antes de refatorar).
 - `stacks/<stack>.md` disponível para comandos de teste/lint/typecheck/build.
@@ -49,7 +49,7 @@ Para cada arquivo-alvo, executar **na ordem** (Regra 6):
 
 ## Definition of Done
 
-- 0 violação bloqueante restante (re-auditável pelo 00).
+- 0 violação bloqueante restante (re-auditável pela Q00-check).
 - Suíte de testes verde; `lint_cmd`/`typecheck_cmd`/`build_cmd` verdes.
 - Commits granulares: **1 motivo por commit** (ex.: `refactor: split <X> por
   responsabilidade`, `refactor: injetar trait <Y> no <Z>` — separados).
@@ -58,8 +58,8 @@ Para cada arquivo-alvo, executar **na ordem** (Regra 6):
 ## Gate (bloqueante)
 
 - `lint_cmd`/`typecheck_cmd`/`build_cmd` verde **E** 0 violação bloqueante
-  restante **E** Regra 6 respeitada → `ok`, avança ao 20-test-cov-mutation.
-- Qualquer falha → `fail`, volta ao 00-check (re-auditar e re-listar).
+  restante **E** Regra 6 respeitada → `ok`, avança à Q20-test-cov-mutation.
+- Qualquer falha → `fail`, volta à Q00-check (re-auditar e re-listar).
 - **2× reprovado** → parar e pedir humano.
 
 ## Comandos (genéricos)
@@ -83,6 +83,13 @@ graphify explain "<responsabilidade que será extraída>"
 
 Responde: quem depende do que vou mover? Há ciclo latente? O split isola mesmo
 a responsabilidade ou cria coupling novo? Use para escolher o ponto de corte.
+
+## Composição archify (opcional, modo documentar)
+
+Se o refactor altera um diagrama versionado, `archify compare` pode comunicar o
+delta entre a fonte base e a fonte alvo. O comando não prova a arquitetura real:
+confirme cada mudança no código/Graphify. Sem Archify, registre o delta manualmente
+no `drift.md`; a ferramenta nunca é requisito do gate.
 
 ## Anti-patterns
 

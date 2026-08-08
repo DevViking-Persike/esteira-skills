@@ -104,6 +104,11 @@ esta expansão — não só as disciplinas nuas.
 | **4 Spec** | Spec Generation → Spec Enricher | `10-arquitetura` (saída) | a **SPEC-implementável** (gate no Enricher) |
 | **5 Execution** | **Planner → Sprint Validator → Coder → Evaluator** | `20-desenvolvimento` → `25-review` | **as sprints** — Planner quebra em `NN`, Coder implementa e o **25 (review-codigo)** revisa cada uma antes de `30-qa`+`40-seg` |
 
+> O **Spec Enricher** tem procedimento explícito na Fase 4 de
+> `arquitetura/SKILL.md` e materializa `templates/arquitetura-de-sprint.md`: é a
+> checagem objetiva de **SPEC-implementável** que destrava o Dev (20), sem criar
+> outro nó entre `00s` e `10a`.
+
 > **Chave do vínculo:** o **Planner** (Execution) transforma a SPEC nas **sprints de
 > `20-desenvolvimento`** (`.spec/sprints/sprint-NN-<tema>/`, um `NN` por sprint); o **Sprint
 > Validator** é o gate do plano; o loop **Coder/Evaluator** implementa e avalia cada sprint,
@@ -172,7 +177,7 @@ A skill aceita um modo em ARGUMENTS (default: perguntar):
 |---|---|---|
 | **criar** | sistema novo (greenfield) | Discovery (escopo) → Arquitetura (design do zero) → Dev → QA → Segurança |
 | **refatorar** | sistema existente | Discovery = inventário do estado atual + metas + critérios de **não-regressão**; Arquitetura = atual×alvo; Dev incremental; QA pesado em regressão; Segurança = re-auditoria |
-| **documentar** | sistema existente sem docs | Discovery = engenharia reversa/inventário; "Dev" vira **escrever docs**; QA = doc bate com o código; produz `reference/` + mapa de arquitetura |
+| **documentar** | sistema existente sem docs | subfluxo interno `D00–D50`: evidência → modelagem → validação → preview → entrega → drift; "Dev" vira **escrever docs**; produz `reference/` + mapa de arquitetura |
 
 Se o usuário não passou o modo, **pergunte qual** antes de gerar (muda os
 critérios de aceitação e a ênfase).
@@ -198,8 +203,9 @@ compartilhado) + `sprints/` reservado especificamente para os incrementos de
 │   └── <tema>.md
 ├── qa/
 │   └── sprint-NN-<tema>/    # evidências de QA/RPA por sprint
-├── reference/               # docs de referência do projeto (roadmap, glossário, etc.)
-│   └── README.md
+├── reference/               # docs, ADRs e diagramas versionados
+│   ├── README.md
+│   └── diagrams/<tipo>-NN-<tema>/
 └── sprints/
     ├── README.md            # framework das 6 disciplinas + fluxo da esteira
     ├── RUNBOOK.md           # como rodar a esteira (ordem + gates bloqueantes)
@@ -263,6 +269,13 @@ com o **mesmo `NN` em toda a esteira** do incremento. O
 **Discovery** (00) fecha com fan-in: emite `.spec/discovery/plano-de-sprints-NN.md`
 (1 linha por sprint derivado — scaffold-mode + ACs + discoveries-fonte + ordem),
 o backlog fatiado que o RUNBOOK consome a seguir.
+
+**`reference/README.md`** — **materializado** de
+`scaffold-spec/templates/reference/README.md`. É o índice de docs, ADRs e
+`diagrams/<tipo>-NN-<tema>/`. No modo `documentar`, registra as fases internas
+`D00–D50`, a evidência de código que sustenta cada diagrama e o fallback manual.
+Graphify descobre relações do código; Archify opcionalmente valida/entrega a
+representação autorada. Nenhum dos dois é gate.
 
 **`sprints/RUNBOOK.md`** — **materializado** do template
 `scaffold-spec/templates/sprints/RUNBOOK.md` (copie e ajuste os `<...>`). Traz o
@@ -338,6 +351,7 @@ cp -L $S/tools/spec-check.sh $S/tools/esteira-check.sh .opennjord/tools/ && chmo
 # ajuste os <...> depois — o cursor é a fonte de decisão do tick /loop)
 cp -L $S/esteira-state.yaml .spec/esteira-state.yaml 2>/dev/null || true
 cp -L $S/sprints/RUNBOOK.md .spec/sprints/RUNBOOK.md 2>/dev/null || true
+[ -e .spec/reference/README.md ] || cp -L $S/reference/README.md .spec/reference/README.md 2>/dev/null || true
 
 # ponte .claude/ (diretório REAL contendo symlinks relativos por-subdiretório)
 mkdir -p .claude

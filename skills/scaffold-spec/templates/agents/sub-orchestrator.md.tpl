@@ -52,7 +52,9 @@ reporte ao Main com ação proposta.
 
 ## Composição opcional (skills)
 Pode usar **graphify** (`explain "<conceito da área>"`) para entender melhor o
-escopo antes de dividir tarefas entre os workers. Opcional.
+escopo antes de dividir tarefas entre os workers. Opcional. No modo
+`documentar`, pode validar/comparar uma fonte de diagrama já autorada com
+**archify**; sem a ferramenta, faça revisão manual e reporte o fallback.
 
 ## Output (formato OBRIGATÓRIO ao Main)
 ```json

@@ -29,7 +29,10 @@ aprovado no review gate (Arquitetura 10b) + build verde.
 4. **AuthZ/RBAC**: cada papel vê só o que deve.
 5. **Smoke** no ambiente alvo (saúde + fluxo real).
 > Modo **refatorar**: regressão pesada — comportamento observável **idêntico**.
-> Modo **documentar**: os comandos/links da doc executam/resolvem (doc bate com código).
+> Modo **documentar — D50**: comandos/links executam, HTML abre sem dependência
+> externa e a doc bate com código/config/infra. Se houver receipt/delta Archify,
+> valide os arquivos e fingerprints; sem Archify, faça o mesmo smoke no artefato
+> manual. A ferramenta nunca é condição isolada de PASS.
 
 ## Gate (DoD)
 - [ ] Relatório arquivado em `.spec/qa/sprint-NN-<tema>/`.
