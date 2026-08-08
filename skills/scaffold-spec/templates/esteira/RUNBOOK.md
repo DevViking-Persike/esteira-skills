@@ -1,14 +1,14 @@
 # RUNBOOK — Como rodar a esteira de qualidade autonomamente
 
 > **Duas esteiras, não confunda (GAP-I):** ESTE é o RUNBOOK da esteira de
-> **QUALIDADE de código** — stages `Q00-check → Q10-refactor →
+> **QUALIDADE de código** — etapas `Q00-check → Q10-refactor →
 > Q20-test-cov-mutation → Q30-review`, valida a saúde de um diff (ortogonal às
 > disciplinas do `.spec/`). A esteira de **PROCESSO** (00 Discovery → 40
 > Segurança, por sprint) é outra: vive em `.spec/sprints/RUNBOOK.md` e é dirigida
 > pelo cursor `.spec/esteira-state.yaml`.
 
 > Executado pelo **Main Orchestrator** (nunca por worker isolado). Lê o estado,
-> retoma o stage atual, delega ao runbook/skill de cada stage na ordem, respeita
+> retoma a etapa atual, delega ao runbook/skill de cada etapa na ordem, respeita
 > gates bloqueantes. Tudo em pt-BR; identificadores em inglês.
 
 ## Pré-requisitos
@@ -17,21 +17,23 @@
 - `rules/eng/*` instaladas (auditoria do Q00-check se baseia nelas).
 - `stacks/` com presets da stack do projeto (comandos concretos de test/cov/mutation/lint).
 - Skill `graphify` disponível (opcional, para análise de impacto).
+- Skill externa `archify` disponível só se o modo `documentar` usar diagramas
+  tipados (opcional; Node ≥18; `npx skills add tt-a1i/archify -g`).
 
 ## Loop principal
 
 ```
-1. Ler STATE → identificar stage atual (Q00/Q10/Q20/Q30) e contador de tentativas.
-2. Invocar o runbook do stage (esteira/stages/0N-*.md — arquivos numéricos) na ordem:
+1. Ler STATE → identificar a etapa atual (Q00/Q10/Q20/Q30) e contador de tentativas.
+2. Invocar o runbook da etapa (`esteira/stages/QNN-*.md` — namespace Q obrigatório) na ordem:
      Q00-check → Q10-refactor → Q20-test-cov-mutation → Q30-review
-3. Ao fim de cada stage, avaliar o gate (ver gates.md):
+3. Ao fim de cada etapa, avaliar o gate (ver gates.md):
      ok   → avançar; atualizar STATE (status ✅, zerar contador).
      fail → voltar uma casa; incrementar contador; anotar achados no STATE.
      2× fail no MESMO gate → PARAR, escalar para humano com o histórico.
 4. Fechado (Q30-review ok) → registrar no STATE e encerrar o incremento.
 ```
 
-## Comandos por stage (genéricos)
+## Comandos por etapa (genéricos)
 
 > Os comandos **concretos** (test_cmd, cov_tool, mutation_tool, lint_cmd,
 > typecheck_cmd, build_cmd, arch_violation_grep) vivem em `stacks/<grupo>/<stack>.md`.
@@ -43,7 +45,7 @@
 - **Não editar.** Saída = relatório de violações bloqueantes vs. warnings.
 
 ### Q10-refactor (corrige as violações)
-- Para cada arquivo com violação bloqueante, aplicar o fluxo do `10-refactor.md`
+- Para cada arquivo com violação bloqueante, aplicar o fluxo do `Q10-refactor.md`
   (rede de segurança → split → DIP → simplificar → validar).
 - 1 commit = 1 motivo (Regra 6). Bug pré-existente descoberto → parar e perguntar.
 
@@ -63,7 +65,7 @@
 - `ok` avança; `fail` volta uma casa; `2× fail` no mesmo gate **para**.
 - Nunca desabilitar teste (`#[ignore]`, `it.skip`, `test.skip`) para passar CI.
 - Nunca usar `--no-verify` ou pular hooks.
-- Atualizar o `STATE` em cada transição (stage, status, contador, achados).
+- Atualizar o `STATE` em cada transição (etapa, status, contador, achados).
 
 ## Composição com graphify (opcional)
 
@@ -77,6 +79,22 @@ graphify explain "<conceito>"                 # subgrafo focado num conceito
 
 Use para: escolher onde fazer split com menor impacto, confirmar que o diff não
 introduziu dependência cíclica, validar que domain não passou a importar infra.
+
+## Composição com archify (opcional, modo documentar)
+
+Archify recebe JSON/texto autorado; não extrai fatos do código. Use-o depois do
+inventário factual para validar, revisar e entregar diagramas em `.spec/reference/`:
+
+```bash
+archify doctor
+archify validate <tipo> <fonte.archify.json> --quality showcase --json
+archify preview <tipo> <fonte.archify.json> <preview.html> --quality showcase
+archify deliver <tipo> <fonte.archify.json> <saida.html> --quality showcase --json
+archify compare <tipo> <base.json> <head.json> <delta.html> --json
+```
+
+Sem Archify, use Markdown + Mermaid/ASCII e diff manual. A ausência da ferramenta
+nunca muda o gate: o critério é o diagrama/doc bater com o código real.
 
 ## Modo self-test
 
@@ -99,15 +117,15 @@ Instalar os templates num diretório temporário (ex.: `mktemp -d`) e rodar:
 - Os greps de verificação das `rules/eng/*` contra uma amostra de arquivos.
 
 ### (c) Rodar `check-rules` contra amostra
-Disparar o stage 00 sobre o próprio pacote gerado: Regra 1 (≤300 linhas por
+Disparar a etapa Q00-check sobre o próprio pacote gerado: Regra 1 (≤300 linhas por
 arquivo), links íntegros, placeholders descritivos (formato `preencher: o quê`, nunca placeholder vazio).
 
-Se qualquer cheque falhar → volta ao stage que gerou o artefato (fluxo normal de gates).
+Se qualquer cheque falhar → volta à etapa que gerou o artefato (fluxo normal de gates).
 
 ## Paradas obrigatórias (pedir humano)
 
 - Item fora do escopo sem aprovação no `.spec/`.
 - Ação destrutiva ou em produção.
-- Gate reprovado **2×** no mesmo stage.
+- Gate reprovado **2×** na mesma etapa.
 - Decisão estrutural (novo ADR) sem registro.
 - Segredo/credencial exposto no diff.

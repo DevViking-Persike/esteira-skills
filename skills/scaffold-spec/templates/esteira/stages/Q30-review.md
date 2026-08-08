@@ -1,4 +1,4 @@
-# Stage 30 — review (validação final do diff)
+# Etapa Q30 — revisão final do diff
 
 > Review do diff completo do incremento: 0 violação de camada/dependência,
 > lógica na camada certa, diff bate com ACs/ADR/plano. Fecha a esteira de
@@ -6,7 +6,7 @@
 
 ## Definition of Ready
 
-- Stage 20 concluído (testes verde, cov ≥84%, mutation ≥84%).
+- Etapa Q20-test-cov-mutation concluída (testes verde, cov ≥84%, mutation ≥84%).
 - Diff consolidado (commits granulares, sem WIP/resíduo).
 - ACs/ADR/plano do `.spec/` acessíveis (critério de "bate com o plano").
 - `stacks/<stack>.md` com os `arch_violation_grep` da stack.
@@ -18,7 +18,7 @@
   - Interno importando externo (domain/application → SDK/IO/commands).
   - Frontend importando backend direto (em vez de via porta/invoke).
   - Infra importando commands/UI.
-- Qualquer hit = violação bloqueante (voltar ao 10 ou 20 conforme a natureza).
+- Qualquer hit = violação bloqueante (voltar à Q10-refactor ou à Q20-test-cov-mutation conforme a natureza).
 
 ### 2. Lógica na camada certa
 - Regra de negócio em `domain`/`application` (pura, testável sem IO).
@@ -48,15 +48,15 @@
   - ACs/ADR: cobertos.
   - Cleanups: lista (aplicar ou deferir).
 - Diff pronto para merge/release (ou lista explícita do que falta).
-- Estado do incremento atualizado no `STATE` (stage 30 ✅).
+- Estado do incremento atualizado no `STATE` (etapa Q30 ✅).
 
 ## Gate (bloqueante)
 
 - 0 violação de camada **E** lógica na camada certa **E** diff bate com ACs/ADR
   → `ok`, incremento **fechado**.
-- Violção de camada ou descasamento com plano → `fail`:
-  - Violação estrutural/camada → volta ao **10-refactor**.
-  - Falta de teste/cobertura exposta no review → volta ao **20**.
+- Violação de camada ou descasamento com plano → `fail`:
+  - Violação estrutural/camada → volta à **Q10-refactor**.
+  - Falta de teste/cobertura exposta no review → volta à **Q20-test-cov-mutation**.
 - **2× reprovado** → parar e pedir humano.
 
 ## Comandos (genéricos)
@@ -80,6 +80,13 @@ graphify explain "<camada que mais mudou>"
 Responde: o diff introduziu dependência cíclica? Domain passou a depender de
 infra? Um organism passou a importar atom com domínio? Use para confirmar o que
 os greps estruturais mostram — camada extra de confiança no review.
+
+## Composição archify (opcional, modo documentar)
+
+Use `archify validate` para a estrutura do JSON e `archify compare` para o delta
+base/head já autorado. Depois confira nós/relações contra código, configs e ADRs:
+Archify não inspeciona o repo. Sem a ferramenta, revise o diff do diagrama
+manualmente. O gate continua sendo fidelidade doc↔código.
 
 ## Anti-patterns
 

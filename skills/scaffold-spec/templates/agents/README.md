@@ -92,6 +92,10 @@ antes de dividir áreas, rodar **graphify** (`query "<impacto>"` ou `path "<A>"
 "<B>"`) para mapear dependências reais do código e ajustar a ordem do DAG. Isso
 evita sub-orch em paralelo que colidem no mesmo arquivo.
 
+No modo `documentar`, depois desse inventário factual, **archify** pode apoiar a
+modelagem/validação de diagramas autorados (`guide`/`validate`/`compare`). É
+opcional, não lê o repo e tem fallback Markdown + Mermaid/ASCII.
+
 ## Fluxo padrão (kick-off)
 
 1. Spawnar **Main Orchestrator** com prompt contendo feature, ACs, branches,

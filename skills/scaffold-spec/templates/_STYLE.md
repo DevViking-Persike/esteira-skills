@@ -1,4 +1,4 @@
-# _STYLE.md — Contrato de autoria dos templates `eng-esteira`
+# _STYLE.md — Contrato de autoria dos templates de engenharia
 
 > **Artefato do repo-fonte, NÃO instala no consumidor.** Este arquivo não é
 > copiado por nenhum `cp` do `scaffold-spec/SKILL.md` para o projeto-alvo —
@@ -25,8 +25,11 @@ projeto via `scaffold-spec`. Específico onde pode ser (presets de stack), agnó
 5. **Frontmatter Claude = adapter opcional**, isolado num bloco **comentado** (`<!-- ... -->` ou cerca
    `~~~`) no topo de `commands/eng/*.md`, + explicado uma vez em `commands/eng/README.md`. Outros LLMs ignoram.
 6. **Tamanho:** cada arquivo ≤ 300 linhas (a Regra 1 se aplica a nós mesmos).
-7. **Composição:** onde uma etapa da esteira ganha com entender impacto/relações do código, cite a skill
-   **graphify** (`query`/`path`/`explain`) como ferramenta **opcional** de apoio — nunca dependência obrigatória.
+7. **Composição:** use ferramentas externas somente como apoio **opcional**:
+   - **graphify** (`query`/`path`/`explain`) extrai impacto e relações do código real;
+   - **archify** (`guide`/`validate`/`preview`/`deliver`/`compare`) comunica e valida
+     diagramas autorados a partir de JSON/texto — não analisa o repositório.
+   São complementares e nunca substituem evidência `path:linha`, fallback manual ou veredito de gate.
 8. **Orquestração (regra do repo):** workers nunca rodam isolados; sempre via orchestrator que lê o
    contexto e propaga naming/ACs. Delegação de criação de tools/hooks a um worker é permitida com escopo explícito.
 
@@ -57,9 +60,10 @@ Blocos curtos e copiáveis (sempre comando real da stack):
 `file_glob` (extensões/roots p/ Regra 1) · `arch_violation_grep` (markers de framework/IO p/ Regra 3/4) ·
 `conventions` (notas de idioma da stack: runes/Composition API/async runtime/etc.).
 
-### Stage da esteira — `esteira/stages/0N-<nome>.md`
+### Etapa da esteira de qualidade — `esteira/stages/QNN-<nome>.md`
 `Definition of Ready` (entrada) · `Checklist de atividades` · `Definition of Done` (saída) ·
-`Gate` (critério **bloqueante** — reprovou volta uma casa) · `Comandos` · `Composição graphify (opcional)` · `Anti-patterns`.
+`Gate` (critério **bloqueante** — reprovou volta uma casa) · `Comandos` ·
+`Composição externa (opcional, somente quando agrega)` · `Anti-patterns`.
 
 ### Template de agente — `agents/<nome>.md.tpl`
 Frontmatter `name` · `model` (Opus p/ orchestrators, Sonnet p/ workers) · `tools` · `description`.
@@ -72,7 +76,7 @@ Procedimento passo-a-passo neutro. Argumento `<arquivo-alvo>` em prosa. Frontmat
 ## Convenções de nome
 - Diretório + `.ts`/`.svelte.ts`/`.md`: kebab-case. Componente `.svelte`: PascalCase.
 - `.tpl` = template com marcadores `{{...}}` (gera arquivo final via substituição).
-- Numeração de regra/stage preserva o padrão `0N-`.
+- Numeração de regra preserva `0N-`; etapa de qualidade usa o namespace `QNN-`.
 
 ## Anti-patterns (não fazer)
 - ❌ Copiar a instância concreta do njord sem generalizar.

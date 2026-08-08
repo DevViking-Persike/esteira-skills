@@ -76,3 +76,6 @@ Se o projeto ainda não tem essas pastas, gere-as primeiro (via a skill
 - **Tamanho**: cada arquivo ≤ 300 linhas (a Regra 1 se aplica a nós mesmos).
 - **graphify (opcional)**: onde entender impacto/relações ajuda, os runbooks
   citam `graphify query`/`path`/`explain` como apoio opcional — nunca obrigatório.
+- **archify (opcional, modo documentar)**: comunica/valida diagramas autorados com
+  `guide`/`validate`/`preview`/`deliver`/`compare`; não analisa código e sempre tem
+  fallback Markdown + Mermaid/ASCII.

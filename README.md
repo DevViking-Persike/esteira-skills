@@ -42,7 +42,17 @@ o Codex. Arquivos TOML não são necessários para este formato de skill.
 | `qa` / `qa-rpa` | gate de QA (critérios de aceitação, caminhos de erro, autorização) / **executor RPA** de navegador validando cada tela **front + back** | 30 |
 | `seguranca` / `redteam` | gate de segurança (confere cobertura/severidade contra `rules/seguranca.md`) / **executor** — pentest autorizado (exploração **dinâmica**) do próprio local/dev | 40 |
 
-### Fronteira dos 3 "reviews" (10b / 25 / stage 30-review)
+### Composição externa opcional
+
+- **Graphify** descobre impacto e relações no código real (`query`/`path`/`explain`).
+- **Archify** transforma JSON/texto autorado em diagramas validados e entregáveis
+  (`guide`/`validate`/`preview`/`deliver`/`compare`). Não analisa o repositório.
+
+As duas ferramentas são externas, complementares, sem gate e sem nó no DAG. No
+modo `documentar`, os artefatos Archify ficam em `.spec/reference/`; sem a
+ferramenta, o fluxo usa Markdown + Mermaid/ASCII e revisão manual.
+
+### Fronteira dos 3 "reviews" (10b / 25 / etapa Q30-review)
 
 Três artefatos tocam revisão de diff, cada um com um papel distinto — nenhum
 substitui o outro:
@@ -52,7 +62,7 @@ substitui o outro:
 - **`/review-codigo-subagents` (disciplina 25)** — **execução** por lanes de
   subagents que produz os achados (camadas, cleanups, lane Segurança estática)
   que o gate 10b depois julga.
-- **`esteira/stages/30-review.md`** (esteira de qualidade por diff) — runbook
+- **`esteira/stages/Q30-review.md`** (esteira de qualidade por diff) — runbook
   da lane de camadas que a disciplina 25 reusa (mesmo eixo, sem redefinir regra).
 
 ### Pares gate↔executor (triggers sem sobreposição)
@@ -69,7 +79,7 @@ O `scaffold-spec` também instala **rules de engenharia em 3 camadas** (princíp
 universal + preset por stack + exemplo) para Rust, Node-TS, Python, Go, C#, KMP,
 Svelte/Angular/React e RPA; um **catálogo de stacks** (`.opennjord/stacks/`); uma
 **esteira de qualidade de código** com gates bloqueantes (`.opennjord/esteira/`:
-`00-check → 10-refactor → 20-test/cov/mutation → 30-review`); **templates de
+`Q00-check → Q10-refactor → Q20-test-cov-mutation → Q30-review`); **templates de
 orquestração multi-agente** (`.opennjord/agents/` — mesmo diretório onde o
 orchestrator do njord grava agentes reais de projeto, se o repo for gerenciado
 por ele); **commands** do Claude Code (`check-rules`, `refactor`,

@@ -61,7 +61,9 @@ git merge --ff-only <branch-da-area>  # fast-forward somente
 ## Composição opcional (skills)
 Antes de dividir áreas, pode rodar **graphify** (`query "<impacto>"` ou
 `path "<A>" "<B>"`) para mapear dependências reais e refinar o DAG. Opcional —
-só quando há dúvida sobre ordem/paralelização.
+só quando há dúvida sobre ordem/paralelização. No modo `documentar`, depois do
+inventário, pode sugerir **archify** (`guide`/`validate`/`compare`) para diagramas
+autorados. Opcional; não instalar nem tratar como analisador do repo ou gate.
 
 ## Output esperado
 Reportar ao usuário (Claude principal) em cada checkpoint:
