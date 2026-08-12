@@ -30,20 +30,21 @@ for f in "${req[@]}"; do
 done
 
 # 1b) estrutura por sprint: 1 task = 1 arquivo em tasks/task-NN-<slug>.md
-#     (template desenvolvimento/templates/task.md). tasks.md chapado é ERRO;
-#     sprint recém-aberta (só discovery-sprint.md, Planner ainda não rodou)
-#     é estado legítimo (WARN).
+#     (template desenvolvimento/templates/task.md).
+#     ERRO   — o que ninguém deveria criar novo: tasks.md chapado e tasks/ vazia.
+#     AVISO  — layout legado de sprint histórica: task-*.md na raiz, tasks/ sem
+#              discovery-sprint.md, sprint recém-aberta antes do Planner rodar.
 while IFS= read -r d; do
   { [ -f "$d/README.md" ] || [ -f "$d/discovery-sprint.md" ]; } || { red "FALTA: $d/README.md ou discovery-sprint.md"; err=1; }
   if [ -f "$d/tasks.md" ]; then
     red "FORMATO PROIBIDO: ${d#./}/tasks.md chapado — 1 task = 1 arquivo em tasks/task-NN-<slug>.md"; err=1
   fi
   if ls "$d"/task-*.md >/dev/null 2>&1; then
-    red "FORA DO LUGAR: ${d#./} tem task-*.md na raiz — mova para ${d#./}/tasks/"; err=1
+    yel "AVISO: ${d#./} tem task-*.md na raiz — layout legado; novas sprints usam ${d#./}/tasks/."; warn=1
   fi
   if [ -d "$d/tasks" ]; then
     ls "$d"/tasks/task-*.md >/dev/null 2>&1 || { red "VAZIA: ${d#./}/tasks/ sem task-*.md"; err=1; }
-    [ -f "$d/discovery-sprint.md" ] || { yel "AVISO: ${d#./} tem tasks/ mas não tem discovery-sprint.md ao lado."; warn=1; }
+    [ -f "$d/discovery-sprint.md" ] || { yel "AVISO: ${d#./} tem tasks/ mas não tem discovery-sprint.md ao lado (novas sprints abrem com /discovery sprint <NN>)."; warn=1; }
   elif [ -f "$d/discovery-sprint.md" ]; then
     yel "AVISO: ${d#./} ainda sem tasks/ (o Planner do /desenvolvimento materializa após o 10a)."; warn=1
   fi

@@ -125,6 +125,11 @@ subagents genéricos.
 | Código morto/deps | Limpeza, bundles grandes, exports suspeitos, dependências | Candidatos verificados; remoção só com aprovação |
 | Documentação | Docs, onboarding, API, runbook, mudança comportamental | Docs stale/ausentes e atualização necessária |
 
+> **Modo documentar — D50:** a lane Documentação compara afirmações, exemplos e
+> diagramas com código/config/infra reais. Se já houver fontes Archify, pode rodar
+> `validate`/`compare` em modo read-only; a ferramenta não prova fidelidade ao
+> repo. Sem ela, faça diff manual e mantenha o mesmo padrão de evidência.
+
 ### 4. Contrato dos subagents
 
 Cada subagent deve receber um prompt curto e autocontido:
@@ -200,7 +205,8 @@ Use scripts do próprio projeto quando existirem. Exemplos por categoria:
 - testes: unit, integration, e2e, mutation/cobertura se já configurados;
 - build: build local ou pacote afetado;
 - segurança: secret scan local, dependency audit, regras de authz/privacidade;
-- docs: links, comandos documentados, exemplos executáveis.
+- docs: links, comandos documentados, exemplos executáveis, diagramas e drift;
+  `archify validate`/`compare` somente se já disponível — nunca instalar durante review.
 
 Não instale ferramentas novas durante review sem aprovação. Se uma validação
 importante não existir, registre a lacuna e sugira criação como próximo passo.

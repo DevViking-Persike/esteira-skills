@@ -126,21 +126,32 @@ reversível.
 
 ## scaffold-mode DOCUMENTAR (sistema existente sem/com pouca doc)
 
-Tornar o sistema entendível e operável, sem mudar código.
+Tornar o sistema entendível e operável, sem mudar código. O trabalho documental
+usa as fases internas `D00–D50` abaixo. Elas **não** são etapas do cursor, não
+entram no DAG global e não criam uma quinta etapa na esteira Q.
 
-| Etapa | Ênfase |
-|---|---|
-| Discovery | **engenharia reversa**: mapear módulos, fluxos, integrações, infra reais (ler o código, não os docs antigos) |
-| Arquitetura (design) | montar o **mapa de arquitetura** vigente (camadas, comunicação, deploy) → `.spec/reference/` |
-| Dev → **escrever docs** | gerar `reference/` (arquitetura, roadmap, deploy, observabilidade), READMEs por módulo, runbooks |
-| Arquitetura (review) | a doc **bate com o código real**? sem afirmação stale (stack morta, infra antiga) |
-| Review de Código | subagents verificam docs contra código, comandos, exemplos, links e lacunas de operabilidade |
-| QA | verificar comandos/links dos docs (executam? resolvem? smoke real) |
-| Segurança | documentar os invariantes de segurança + 1 passada `/security-review` |
+| Fase documental | Disciplina | Ênfase |
+|---|---|---|
+| **D00 — inventário e evidências** | Discovery/00s | engenharia reversa de módulos, fluxos, integrações e infra reais; evidência `path:linha`; Graphify opcional para `query`/`path`/`explain` |
+| **D10 — modelagem do diagrama** | Arquitetura (design/10a) | mapa vigente em `architecture`, `workflow`, `sequence`, `dataflow` ou `lifecycle`; Archify `guide` opcional; JSON sempre revisado contra as evidências |
+| **D20 — validação estrutural** | Dev documental/20 | validar o JSON autorado com `archify validate --quality showcase --json`, ou revisar schema/consistência manualmente |
+| **D30 — preview e revisão visual** | Dev documental/20 | conferir legibilidade, relações e rótulos com `archify preview`, ou Mermaid/ASCII; preview não é entrega |
+| **D40 — entrega versionada** | Dev documental/20 | gerar docs, READMEs e runbooks; `archify deliver` opcional materializa HTML autossuficiente + receipt em `.spec/reference/` |
+| **D50 — fidelidade, delta e drift** | Review 25 → Arquitetura 10b → QA 30 | comparar doc com código, validar comandos/links/renderização e usar `archify compare` opcionalmente quando houver base/head |
+| — | Segurança/40 | documentar invariantes de segurança + uma passada `/security-review` |
+
+**Fronteira Graphify × Archify:** Graphify extrai relações do código real para o
+D00. Archify recebe JSON/texto autorado no D10–D50; ele **não analisa o repo** e
+não substitui evidência `path:linha`, review 10b ou QA.
+
+**Fallback obrigatório:** sem Node ≥18, skill Archify ou `archify doctor` verde,
+escrever a fonte e o diagrama manualmente (Markdown + Mermaid/ASCII), revisar o
+diff entre versões e executar os mesmos gates. Ausência do Archify nunca reprova
+por si só.
 
 **DoD do incremento:** doc fiel ao código atual, sem referência quebrada/stale,
-verificável; o roteador do agente (`CLAUDE.md`, `AGENTS.md` ou equivalente)
-aponta para o `.spec/`.
+verificável; diagramas indexados em `.spec/reference/README.md`; o roteador do
+agente (`CLAUDE.md`, `AGENTS.md` ou equivalente) aponta para o `.spec/`.
 
 > ❌ Anti-pattern: tratar doc histórica como verdade atual — validar contra o
 > código; remover/arquivar o que está superado.

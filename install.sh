@@ -35,9 +35,17 @@ falha() { printf '\033[1;31m[FALHA]\033[0m %s\n' "$*"; exit 1; }
 # ---------- 1) skills no usuário (symlink: git pull atualiza sozinho) ----------
 mkdir -p "$HOME/.claude/skills"
 instaladas=0; puladas=0
+# Disciplina 25 nunca vai pro global: roda adaptada ao diff e às regras locais e
+# arquiva relatório em .spec/, então só existe como instância por-projeto.
+SO_POR_PROJETO="review-codigo-subagents"
 for skill in "$SKILLS_SRC"/*/; do
   nome="$(basename "$skill")"
   destino="$HOME/.claude/skills/$nome"
+  if [ "$nome" = "$SO_POR_PROJETO" ]; then
+    if [ -L "$destino" ]; then rm -f "$destino"; log "removido do global: $nome (só por-projeto)"; fi
+    puladas=$((puladas+1))
+    continue
+  fi
   if [ -e "$destino" ] && [ ! -L "$destino" ]; then
     log "pulando $nome (já existe em ~/.claude/skills e não é symlink deste repo)"
     puladas=$((puladas+1))

@@ -32,7 +32,9 @@ Antes de começar, leia as regras relevantes:
 Se o arquivo pertence a um módulo maior, leia também os arquivos vizinhos para
 entender as fronteiras de responsabilidade. Opcionalmente, use
 `graphify path "<arquivo-alvo>" "<outro>"` para mapear dependências antes de
-mexer.
+mexer. Se o módulo tiver diagrama versionado, no modo `documentar` use
+`archify compare` opcionalmente para comunicar o delta depois do refactor; valide
+o resultado contra o código. Sem Archify, atualize o `drift.md` manualmente.
 
 ### 2. Diagnóstico (antes de editar)
 

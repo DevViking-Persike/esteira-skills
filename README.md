@@ -7,51 +7,105 @@ Genérico e reutilizável em qualquer projeto.
 > Princípio: `rule` = fonte de verdade (conhecimento); `skill` = runbook que aplica.
 > O `.spec/` é o manual operacional; roteadores como `CLAUDE.md` só apontam pra ele.
 
-## Compatibilidade Codex
+## Compatibilidade Claude Code + Codex
 
 Os arquivos em `skills/` continuam sendo a fonte de verdade deste repositório.
-Em um projeto consumidor, instale ou copie essas skills em `.claude/skills` e faça
-o Codex apontar para essa mesma árvore com um symlink em `.codex/skills`. Não
-crie uma cópia separada para Codex.
+Num projeto consumidor, o `scaffold-spec` instala **tudo** — rules, skills,
+commands, agents, hooks, tools, stacks, esteira — numa única fonte canônica,
+`.opennjord/`. `.claude/{rules,skills,commands,agents}` viram **symlinks**
+por-subdiretório pra dentro dela; nunca crie cópias divergentes.
+
+Codex é um caso à parte: ele **não lê** `.codex/skills`/`.codex/rules`/
+`.codex/agents` nativamente — só `.codex/config.toml`. Skills, pro Codex, moram
+em `.agents/skills` (symlink pra `.opennjord/skills`); regras e instruções
+entram via `AGENTS.md` (raiz), o arquivo real — `CLAUDE.md` (raiz) é symlink
+pra ele (`ln -s AGENTS.md CLAUDE.md`, padrão oficialmente suportado pelo
+Claude Code). Ver `skills/scaffold-spec/SKILL.md` (Passo 2/3) pro instalador
+completo.
 
 Cada skill também possui `agents/openai.yaml`, metadata opcional recomendada para
 o Codex. Arquivos TOML não são necessários para este formato de skill.
+
+> **Windows:** a ponte acima depende de symlinks — hoje só validada em
+> macOS/Linux. Suporte Windows (fallback de cópia real + step de sync) é uma
+> pendência conhecida, ainda não resolvida.
 
 ## As skills
 
 | Skill | Papel | Etapa |
 |---|---|---|
 | **`scaffold-spec`** | **hub** — monta a base `.spec/` + rules + tools + hooks e orquestra as demais | — |
-| `discovery` | levanta o contexto com perguntas pesquisadas (modos **produto** / **desenvolvimento**) | 00 |
-| `arquitetura` | gate de **design** (antes do dev) e **review** (depois) | 10 |
+| `discovery` | levanta o contexto com perguntas pesquisadas — **3 modos com seletor**: **negocio** (porquê/usuário/valor/regras de negócio), **desenvolvimento** (escopo/NFR/segurança de 1ª classe/apresentação/direção arquitetural/aceitação) e **refatoracao** (não-regressão/bugs/performance/design). O seletor roda 1, 2, os 3 ou os 2 primeiros na ordem canônica 1→2→3 e fecha num Plano de Sprints aprovado | 00 |
+| `arquitetura` | **gate fino** — **design** (antes do dev: a abordagem é sã?) e **review** (depois do dev: o diff bate com plano/ADR/camadas?) | 10 |
 | `desenvolvimento` | implementa conforme spec + plano | 20 |
-| `review-codigo-subagents` | sprint de review de código por subagents independentes | 25 |
-| `qa` / `qa-rpa` | gate de QA / **RPA** de navegador validando cada tela **front + back** | 30 |
-| `seguranca` / `redteam` | gate de segurança / **pentest autorizado** do próprio local/dev | 40 |
+| `review-codigo-subagents` | **execução por lanes** — pipeline de subagents independentes que produz os achados que o gate `/arquitetura review` (10b) julga; lane Segurança é análise **estática** do diff (não substitui o `/redteam`) | 25 |
+| `qa` / `qa-rpa` | gate de QA (critérios de aceitação, caminhos de erro, autorização) / **executor RPA** de navegador validando cada tela **front + back** | 30 |
+| `seguranca` / `redteam` | gate de segurança (confere cobertura/severidade contra `rules/seguranca.md`) / **executor** — pentest autorizado (exploração **dinâmica**) do próprio local/dev | 40 |
+
+### Composição externa opcional
+
+- **Graphify** descobre impacto e relações no código real (`query`/`path`/`explain`).
+- **Archify** transforma JSON/texto autorado em diagramas validados e entregáveis
+  (`guide`/`validate`/`preview`/`deliver`/`compare`). Não analisa o repositório.
+
+As duas ferramentas são externas, complementares, sem gate e sem nó no DAG. No
+modo `documentar`, os artefatos Archify ficam em `.spec/reference/`; sem a
+ferramenta, o fluxo usa Markdown + Mermaid/ASCII e revisão manual.
+
+### Fronteira dos 3 "reviews" (10b / 25 / etapa Q30-review)
+
+Três artefatos tocam revisão de diff, cada um com um papel distinto — nenhum
+substitui o outro:
+
+- **`/arquitetura review` (gate 10b)** — gate **fino**: julga camadas, ACs e ADR
+  sobre o diff já pronto. Não produz os achados, consome/julga.
+- **`/review-codigo-subagents` (disciplina 25)** — **execução** por lanes de
+  subagents que produz os achados (camadas, cleanups, lane Segurança estática)
+  que o gate 10b depois julga.
+- **`esteira/stages/Q30-review.md`** (esteira de qualidade por diff) — runbook
+  da lane de camadas que a disciplina 25 reusa (mesmo eixo, sem redefinir regra).
+
+### Pares gate↔executor (triggers sem sobreposição)
+
+`seguranca`/`redteam` (40) e `qa`/`qa-rpa` (30) seguem o mesmo padrão: o
+**gate** (`seguranca`, `qa`) só ativa em linguagem de *validar/aprovar* ("gate
+de segurança", "validar antes do release", "rodar QA", "/seguranca", "/qa"); o
+**executor** (`redteam`, `qa-rpa`) só ativa em linguagem de *executar a ação*
+("testar segurança", "tentar invadir", "/redteam", "criar RPA", "/qa-rpa").
+Nenhum trigger do executor aparece na description do gate, e vice-versa —
+evita disparar a skill errada.
 
 O `scaffold-spec` também instala **rules de engenharia em 3 camadas** (princípio
 universal + preset por stack + exemplo) para Rust, Node-TS, Python, Go, C#, KMP,
-Svelte/Angular/React e RPA; um **catálogo de stacks** (`.claude/stacks/`); uma
-**esteira de qualidade de código** com gates bloqueantes (`.claude/esteira/`:
-`00-check → 10-refactor → 20-test/cov/mutation → 30-review`); **templates de
-orquestração multi-agente** (`agents/`); **commands** do Claude Code
-(`check-rules`, `refactor`, `responsive-pass`, `dead-code-cleansing`) — todos
-LLM-agnostic (rodam no Claude Code e em outros LLMs, via prompt); uma **skill de
-deploy**; e as **tools** de validação `spec-check.sh` e `esteira-check.sh`.
+Svelte/Angular/React e RPA; um **catálogo de stacks** (`.opennjord/stacks/`); uma
+**esteira de qualidade de código** com gates bloqueantes (`.opennjord/esteira/`:
+`Q00-check → Q10-refactor → Q20-test-cov-mutation → Q30-review`); **templates de
+orquestração multi-agente** (`.opennjord/agents/` — mesmo diretório onde o
+orchestrator do njord grava agentes reais de projeto, se o repo for gerenciado
+por ele); **commands** do Claude Code (`check-rules`, `refactor`,
+`responsive-pass`, `dead-code-cleansing`) — todos LLM-agnostic (rodam no Claude
+Code e em outros LLMs, via prompt); uma **skill de deploy**; um **índice mestre
+`AGENTS.md`** (`scaffold-spec/templates/router/AGENTS.md.tpl`, real na raiz —
+`CLAUDE.md` é symlink pra ele); e as **tools** de validação `spec-check.sh` e
+`esteira-check.sh` (só em `.opennjord/tools/`, sem espelho).
 
 ## Fluxo
 
 ```
-/scaffold-spec [criar|refatorar|documentar]   ← monta .spec/ + rules + skills + tools + hooks
-  → /discovery [produto|desenvolvimento]       → contexto (Mom Test / JTBD / 4 riscos / NFR)
-  → /arquitetura design                        → gate: a abordagem é sã?
-  → /desenvolvimento                           → implementa (testes junto)
-  → /arquitetura review                        → gate: o diff bate com plano/ADR?
-  → /review-codigo-subagents                   → sprint de review técnico por lanes/subagents
-  → /qa  →  /qa-rpa                             → validação real front+back de cada tela
-  → /seguranca  →  /redteam                    → pentest autorizado (achar a brecha, remediar)
-  → /deploy  +  spec-check                      → sobe e valida a entrega
+/scaffold-spec [criar|refatorar|documentar]        ← monta .spec/ + rules + skills + tools + hooks
+  → /discovery [negocio|dev|refatoracao]...         → seletor de modos (ordem 1→2→3) → Plano de Sprints
+  → /arquitetura design                             → gate fino: a abordagem é sã?
+  → /desenvolvimento                                → implementa (testes junto)
+  → /review-codigo-subagents                        → execução por lanes → achados
+  → /arquitetura review                             → gate fino: julga os achados × plano/ADR/camadas
+  → /qa  →  /qa-rpa                                  → gate de QA / execução RPA front+back de cada tela
+  → /seguranca  →  /redteam                         → gate de segurança / execução dinâmica (pentest)
+  → /deploy  +  spec-check                           → sobe e valida a entrega
 ```
+
+Cada item do Plano de Sprints (saída do `/discovery`) reabre o ciclo
+`10→20→25→30→40` como um novo sprint — ver `## Como os modos encadeiam` em
+`discovery/SKILL.md`.
 
 ## Instalação
 
@@ -78,6 +132,11 @@ com a estrutura já no lugar, o scaffold só **adapta** — preenche placeholder
 escolhe o preset de stack ativo e gera o `.spec/` (MANIFEST/STATE/RUNBOOK).
 Poda de presets exige registro no `MANIFEST.md` e nunca remove `stacks/README.md`
 nem o preset ativo.
+
+> **Exceção — disciplina 25.** `review-codigo-subagents` **nunca** vai para o
+> global: ela roda adaptada ao diff e às regras locais e arquiva relatório em
+> `.spec/sprints/25-review-codigo/`, então só existe como instância **por-projeto**.
+> O `install.sh` a pula na etapa de usuário e a materializa apenas com `--projeto`.
 
 ## Fundamentos (discovery)
 

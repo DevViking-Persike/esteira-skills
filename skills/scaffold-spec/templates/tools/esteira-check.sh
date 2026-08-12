@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# esteira-check.sh — valida a eng-esteira (templates de engenharia do scaffold-spec).
+# esteira-check.sh — valida a esteira de qualidade (templates de engenharia do scaffold-spec).
 #
 # 4 frentes:
 #   1. Agnosticidade LLM  — sem $ARGUMENTS / !`cmd` / allowed-tools no CORPO dos runbooks.
@@ -35,6 +35,29 @@ STACKS="$TEMPLATES/stacks"
 ESTEIRA="$TEMPLATES/esteira"
 AGENTS="$TEMPLATES/agents"
 CMD="$TEMPLATES/commands/eng"
+REFERENCE="$TEMPLATES/reference"
+
+check_quality_stages() {
+  root="$1"
+  label="$2"
+  missing=""
+  legacy=""
+
+  for f in Q00-check Q10-refactor Q20-test-cov-mutation Q30-review; do
+    [ -f "$root/stages/$f.md" ] || missing="$missing $f.md"
+  done
+  for f in 00-check 10-refactor 20-test-cov-mutation 30-review; do
+    [ ! -e "$root/stages/$f.md" ] || legacy="$legacy $f.md"
+  done
+
+  count=$(find "$root/stages" -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l)
+  count=$((count + 0))
+  if [ -z "$missing" ] && [ -z "$legacy" ] && [ "$count" -eq 4 ]; then
+    ok "$label: 4 etapas Q00–Q30 presentes; 0 nome legado"
+  else
+    fail "$label: contrato das etapas inválido (total=$count; ausentes:${missing:- nenhum}; legados:${legacy:- nenhum})"
+  fi
+}
 
 # ---------- Frente 1 — Agnosticidade LLM ----------
 section "Frente 1 — Agnosticidade LLM (corpo dos 4 runbooks)"
@@ -58,7 +81,7 @@ res=$(grep -rnE 'src-tauri|dbx|surreal|notebook_njord|\$modules|\$studio' \
 # ---------- Frente 3 — Estrutura ----------
 section "Frente 3 — Estrutura (≤300 linhas + artefatos obrigatórios)"
 over=""
-for d in "$ENG_RULES" "$STACKS" "$ESTEIRA" "$AGENTS" "$CMD"; do
+for d in "$ENG_RULES" "$STACKS" "$ESTEIRA" "$AGENTS" "$CMD" "$REFERENCE"; do
   [ -d "$d" ] || { fail "dir ausente: $d"; continue; }
   while IFS= read -r f; do
     lines=$(wc -l < "$f")
@@ -76,24 +99,29 @@ done
 { [ -f "$ENG_RULES/README.md" ] && [ -f "$ENG_RULES/_layer-guide.md" ]; } \
   && ok "rules/eng: índice + _layer-guide presentes" || fail "rules/eng: README/_layer-guide ausentes"
 [ -f "$ESTEIRA/RUNBOOK.md" ] && ok "esteira/RUNBOOK presente" || fail "esteira/RUNBOOK ausente"
+check_quality_stages "$ESTEIRA" "esteira/stages na fonte"
 [ -f "$AGENTS/README.md" ] && ok "agents/README presente" || fail "agents/README ausente"
+[ -f "$REFERENCE/README.md" ] && ok "reference/README presente" || fail "reference/README ausente"
 
 # ---------- Frente 4 — Smoke install ----------
 section "Frente 4 — Smoke install (cp -L p/ tmpdir, layout .opennjord/ + ponte .claude)"
 TMP="$(mktemp -d)"
-mkdir -p "$TMP/.opennjord"/{rules/eng,commands,stacks,esteira,agents}
+mkdir -p "$TMP/.opennjord"/{rules/eng,commands,stacks,esteira,agents} "$TMP/.spec/reference"
 cp -RL "$ENG_RULES/." "$TMP/.opennjord/rules/eng/" 2>/dev/null || true
 cp -RL "$CMD/."       "$TMP/.opennjord/commands/" 2>/dev/null || true
 cp -RL "$STACKS/."    "$TMP/.opennjord/stacks/" 2>/dev/null || true
 cp -RL "$ESTEIRA/."   "$TMP/.opennjord/esteira/" 2>/dev/null || true
 cp -RL "$AGENTS/."    "$TMP/.opennjord/agents/" 2>/dev/null || true
+cp -L "$REFERENCE/README.md" "$TMP/.spec/reference/README.md" 2>/dev/null || true
+check_quality_stages "$TMP/.opennjord/esteira" "esteira/stages no smoke install"
 # ponte .claude/ — mesma mecânica (symlink relativo por-subdiretório) que o instalador real cria
 mkdir -p "$TMP/.claude"
 for d in rules commands agents; do ln -s "../.opennjord/$d" "$TMP/.claude/$d"; done
 n_rules=$(find "$TMP/.opennjord/rules/eng" -name '[0-9]*-*.md' | wc -l)
 { [ "$n_rules" -ge 11 ] && [ -f "$TMP/.opennjord/esteira/RUNBOOK.md" ] && [ -d "$TMP/.opennjord/stacks/backend" ] \
-  && [ -f "$TMP/.opennjord/agents/README.md" ] && [ -L "$TMP/.claude/rules" ] && [ -f "$TMP/.claude/rules/eng/01-file-size.md" ]; } \
-  && ok "smoke: $n_rules rules + esteira + stacks + agents instalados em .opennjord, ponte .claude resolve" \
+  && [ -f "$TMP/.opennjord/agents/README.md" ] && [ -f "$TMP/.spec/reference/README.md" ] \
+  && [ -L "$TMP/.claude/rules" ] && [ -f "$TMP/.claude/rules/eng/01-file-size.md" ]; } \
+  && ok "smoke: $n_rules rules + esteira + stacks + agents + reference instalados; ponte .claude resolve" \
   || fail "smoke: instalação incompleta (rules=$n_rules)"
 rm -rf "$TMP"
 

@@ -130,5 +130,5 @@ modules/orders/
 ## Como verificar
 ```bash
 # Escolha o preset da stack em Camada 2. Saída esperada: vazia.
-# Adicional: rodar a skill check-rules (stage 00-check da esteira).
+# Adicional: rodar a skill check-rules (etapa Q00-check da esteira).
 ```
