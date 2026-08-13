@@ -23,8 +23,8 @@ req=(.spec/MANIFEST.md .spec/STATE.md .spec/sprints/RUNBOOK.md .spec/reference/R
      .opennjord/rules/eng/09-responsive-ui.md .opennjord/rules/eng/10-frontend-architecture.md
      .opennjord/rules/eng/11-external-parity-source.md
      .opennjord/rules/seguranca.md .opennjord/rules/fluxo-desenvolvimento.md
-     .opennjord/commands/check-rules.md .opennjord/commands/refactor.md
-     .opennjord/commands/responsive-pass.md .opennjord/commands/dead-code-cleansing.md)
+     .opennjord/commands/eng/check-rules.md .opennjord/commands/eng/refactor.md
+     .opennjord/commands/eng/responsive-pass.md .opennjord/commands/eng/dead-code-cleansing.md)
 for f in "${req[@]}"; do
   [ -f "$f" ] || { red "FALTA: $f"; err=1; }
 done
