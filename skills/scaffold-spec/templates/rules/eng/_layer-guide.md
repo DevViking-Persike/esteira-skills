@@ -97,3 +97,8 @@ Exemplo (Regra 8 — delegar execução): o critério é "o output do comando mu
 | 09 | UI responsiva | sim (tokens por framework) |
 | 10 | Arquitetura de frontend | sim (mecanismo reativo/DI por framework) |
 | 11 | Fonte de paridade externa | n/a (princípio; **opcional/exótico**) |
+| 12 | Código sem comentários | sim (marcador de comentário por stack) |
+| 13 | Contrato de borda | sim (parse que lança, por stack) |
+| 14 | Doc bate com o código | sim (fonte da verdade por stack) |
+| 15 | Nenhuma falha em silêncio | sim (handler vazio por stack) |
+| 16 | Higiene de ignore | sim (glob de extensão na raiz) |

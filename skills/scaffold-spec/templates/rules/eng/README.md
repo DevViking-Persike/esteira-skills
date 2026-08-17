@@ -17,8 +17,13 @@ Cada arquivo neste diretório define uma regra de engenharia universal. Skills (
 | 9 | [UI responsiva (mobile-first)](09-responsive-ui.md) | parcial (grep de larguras fixas + DevTools) |
 | 10 | [Arquitetura de frontend (MVVM + Atomic)](10-frontend-architecture.md) | parcial (grep de camadas) |
 | 11 | [Repositório-fonte / paridade externa](11-external-parity-source.md) | não (referência) |
+| 12 | [Código sem comentários](12-no-comments.md) | sim (grep de marcador por stack) |
+| 13 | [Contrato de borda (entrada do cliente nunca vira 5xx)](13-contrato-de-borda.md) | parcial (grep de parse que lança) |
+| 14 | [Documentação de contrato bate com o código](14-doc-bate-com-o-codigo.md) | parcial (grep de rotas doc × código) |
+| 15 | [Nenhuma falha desaparece em silêncio](15-falha-silenciosa.md) | sim (grep de handler vazio) |
+| 16 | [Higiene de ignore](16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 
-> O conjunto completo é **01–11** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
+> O conjunto completo é **01–16** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
 
 ## Formato: 3 camadas
 

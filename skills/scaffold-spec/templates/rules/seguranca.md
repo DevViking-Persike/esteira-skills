@@ -31,6 +31,25 @@
 - Actor de auditoria vem do **usuário autenticado**, nunca do body da requisição.
 - Validar/normalizar toda entrada externa (rejeitar inválido com 4xx); nunca
   montar SQL/comando por concatenação de input.
+- **[INEGOCIÁVEL]** Nunca logar corpo de resposta ou de requisição de integração — logar
+  apenas **tamanho** e status (`TamanhoDoCorpo={body?.Length ?? 0}`). Corpo de erro de
+  downstream carrega PII (CPF/CNPJ, apólice, solicitante) e sink de log não é lugar de
+  dado de cliente. Vale para log de sucesso e de erro.
+- **Chave de idempotência derivada precisa ser escopada pela identidade do solicitante.**
+  Chave determinística global (ex.: hash só do conteúdo) faz dois usuários que enviam o
+  mesmo arquivo colidirem na mesma chave — o segundo pode receber o recurso criado pelo
+  primeiro. Sale o hash com o usuário autenticado, ou confirme por escrito que o
+  downstream escopa a idempotência por usuário.
+- **Dado pessoal real nunca entra em seed, mock ou fixture.** Use domínio de exemplo
+  (`example.com`). O vetor não é o mock: é ele ser alcançável a partir de código de
+  produção — um seed importado por service singleton viaja no pacote publicado.
+- **Exportação de dados neutraliza início de fórmula.** Célula que começa com `=`, `+`,
+  `-`, `@`, TAB ou CR recebe prefixo de aspa simples antes do escape normal. Vale para
+  CSV, TSV e XLSX: o conteúdo veio do usuário, atravessa o sistema e arma na planilha de
+  quem abre.
+- **Identidade autenticada atravessa a cadeia inteira.** Quem captura o usuário na borda
+  propaga até quem persiste. Amarrar dono só na leitura não adianta se a escrita não
+  registrou quem foi. Antes de assumir que o downstream não aceita, conferir o contrato.
 - Criptografia em repouso para dados sensíveis quando aplicável; TLS em trânsito.
 - LGPD/privacidade e **mínimo privilégio** para usuários, operadores e automações.
 
@@ -62,5 +81,9 @@
 
 - Segredo em claro no git / em chat / em issue / em PR.
 - Token/JWT/dado sensível em PageData, localStorage ou cookie não-httpOnly.
+- Corpo de resposta de integração no log (só tamanho e status).
+- Chave de idempotência derivada sem identidade do solicitante.
+- Dado pessoal real em seed, mock ou fixture.
+- Exportação sem neutralizar início de fórmula.
 - Audit log com UPDATE/DELETE.
 - Bypass de auth ou validação afrouxada em produção.

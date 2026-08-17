@@ -13,6 +13,15 @@
 ### Motivação
 Cada indireção, flag e wrapper é carga cognitiva que o próximo desenvolvedor (ou você em 3 meses) precisa decifrar. Simplicidade não é "menos código a qualquer custo" — é "menos decisões para entender o comportamento". Abstração prematura grava a abstração errada em pedra.
 
+### Posse de recurso e caminho quente
+- **Quem abre um recurso é quem dispõe.** Não entregue a posse de um stream, conexão ou
+  handle a outra camada esperando que ela feche — se ela lançar antes de embrulhar, o
+  recurso fica órfão. Ao corrigir vazamento, siga a cadeia de posse até a origem em vez de
+  tratar só o ponto apontado.
+- **Reflection e alocação ficam fora de caminho quente.** Resolver atributo por reflection
+  a cada chamada dentro de laço, num método que roda em toda desserialização, é custo
+  invisível: troque por mapa estático montado uma vez.
+
 ### Sinais de que está complicado demais
 - Função > 60 linhas.
 - 3+ níveis de ifs aninhados.

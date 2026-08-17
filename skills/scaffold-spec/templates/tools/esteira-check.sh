@@ -93,7 +93,9 @@ done
 [ -f "$TEMPLATES/_STYLE.md" ] && ok "_STYLE.md presente" || fail "_STYLE.md ausente"
 for r in 01-file-size 02-unit-tests 03-solid 04-clean-architecture 05-simplicity \
          06-continuous-refactoring 07-build-and-run 08-delegate-execution \
-         09-responsive-ui 10-frontend-architecture 11-external-parity-source; do
+         09-responsive-ui 10-frontend-architecture 11-external-parity-source \
+         12-no-comments 13-contrato-de-borda 14-doc-bate-com-o-codigo \
+         15-falha-silenciosa 16-higiene-de-ignore; do
   [ -f "$ENG_RULES/$r.md" ] || fail "rules/eng/$r.md ausente"
 done
 { [ -f "$ENG_RULES/README.md" ] && [ -f "$ENG_RULES/_layer-guide.md" ]; } \

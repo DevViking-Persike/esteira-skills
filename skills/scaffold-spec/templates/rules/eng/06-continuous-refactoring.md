@@ -24,6 +24,19 @@ Deixe o código melhor do que encontrou. Mas **no escopo apropriado** — nunca 
   - `chore: ...` para config de build, deps, tooling
 - `<preencher: idioma do histórico>` (ex.: pt-BR) — decida uma vez e mantenha.
 
+### Corrija a classe, não o sintoma
+Ao consertar um achado de review, procure os **irmãos** que compartilham o mesmo padrão e
+conserte todos no mesmo commit. Aplicar a correção só onde apontaram devolve o problema
+pelo próximo review, com o custo de mais uma rodada.
+
+Grepe antes de fechar: outro client com o mesmo tratamento de erro, outro glob de ignore
+com a mesma forma, a mesma promessa em outro trecho do doc.
+
+### Mudança fora do escopo da história
+Arquivo que não pertence ao card não entra no MR — nem para limpar código morto. Se a
+limpeza vale, ela vale como commit próprio, com o motivo dela. Caso contrário o revisor
+gasta tempo verificando regressão em algo que a história nem tocava.
+
 ### Bug descoberto no meio de refatoração
 Parar, reportar ao usuário, perguntar se cria commit separado. **Não corrigir no mesmo commit** — ruído no histórico e dificulta revert.
 

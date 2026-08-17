@@ -18,6 +18,11 @@ camadas e `../stacks/` para os presets concretos de cada stack.
 | 9 | [UI responsiva (mobile-first)](eng/09-responsive-ui.md) | parcial (grep + DevTools) |
 | 10 | [Arquitetura de frontend (MVVM + Atomic)](eng/10-frontend-architecture.md) | parcial (grep de camadas) |
 | 11 | [Fonte de paridade externa (opcional)](eng/11-external-parity-source.md) | não (referência) |
+| 12 | [Código sem comentários](eng/12-no-comments.md) | sim (grep de marcador por stack) |
+| 13 | [Contrato de borda (entrada do cliente nunca vira 5xx)](eng/13-contrato-de-borda.md) | parcial (grep de parse que lança) |
+| 14 | [Documentação de contrato bate com o código](eng/14-doc-bate-com-o-codigo.md) | parcial (grep de rotas doc × código) |
+| 15 | [Nenhuma falha desaparece em silêncio](eng/15-falha-silenciosa.md) | sim (grep de handler vazio) |
+| 16 | [Higiene de ignore](eng/16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 | — | [Segurança](seguranca.md) | parcial |
 | — | [Fluxo de desenvolvimento](fluxo-desenvolvimento.md) | não (disciplina) |
 
