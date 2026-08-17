@@ -23,6 +23,7 @@ camadas e `../stacks/` para os presets concretos de cada stack.
 | 14 | [Documentação de contrato bate com o código](eng/14-doc-bate-com-o-codigo.md) | parcial (grep de rotas doc × código) |
 | 15 | [Nenhuma falha desaparece em silêncio](eng/15-falha-silenciosa.md) | sim (grep de handler vazio) |
 | 16 | [Higiene de ignore](eng/16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
+| 17 | [Integração verificada pelo caminho do cliente](eng/17-integracao-verificada-pelo-cliente.md) | parcial |
 | — | [Segurança](seguranca.md) | parcial |
 | — | [Fluxo de desenvolvimento](fluxo-desenvolvimento.md) | não (disciplina) |
 
@@ -38,3 +39,6 @@ bloqueantes: `Q00-check → Q10-refactor → Q20-test/cov/mutation → Q30-revie
 os templates com `bash .claude/tools/esteira-check.sh`.
 
 Violação exige justificativa explícita no commit/PR.
+
+> **Divisão por camada:** a tabela de aplicabilidade (backend × frontend) está em
+> [`eng/README.md`](eng/README.md#divisão-por-camada).
