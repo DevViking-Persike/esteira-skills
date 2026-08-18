@@ -79,9 +79,9 @@ próxima:
 | 4 | a "pausa" em aba oculta consumia o teto e acelerava o backoff |
 | 5 | o modo silencioso valia só no sucesso: um blip de rede apagava a lista, alertava sem ser pedido e matava o laço |
 
-Nenhuma foi pega por teste unitário: em todas as quatro a suíte estava verde.
+Nenhuma foi pega por teste unitário: em todas as cinco a suíte estava verde.
 
 ## Como verificar
 ```bash
-# Para cada laço novo, responder por escrito as sete perguntas da Camada 1 no MR.
+# Para cada laço novo, responder por escrito as oito perguntas da Camada 1 no MR.
 ```
