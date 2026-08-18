@@ -24,6 +24,7 @@ camadas e `../stacks/` para os presets concretos de cada stack.
 | 15 | [Nenhuma falha desaparece em silêncio](eng/15-falha-silenciosa.md) | sim (grep de handler vazio) |
 | 16 | [Higiene de ignore](eng/16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 | 17 | [Integração verificada pelo caminho do cliente](eng/17-integracao-verificada-pelo-cliente.md) | parcial |
+| 18 | [Loop de fundo é feature](eng/18-loop-de-fundo.md) | parcial |
 | — | [Segurança](seguranca.md) | parcial |
 | — | [Fluxo de desenvolvimento](fluxo-desenvolvimento.md) | não (disciplina) |
 

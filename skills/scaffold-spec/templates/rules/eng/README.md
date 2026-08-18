@@ -23,8 +23,9 @@ Cada arquivo neste diretório define uma regra de engenharia universal. Skills (
 | 15 | [Nenhuma falha desaparece em silêncio](15-falha-silenciosa.md) | sim (grep de handler vazio) |
 | 16 | [Higiene de ignore](16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 | 17 | [Integração verificada pelo caminho do cliente](17-integracao-verificada-pelo-cliente.md) | parcial (URL do cliente × rota do servidor) |
+| 18 | [Loop de fundo é feature](18-loop-de-fundo.md) | parcial (grep de laço sem teto) |
 
-> O conjunto completo é **01–17** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
+> O conjunto completo é **01–18** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
 
 ## Formato: 3 camadas
 
@@ -74,6 +75,7 @@ revisão — e `stacks/` para o preset técnico correspondente.
 | 15 nenhuma falha em silêncio | ✅ | ✅ | frontend: toast, polling, capacidade do browser |
 | 16 higiene de ignore | ✅ | ✅ | |
 | 17 integração pelo caminho do cliente | ✅ | ✅ | é a regra da fronteira: exige os dois lados |
+| 18 loop de fundo | 〰️ | ✅ | frontend: polling de tela. Backend: retry com teto e jitter |
 | segurança | ✅ | 〰️ | frontend: PII em seed, exportação, secure context |
 
 Legenda: ✅ aplica · 〰️ aplica em parte · — não aplica.

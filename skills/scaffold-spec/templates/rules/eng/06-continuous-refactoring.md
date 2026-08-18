@@ -32,6 +32,11 @@ pelo próximo review, com o custo de mais uma rodada.
 Grepe antes de fechar: outro client com o mesmo tratamento de erro, outro glob de ignore
 com a mesma forma, a mesma promessa em outro trecho do doc.
 
+### Reaproveitar exige inventariar
+Reusar um método existente num contexto novo traz **todos** os efeitos dele, não só o que
+você quer. Leia a função inteira antes de chamá-la de outro lugar: bloqueio de tela, reset
+de estado, notificação e reordenação viajam junto e viram regressão no contexto novo.
+
 ### Mudança fora do escopo da história
 Arquivo que não pertence ao card não entra no MR — nem para limpar código morto. Se a
 limpeza vale, ela vale como commit próprio, com o motivo dela. Caso contrário o revisor

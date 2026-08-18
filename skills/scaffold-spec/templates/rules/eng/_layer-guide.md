@@ -103,3 +103,4 @@ Exemplo (Regra 8 — delegar execução): o critério é "o output do comando mu
 | 15 | Nenhuma falha em silêncio | sim (handler vazio por stack) |
 | 16 | Higiene de ignore | sim (glob de extensão na raiz) |
 | 17 | Integração pelo caminho do cliente | parcial (URL do cliente × rota) |
+| 18 | Loop de fundo é feature | parcial (laço sem teto) |
