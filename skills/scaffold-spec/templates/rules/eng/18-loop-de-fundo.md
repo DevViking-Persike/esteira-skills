@@ -19,6 +19,15 @@ inteira. Antes de escrever a primeira, responda **as sete**:
    verdade?
 7. **Efeitos colaterais do que você reaproveitou.** O método reusado dispara overlay,
    reseta estado, notifica, reordena?
+8. **Caminho de erro.** Ele recebeu o mesmo tratamento do caminho de sucesso? Falha
+   transitória durante o laço não pode apagar o que está na tela, nem alertar o usuário
+   sobre algo que ele não pediu, nem fazer o laço desistir.
+
+### Silenciar pela metade
+Se o laço tem "modo silencioso", ele vale para **todos** os desfechos. Silenciar só o
+sucesso deixa o erro barulhento e destrutivo justamente onde ninguém está olhando — e o
+efeito composto costuma ser pior que a soma: lista apagada + estado vazio exibido +
+nenhuma linha "em andamento" para reagendar = laço morto sem aviso.
 
 ### O erro que mais custa: reaproveitar sem inventariar
 Reusar a função de carregamento inicial no laço traz junto **tudo** que ela faz. Bloqueio
@@ -68,6 +77,7 @@ próxima:
 | 2 | resubstituía a lista: a ordenação escolhida pelo usuário voltava sozinha |
 | 3 | sem condição de parada: com uma linha presa, pedia a lista para sempre |
 | 4 | a "pausa" em aba oculta consumia o teto e acelerava o backoff |
+| 5 | o modo silencioso valia só no sucesso: um blip de rede apagava a lista, alertava sem ser pedido e matava o laço |
 
 Nenhuma foi pega por teste unitário: em todas as quatro a suíte estava verde.
 
