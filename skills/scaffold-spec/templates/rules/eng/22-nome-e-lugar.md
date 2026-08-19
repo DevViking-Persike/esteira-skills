@@ -38,6 +38,27 @@ variáveis e propriedades que carregavam o nome antigo, os arquivos de teste cor
 as citações na documentação. O nome antigo sobrevivendo em qualquer um desses lugares
 continua mentindo — e é justamente onde ninguém olha.
 
+### O que o rename não pode levar junto
+
+A operação inteira tem um limite: **contrato externo não acompanha o rename**. Variável de
+ambiente, seção de configuração, nome de fila ou tópico, coluna, rota, cabeçalho e chave de cache
+pertencem a quem está do outro lado — deploy, banco, mensageria, cliente — e só mudam por migração
+coordenada, com o MR par citado (Regra 20).
+
+O sinal de que o rename vazou é específico e fácil de ver no diff: **um teste ajustado sem que o
+código de produção tenha mudado**. A suíte fica verde tendo deixado de proteger a chave real, e a
+quebra aparece no ambiente como configuração que não liga e cai no valor padrão — sem exceção, sem
+log, com o serviço subindo.
+
+A armadilha irmã é o contrato público **derivado** de nome interno: rota montada a partir do nome
+da classe, tópico montado a partir do nome do tipo, tabela derivada do nome da entidade. Aí o
+rename muda um contrato que outro repositório consome sem que nenhum literal mude — não há o que
+grepar. Quando o padrão da casa oferece a forma literal (rota escrita, tópico escrito), use a
+forma literal justamente por isso.
+
+**Exceção:** chave interna consumida só por este serviço e migrada no mesmo commit com leitura
+dupla por um ciclo, e a data de remoção registrada.
+
 ### A convenção que já foi violada vira teste
 
 Depois da primeira correção, a fronteira sai do olho do revisor e entra no CI: um teste de
@@ -75,7 +96,22 @@ rg -n 'public (sealed )?class \w+(?<!Application)(?<!Service)(?<!Repository)\b' 
 
 # Nome antigo sobrevivendo depois de um rename
 rg -n '<NomeAntigo>' <repo-root>   # inclui tests/, README e nomes de arquivo
+
+# O nome antigo DEVE sobreviver onde é contrato externo (parênteses obrigatórios no find)
+find . \( -name '*.env*' -o -name '*.yml' -o -name '*.yaml' \
+       -o -path '*/migrations/*' -o -path '*/helm/*' -o -path '*/docs/*' \) -print0 \
+| xargs -0 grep -n '<NomeAntigo>\|<NOME_ANTIGO>'
+
+# Contrato público derivado de nome interno
+find <src-root> -name '*.cs' -print0 \
+| xargs -0 grep -nE '\[controller\]|nameof\(|typeof\([A-Za-z]+\)\.Name'
+
+# Teste alterado sem o código de produção correspondente
+git diff --stat <sha-do-rename>^..<sha-do-rename> -- <tests-root> <src-root>
 ```
+
+`find` sem os parênteses liga `-print0` apenas ao último `-o` e varre **um** dos padrões, calado —
+foi assim que a chave viva num `.env` passou por "limpo".
 
 > Ao adotar validação declarativa, **confira antes se a borda já liga auto-validation**:
 > registrar o validador no container pode trocar o corpo de erro que os consumidores já usam

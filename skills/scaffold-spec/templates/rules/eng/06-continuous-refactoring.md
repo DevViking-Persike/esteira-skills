@@ -32,6 +32,40 @@ pelo próximo review, com o custo de mais uma rodada.
 Grepe antes de fechar: outro client com o mesmo tratamento de erro, outro glob de ignore
 com a mesma forma, a mesma promessa em outro trecho do doc.
 
+### A correção de um achado é código novo
+
+O patch que fecha uma thread sai da revisão sem revisão: nasce com pressa, no fim da rodada, fora
+do arquivo que a história tocava, e chega com a autoridade de quem pediu. Ele passa pelo mesmo
+crivo do código de feature — e precisa de teste para o modo de falha que **ele** introduz, não
+para o achado original.
+
+- **Validação nova entra antes da primeira alocação.** Um lançamento inserido entre a criação de
+  um recurso e a linha que assumiria a posse dele vaza esse recurso em toda requisição rejeitada:
+  a correção de contrato de borda vira vazamento (Regra 05).
+- **Mexer num limiar exige escrever os dois lados.** Afrouxar um comparador para matar um falso
+  positivo troca-o por um falso negativo, e o falso negativo é pior: em vez de alarme
+  desnecessário, confirmação de sucesso com efeito faltando. Diga por escrito o que a nova guarda
+  passa a rejeitar **e** o que ela passa a aceitar.
+- **Teste nascido junto com uma correção depois revertida é reavaliado, não preservado.** Ele
+  fixa a semântica antiga e, na rodada seguinte, defende o defeito contra a correção certa.
+- **Capacidade nova que nasce desligada é meia-correção.** Parâmetro opcional que nenhum chamador
+  passa; variante segura que a fachada não expõe. A correção mostra, **no mesmo diff**, o caminho
+  perigoso desaparecendo (Regra 20).
+- **Nit também precisa de prova de equivalência.** Remover a espera assíncrona de um repasse só é
+  equivalente enquanto não houver nada antes da primeira suspensão; basta uma guarda para a
+  exceção deixar de ser síncrona.
+- **Ao introduzir um qualificador de estado, grepe os leitores desse estado**, não os padrões
+  parecidos: quem marcou a lista como truncada e esqueceu a exportação produziu arquivo
+  incompleto com mensagem de sucesso.
+- **Sugestão do revisor é hipótese, não especificação** (Regra 26) — e não autoriza apagar
+  comportamento coberto por teste dentro da rodada: isso é mudança de escopo, não limpeza.
+- **Correção que vira feature sai da rodada.** Quando o conserto exige laço periódico, estado
+  persistido novo ou endpoint novo, ele é feature: commit próprio, com o checklist da regra
+  correspondente aplicado inteiro.
+
+**Exceção aceita:** correção de uma linha, sem ramo novo e sem alocação nova, cujo modo de falha
+o teste existente já cobre.
+
 ### Reaproveitar exige inventariar
 Reusar um método existente num contexto novo traz **todos** os efeitos dele, não só o que
 você quer. Leia a função inteira antes de chamá-la de outro lugar: bloqueio de tela, reset
@@ -137,4 +171,20 @@ Cada commit é revertível isoladamente. O `git bisect` consegue apontar exatame
 #   1. Histórico git com commits de refactor isolados (git log --oneline | grep '^refactor:')
 #   2. Etapa Q00-check da esteira roda testes+lint+typecheck antes de qualquer merge.
 #   3. Code review: PR com "refactor + feat" juntos é rejeitado até split.
+```
+
+Para cada patch que fecha um achado de review:
+```bash
+# 1. O primeiro lançamento/validação do método vem antes da primeira alocação de recurso?
+find <arquivo-corrigido> -type f -print0 | xargs -0 grep -nE 'new |open\(|StreamContent|createObjectURL'
+find <arquivo-corrigido> -type f -print0 | xargs -0 grep -nE 'throw |ThrowIfNull|return BadRequest'
+
+# 2. Limiar alterado sem teste do que ele passa a ACEITAR
+git diff -U0 <sha-base>..HEAD | grep -E '^[+-].*[<>!]=?'
+
+# 3. Capacidade segura criada e não adotada (só em tests/ = Regra 20)
+git diff <sha-base>..HEAD | grep -nE '^\+.*(CancellationToken [A-Za-z]+ = default|\b(Tentar|Try)[A-Z])'
+
+# 4. Meia-correção: achado estrutural cuja correção toca só o arquivo comentado
+git diff --stat <sha-base>..HEAD
 ```

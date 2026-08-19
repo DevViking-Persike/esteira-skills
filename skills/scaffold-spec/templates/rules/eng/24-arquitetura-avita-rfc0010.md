@@ -24,6 +24,27 @@ planos diferentes**. Declarar quem vence em qual plano encerra a disputa por esc
 3. O padrão da casa **contradiz** um invariante? → não silencie: registre a divergência no MR
    e escale. Não escolha sozinho.
 
+### Teste de arquitetura cita a fonte que ele trava
+
+A Regra 22 manda transformar convenção corrigida em teste de arquitetura. Falta dizer o que o
+teste carrega: **a fonte da decisão que ele reflete** — no nome do método ou na mensagem de falha,
+apontando o documento ou o projeto de referência da casa.
+
+Sem isso, o teste verde ganha cara de invariante organizacional quando é, no máximo, a opinião de
+quem o escreveu — muitas vezes no mesmo trabalho, para travar exatamente o ponto em disputa. E aí
+ele **inverte o ônus da prova contra a convenção da casa**: quem pede a convenção passa a ter que
+derrubar um teste.
+
+Corolário para a disputa: **quem invoca o padrão da casa é quem aponta o arquivo.** O pedido
+certo, dos dois lados, é "me aponta o projeto de referência", não mais um argumento de princípio
+(Regra 26). Um caso real fechou em uma mensagem, com o link do arquivo de composição de um serviço
+de referência, depois de três mensagens longas discutindo direção de dependência: o padrão da casa
+permitia a dependência exatamente para o registro de DI, e o teste que a proibia era mais novo que
+a discussão.
+
+**Exceção:** teste que trava um invariante de engenharia (domínio sem framework, ausência de
+ciclo) — a fonte é a Regra 04, e citá-la basta.
+
 ### Exceções aceitas
 - Padrão da casa desatualizado em relação à lib que ele mesmo manda usar (ex.: template ainda
   traz um controller que a lib de bootstrap passou a fornecer). Aí o pedido de review que
@@ -71,6 +92,12 @@ Application --> Infrastructure  (apenas para registro de DI)
 # health check K8s, IExceptionHandler + ProblemDetails, API versioning, rate limiting,
 # resiliência HTTP, Swagger por env, correlation id.
 rg -n "AddHealthChecks|UseExceptionHandler|AddApiVersioning|AddRateLimiter" <api-root>
+```
+
+```bash
+# Teste de arquitetura sem citação de fonte
+find <tests-root> -name '*.cs' -print0 \
+| xargs -0 grep -nA5 -E 'class Architecture|_Should_|Deve[A-Z]'
 ```
 
 ## Camada 3 — Exemplo concreto

@@ -44,6 +44,20 @@ mantém explicitamente o que **deve** continuar sendo rejeitado.
 Se um campo do mesmo formulário já aceita o formato local (data `dd/MM/yyyy`), então a entrada
 **é** local — o campo numérico ao lado não pode assumir o contrário.
 
+**Whitelist com escape permissivo ao lado não é whitelist.** Declarar N formatos exatos e, ao
+final, cair num parse genérico é a mesma classe de erro do parse com a cultura errada — com
+aparência de rigor. E o pior caso não é falhar: é acertar errado. Dois componentes numéricos
+separados por barra são lidos na ordem que a cultura mandar, então um campo declarado como
+mês/ano recebe uma data plausível em vez de um `4xx`, e um valor de competência regulatória entra
+no banco sem que nada tenha estourado. O mesmo escape aceita mês-primeiro num contrato
+dia-primeiro.
+
+Cada coluna do contrato declara os formatos que aceita, e o que não casa é erro do cliente, com o
+nome da coluna e a lista do que se esperava. O nome do conjunto diz que ele é o contrato inteiro
+(`FormatosAceitos`), não uma amostra (Regra 12). **Teste de remoção:** apague o parse genérico e
+rode a suíte — se nada quebra, ele só existia para o que a lista exata já cobria; e o teste
+tabelado inclui explicitamente o que **deve** continuar sendo rejeitado.
+
 ### O outro lado: resposta do downstream fora do contrato
 
 O mesmo princípio, invertido. Quando quem responde errado é o **serviço de quem você
@@ -56,6 +70,45 @@ pergunta operacional ("meu lote terminou?"), exibir um estado inventado engana o
 exatamente na decisão que ele veio tomar. Falhar barulhento, com o código certo e log que
 nomeie o contrato, é melhor que acertar por sorte.
 
+### O status carrega origem
+
+Um número de status tem dono. O `404` que **você** decidiu e o `404` que **chegou** do serviço de
+quem você depende têm o mesmo dígito e significados opostos: o primeiro é resposta de negócio; o
+segundo, quase sempre, é rota errada no seu cliente — defeito seu. Propagar o segundo verbatim
+faz um erro de integração sair classificado como informação de rotina, e ninguém investiga.
+
+- **O tipo que atravessa o sistema carrega a origem** (resposta de outro serviço × decisão
+  local); severidade, nível de log e resposta ao chamador derivam dela, nunca do dígito.
+- **`401`, `403` e `429` do downstream são sobre a sua credencial e a sua quota.** Repassados ao
+  navegador, deslogam um usuário que autenticou corretamente. Viram `502`, com o status cru só no
+  log — e o log carrega o par (original, enviado).
+- **Dentro do `4xx` o tipo não se perde.** Mapear todo erro de aplicação para `400` apaga a
+  diferença entre "não existe" (`404`), "conflito" (`409`) e "corrija e reenvie" (`400`), e a
+  decisão mais cara — reenviar ou não — vira chute.
+- **Remapear status é mexer em contrato consumido.** Antes de mudar, grepe quem ramifica naquele
+  status nos repositórios consumidores; o que já é usado como bifurcação de tela fica cru, de
+  propósito, e isso é escrito no MR (Regra 20).
+
+### A segunda borda: o seu banco e o vocabulário alheio
+
+A borda de entrada não é só o cliente. O dado que você lê do **seu** banco foi escrito por uma
+versão anterior do seu código, e o vocabulário de que **outro serviço** é dono evolui sem avisar.
+Nos dois casos o código local é o mais novo e o dado é o mais velho.
+
+- **Conversão estrita na materialização derruba a consulta inteira.** Indexação direta de mapa ou
+  conversão que lança sobre um código legado numa única linha transforma "uma linha esquisita" em
+  "a listagem responde `5xx`", e a tela de acompanhamento fica cega por causa de um registro. Todo
+  conversor de valor persistido tem o par: a forma estrita, para quem escreve; a tolerante, para
+  quem lê.
+- **Valor desconhecido vindo do dono do modelo é `502`, não `500`** — quem quebrou o contrato não
+  foi você.
+- **O desconhecido nunca vira o neutro**: vira desconhecido explícito e registrado (Regra 15). O
+  que só transita mantém a forma crua.
+- **A mensagem nomeia parâmetro, valor recebido e conjunto conhecido**, sem ecoar dado pessoal.
+
+Assimetria interna é o sinal mais barato: se um conversor irmão já tem o par estrito/tolerante e o
+outro não, o segundo é o defeito — e a correção vale para a família (Regra 21).
+
 ### Motivação
 `5xx` é sinal operacional: dispara alerta, entra em SLO, acorda gente. Gastar esse sinal
 com erro de cliente cega o monitoramento e esconde a falha real. E o cliente que recebe
@@ -64,6 +117,12 @@ com erro de cliente cega o monitoramento e esconde a falha real. E o cliente que
 ### Exceções aceitas
 - Falha genuína de dependência (banco fora, downstream 500) — aí `5xx`/`502`/`504` é o certo.
 - Entrada vinda de sistema interno confiável com contrato garantido em compile-time.
+- Whitelist de formato: campo de texto livre que só transita e nunca vira decisão — não há
+  whitelist a declarar, e o valor viaja cru.
+- Status repassado verbatim: gateway declaradamente transparente, cujo contrato publicado é
+  "repasso o status do upstream".
+- Conversão estrita na leitura: coluna cuja faixa é garantida por constraint no próprio banco e
+  escrita apenas por este serviço — aí o estrito é o certo, e a constraint é a prova.
 
 ## Camada 2 — Preset por stack
 
@@ -81,7 +140,25 @@ cultura invariante. Nunca resolva trocando só o `NumberStyles`/a cultura.
 ```bash
 # C#: construtores/Parse que lançam sobre dado de borda — cada achado exige justificativa
 rg -n 'new MediaTypeHeaderValue\(|DateTime\.Parse\(|Enum\.Parse\(|int\.Parse\(' <api-root>
+
+# Status copiado verbatim do downstream / erro de aplicação achatado em 400
+find <src-root> -name '*.cs' -not -path '*/obj/*' -print0 \
+| xargs -0 grep -nE '\(HttpStatusCode\)[A-Za-z_.]*StatusCode|BadRequest\('
+
+# Onde o consumidor ramifica por status (antes de remapear)
+find <frontend-root> -name '*.ts' -not -path '*/node_modules/*' -print0 \
+| xargs -0 grep -nE 'status *===? *(400|401|403|404|409|429|502)'
+
+# Conversão estrita sobre valor vindo do banco ou de JSON alheio
+find <infra-root> -name '*.cs' -not -path '*/obj/*' -print0 \
+| xargs -0 grep -nE 'Enum\.Parse|Mapa[A-Za-z]*\[|\[chave\]'
+
+# Parse genérico logo depois de um parse exato
+find <mapper-root> -name '*.cs' -not -path '*/obj/*' -print0 \
+| xargs -0 grep -nE 'TryParseExact|TryParse\('
 ```
+
+O teste asserta o status **por tipo de erro** — um teste por tipo, não um por endpoint.
 
 ## Camada 3 — Exemplo concreto
 

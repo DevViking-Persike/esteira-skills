@@ -27,6 +27,27 @@ Promessa sem mecanismo é pior que ausência. Ausência se percebe; promessa se 
 4. **Configuração que oferece um modo inexistente.** Chave de ambiente que seleciona um
    caminho já removido, ou que só funcionava com um processo de fundo que não existe mais.
 
+### A quinta forma: promessa ao usuário final
+
+As quatro formas acima falam com o próximo leitor do código. Rótulo, placeholder, nome do
+controle, parâmetro enviado e texto de desfecho falam com **quem usa a tela** — e precisam de
+mecanismo na cadeia inteira, não em um dos artefatos.
+
+- **Rótulo, placeholder, controle e parâmetro descrevem o mesmo dado.** Campo rotulado com o nome
+  de um identificador, placeholder de outro, controle de um terceiro e serviço resolvendo por um
+  quarto entrega **lista vazia** a quem seguiu o rótulo: resposta legítima, nenhum teste vermelho,
+  nenhum log. São quatro artefatos em quatro arquivos — exatamente o que a revisão de diff arquivo
+  a arquivo não junta.
+- **Descrição de desfecho vem do servidor ou é neutra.** Texto de sucesso fixo com o nome de uma
+  variante, numa tela que atende N variantes, é verdadeiro em 100% dos dados simulados e falso em
+  N-1 dos casos reais — na mesma coluna em que as linhas de erro trazem dado real do servidor.
+- **O termo do produto tem uma grafia só.** Duas grafias entre menu, cabeçalho e botão o usuário
+  lê como dois recursos. E o teste que asserta a grafia errada **congela** a divergência: a
+  correção varre marcação, código e teste.
+
+**Exceção:** rótulo deliberadamente mais amigável que o nome técnico, desde que o parâmetro
+enviado e o valor que o sistema oferece para copiar continuem sendo o mesmo dado.
+
 ### Ao remover um comportamento, remova a máquina inteira
 
 Quando uma decisão elimina um comportamento, saem no mesmo commit: o estado (valor de enum,
@@ -36,6 +57,36 @@ que nenhum código mais produz continua chegando pela leitura e derruba o mapeam
 runtime.
 
 Remover só o símbolo apontado na revisão devolve o problema pela próxima rodada.
+
+### Antes de remover, endurecer ou remapear, rastreie até a origem
+
+Aplicar esta regra pelo grep do próprio repositório **produz regressão**. Campo sempre nulo tem
+três causas, e só uma autoriza remoção:
+
+1. **Sem produtor e sem consumidor** — morto, sai.
+2. **Sem produtor, mas lido em produção** como valor alternativo — remover reintroduz o defeito
+   que outra thread acabou de corrigir. O que falta é o produtor.
+3. **Nulo porque o dado não existe na origem**, com o campo declarado no contrato de quem consome
+   — o defeito é a origem.
+
+Consumidor em outro repositório **é** mecanismo: o caminho dele é insumo da thread, e sem acesso a
+thread fica aberta (Regra 25), com o MR par citado. A mesma disciplina vale para **endurecer** e
+**remapear**, que são remoções disfarçadas: tornar cabeçalho ou campo obrigatório, introduzir uma
+rejeição nova, ou traduzir em bloco um código de status que a tela usa para ramificar, derruba
+consumidor com as duas suítes verdes.
+
+Mais três faces:
+
+- **A correção de review cria órfão quando adiciona a capacidade sem trocar o ponto de uso.**
+  Parâmetro opcional que nenhum chamador passa, método seguro criado ao lado do inseguro sem
+  exposição pela fachada: nascem sem mecanismo no commit que existia para dar mecanismo a alguma
+  coisa.
+- **Capacidade perigosa desativada continua sendo capacidade.** Fechar o acesso removendo a
+  chamada e deixando o campo no contrato e a cláusula na consulta não fecha nada — basta alguém
+  voltar a preencher. Quando o resíduo é de segurança, é bloqueante, não higiene.
+- **Gatilho não pedido é caminho não especificado.** Um segundo disparador do mesmo trabalho,
+  funcional e testado, que o refinamento não pediu, é modo sem decisão: sai, ou entra com decisão
+  registrada e dono.
 
 ### Motivação
 Código morto não custa CPU, custa **decisão errada**: o revisor assume que a flag protege
@@ -64,6 +115,26 @@ done
 
 # Valor de enum/status semeado no banco sem produtor no código
 rg -n "'<STATUS>'" <migrations-root> && rg -n '<Status>' <src-root>
+
+# Inventário de consumidores, um repositório por vez
+for repo in <repo-atual> <repo-do-consumidor>; do
+  find "$repo" -type f \( -name '*.ts' -o -name '*.cs' \) -print0 | xargs -0 grep -n '<simbolo>'
+done
+
+# Antes de remapear status: em quais códigos o cliente ramifica?
+find <frontend-root> -name '*.ts' -print0 \
+| xargs -0 grep -nE 'status *===? *[0-9]{3}|StatusCode *== *[0-9]{3}'
+
+# Rótulo, placeholder, controle e parâmetro descrevem o mesmo dado?
+find <components-root> -name '*.html' -print0 \
+| xargs -0 grep -hoE 'formControlName="[A-Za-z]+"' | sed 's/.*"\(.*\)"/\1/' | sort -u \
+| while read -r c; do
+    echo "== $c"
+    find <components-root> \( -name '*.html' -o -name '*.ts' \) -print0 | xargs -0 grep -n "$c"
+  done
+
+# Termo do produto com mais de uma grafia (inclui os specs na varredura)
+find <src-root> \( -name '*.html' -o -name '*.ts' \) -print0 | xargs -0 grep -n '<termo-do-produto>'
 ```
 
 | Stack | Ferramenta que ajuda |

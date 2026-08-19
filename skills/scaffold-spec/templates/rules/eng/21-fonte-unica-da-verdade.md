@@ -31,8 +31,55 @@ cria rota duplicada e divergente — e a duplicata costuma ser a pior: um `ok` f
 reflete o estado das dependências, ao lado do health real, sem ninguém saber qual probe
 aponta para qual.
 
+**E não presuma o que ela não dá.** A leitura natural do nome ("passa pelo cliente da casa, então
+o contexto do usuário viaja") é a forma mais comum de inventar uma garantia: registro de log não é
+propagação de credencial, correlação não é autenticação — e o teste do cliente só verifica a
+requisição que o próprio código monta, não o que um componente inexistente deveria ter
+acrescentado. Para cada comportamento que você **espera** da biblioteca, aponte no MR onde ele é
+registrado, ou escreva que não existe (Regra 26). Pela mesma razão, valor derivado da biblioteca
+se lê **da** biblioteca: copiar o padrão dela para uma constante local congela um número que ela
+muda no próximo bump.
+
+**Configuração aceita por duas vias descarta uma em silêncio.** Quando a API oferece a propriedade
+e a sobrecarga, o método que escreve a saída costuma sobrescrever a propriedade
+incondicionalmente: a via óbvia compila, roda, não lança — e o valor que chega ao cliente é o
+outro. O teste asserta o **valor final da resposta**, não a atribuição no código.
+
+**Exceção:** comportamento documentado no contrato público da biblioteca, com versão citada — aí a
+doc é a fonte, e a divergência é defeito dela.
+
 **Constante repetida.** O mesmo valor de negócio declarado em dois arquivos é divergência
 esperando data.
+
+**Família de irmãos.** Quando N caminhos respondem à **mesma pergunta de negócio** — detectar
+cancelamento, classificar um erro, formatar uma frase, converter um número — ou gravam o **mesmo
+grupo de colunas**, eles são uma família, e famílias divergem em silêncio: cada irmão tem teste
+próprio, e cada teste passa. As três formas mais caras:
+
+- **Predicado duplicado com alcance diferente.** O caminho por identificador único e o caminho por
+  chave natural checam a mesma condição com cláusulas diferentes: a condição vale num e não vale
+  no outro, e o registro que deveria ser barrado passa.
+- **Fórmula duplicada com âncora diferente.** Dois efeitos que gravam as mesmas colunas derivam
+  uma delas de origens distintas — e o irmão que grava só parte do grupo deixa a coluna restante
+  ancorada num valor que não existe mais. Teste que asserta "exatamente uma atribuição"
+  **confirma** o subconjunto em vez de pegá-lo.
+- **Correção aplicada em um irmão só.** A conversão de resposta fora do contrato entrou num
+  cliente e não no irmão; a frase de erro cobre todos os status menos justamente o que os dois
+  clientes lançam.
+
+**Como fechar a família:** um grep do nome do predicado, da coluna ou da frase nos irmãos antes de
+fechar o achado; e um **teste de paridade** que roda os dois caminhos sobre o mesmo vetor de
+entrada e exige resultado idêntico. Quando a família é um mapa (status → frase, código → tipo), o
+teste tabelado se ancora nos valores que o **código produz**, não nos que o enum declara — senão o
+mapa incompleto passa.
+
+**Ressalva que a experiência cobra:** quando está aberta a pergunta de **qual irmão está certo**,
+alinhar pelo mais numeroso é escolher sem autoridade. Em regra de cálculo financeiro isso é a
+bifurcação de produto da Regra 25 escondida dentro de uma correção que parece mecânica — a
+harmonização espera a resposta.
+
+**Exceção:** irmãos que divergem de propósito por decisão de negócio, com a divergência nomeada
+nos dois lados e um teste que a força.
 
 ### Quando a duplicata é inevitável, amarre com teste
 
@@ -64,6 +111,20 @@ rg -on '(const|static readonly|final|#define)\s+\w+\s*=\s*\S+' <src-root> \
 
 # Endpoint de infraestrutura reimplementado — confira antes o que a lib já mapeia
 rg -n 'health|/alive|/ready|/live|/version|/metrics' <api-root>
+
+# Predicado/coluna que aparece em mais de um caminho da mesma família
+find <src-root> -name '*.cs' -print0 \
+| xargs -0 grep -n '<nome-do-predicado>' | grep -v '[Tt]ests\?/'
+
+# Dois conversores do mesmo formato discordando
+find <mapper-root> -name '*.cs' -print0 | xargs -0 grep -nE 'TryParse|Convert\.|parse[A-Za-z]*\('
+
+# Comportamento esperado da lib: onde ele é registrado?
+find <api-root> -type f -print0 \
+| xargs -0 grep -nE 'AddHttpMessageHandler|DelegatingHandler|<prefixo-da-lib-da-casa>'
+
+# Propriedade atribuída antes da chamada que escreve a resposta: quem vence?
+find <api-root> -name '*.cs' -print0 | xargs -0 grep -nA3 -E 'ContentType *=|Headers\['
 ```
 
 | Stack | Onde a plataforma já resolve |

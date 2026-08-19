@@ -10,6 +10,16 @@ O projeto tem **dois modos de execução**: desenvolvimento (hot-reload, iteraç
 - **Desenvolvimento** — recompila/servir em mudanças, abre a janela/terminal/browser. É o caminho padrão para iterar. Não rebuilda o artefato de distribuição.
 - **Release / distribuição** — gera o artefato instalável (binário, bundle, imagem, wheel, apk). Mais lento; use só para validar distribuição ou gerar deliverable.
 
+### Um gerenciador de pacotes por repositório
+
+O comando citado na documentação, o script dentro do manifesto e o lockfile versionado concordam.
+Manifesto cujo script chama um gerenciador diferente do declarado quebra em qualquer ambiente que
+tenha só um dos dois no caminho de execução — tipicamente o runner de CI — e, quando não quebra,
+resolve versões diferentes das do pipeline. A verificação está na Regra 14.
+
+**Exceção:** monorepo que declara explicitamente gerenciadores distintos por pacote, com o
+lockfile de cada um no diretório do pacote.
+
 ### Quando NÃO precisa rebuildar
 - Mudança só em docs/comentários/regras: nada recompila.
 - Mudança só no frontend: hot-reload cobre (não rebuilda backend).

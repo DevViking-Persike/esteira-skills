@@ -20,6 +20,15 @@ Separe o código em camadas com **fluxo de dependência apontando sempre para de
 - `infrastructure/` **nunca** importa `commands/` nem componentes de UI.
 - A UI **nunca** importa a camada de IO/backend diretamente — comunicação só via boundary definido (comando/action/endpoint contrato).
 - `commands/` é a **única** camada que cita o framework E regras de negócio juntas (wiring). A injeção dos ports concretos acontece num composition root (`main`, `lib.rs`, container DI).
+- **Código de produção não importa de módulo de mock, seed, stub ou fixture.** É fronteira de
+  camada como qualquer outra, com o agravante de a única pista ser o **nome do arquivo** — e
+  ninguém grepa nome de arquivo em revisão de diff. O import compila, passa no lint e não muda o
+  comportamento de nenhum teste; o efeito aparece no artefato publicado, que leva junto tudo o
+  que o módulo declara, inclusive dado de pessoa real. Constante que a produção usa mora na
+  camada de produção, e o dublê a importa — nunca o contrário.
+  **Exceção:** pacote de fixtures publicado deliberadamente para consumidores, com esse propósito
+  declarado no manifesto; e ferramenta de desenvolvimento provadamente fora do pacote de
+  produção.
 
 ### Onde colocar o quê
 - **Regra de negócio** (ex.: "se condição X, disparar ação Y depois de Z"): `domain/` (ou `application/` se orquestra ports).
@@ -122,6 +131,34 @@ rg -ln ': BackgroundService|: IHostedService' <Api-root>
 Fronteira travada por teste: **NetArchTest**/**ArchUnitNET** assertando assembly + namespace
 dos contratos e a ausência de `IHostedService` no assembly da API.
 Esperado: vazio.
+
+**A auditoria de camada inclui o manifesto de dependências, não só os `using`.** Pacote de SDK ou
+de IO referenciado pelo projeto de apresentação é violação de fronteira que o compilador não
+acusa e que o teste arquitetural — que varre imports — não enxerga. O caminho é sempre o mesmo:
+"registro de DI mora no composition root" (Regra 24) é lido como licença para o projeto de
+entrada hospedar o **wiring do SDK** (região, credenciais, mapa de tópicos, opções do cliente).
+Quem emite mensagem, grava arquivo ou fala com a fila é a infraestrutura; o composition root
+**chama** a extensão de registro, não a hospeda.
+
+Remover as linhas do manifesto isoladamente quebra a compilação — o que confirma a fronteira
+errada, não a torna aceitável. A mudança real é mover a extensão de registro para a camada que
+implementa; o pacote acompanha.
+
+**Exceção:** pacote de hospedagem e observabilidade do próprio processo (logging, health,
+telemetria) — é configuração do entry point, não IO de negócio.
+
+```bash
+# Pacotes de SDK/IO referenciados pelo projeto de apresentação
+find <Api-root> -name '*.csproj' -print0 \
+| xargs -0 grep -nE 'PackageReference Include="[^"]*(Messaging|Bus|Sqs|Sns|Storage|EntityFrameworkCore|Dapper|Kafka|MongoDB)'
+
+# Produção importando material de teste — deve vir vazio
+find <src-root> \( -name '*.ts' -o -name '*.cs' \) \
+     ! -name '*.spec.*' ! -name '*.test.*' -print0 \
+| xargs -0 grep -nE "(from|using) .*(mock|fixture|seed|stub)"
+```
+Esperado: vazio. Use `find … -print0 | xargs -0 grep`: o wrapper de busca engole `--include`/
+`--glob` e ignora arquivos do `.gitignore`, devolvendo vazio sem erro.
 
 ### KMP (Kotlin)
 Estrutura típica: `commonMain/{domain,application,infrastructure}` + `androidMain`/`iosMain` como `infrastructure` de plataforma.

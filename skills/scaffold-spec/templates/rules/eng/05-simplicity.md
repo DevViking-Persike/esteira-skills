@@ -29,6 +29,15 @@ Cada indireção, flag e wrapper é carga cognitiva que o próximo desenvolvedor
   é avaliada uma vez**, numa variável que guarda o objeto inteiro. Repetir a chamada por
   propriedade duplica o custo e permite divergência no dia em que um dos lados ganhar um
   argumento novo.
+- **Comparação que aplica função sobre a coluna descarta o índice.** Normalizar o dado
+  armazenado dentro do predicado — remover máscara, mudar caixa, concatenar — obriga a varredura
+  completa, e o custo se multiplica quando o predicado roda uma vez por item de um lote. A
+  correção é a mesma disciplina da Regra 23, pela outra ponta: **normalize a entrada em código
+  para as formas canônicas e compare por igualdade** (`coluna IN (<formas>)`), mantendo o caminho
+  com função como **fallback explícito e nomeado** para o dado legado fora do formato — assim
+  otimiza sem perder linha nenhuma.
+  **Exceção:** coluna com índice funcional/gerado que já cobre exatamente aquela expressão, com o
+  índice citado no MR.
 
 ### Sinais de que está complicado demais
 - Função > 60 linhas.
