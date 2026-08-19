@@ -109,3 +109,9 @@ Exemplo (Regra 8 — delegar execução): o critério é "o output do comando mu
 | 21 | Uma fonte de verdade por conceito | parcial (lista paralela, constante repetida) |
 | 22 | Nome e lugar dizem camada e papel | sim (convenção + teste de arquitetura por stack) |
 | 23 | Dado do usuário na URL que você monta | sim (helper de escape por stack) |
+| 25 | Desfecho de review é declarado | não (disciplina) |
+| 26 | Afirmação verificada | não (disciplina) |
+| 27 | Escrita remota | parcial (efeito sem confirmação) |
+| 28 | Wiring é comportamento | sim (registro sem consumidor) |
+| 29 | Liveness de estado | parcial (varredura do enum) |
+| 30 | Cobertura por convenção | sim (teste que varre o enum) |

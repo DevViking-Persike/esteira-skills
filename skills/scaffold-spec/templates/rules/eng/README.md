@@ -30,8 +30,14 @@ Cada arquivo neste diretório define uma regra de engenharia universal. Skills (
 | 22 | [Nome e lugar dizem a camada e o papel](22-nome-e-lugar.md) | sim (teste de arquitetura + `find` de contrato fora da pasta) |
 | 23 | [Dado do usuário na URL que você monta](23-dado-do-usuario-na-url.md) | parcial (grep de interpolação em rota) |
 | 24 | [Arquitetura Avita (RFC-0010) vence a genérica](24-arquitetura-avita-rfc0010.md) | parcial (estrutura + NetArchTest) |
+| 25 | [Desfecho de review é declarado, não implícito](25-desfecho-de-review.md) | não (disciplina de review) |
+| 26 | [Toda afirmação de review carrega a verificação que a sustenta](26-afirmacao-verificada.md) | não (disciplina de review) |
+| 27 | [Escrita remota: marca de intenção antes, desfecho honesto depois](27-escrita-remota.md) | parcial (grep de efeito sem confirmação) |
+| 28 | [Wiring é comportamento: registrar não é fiar](28-wiring-e-comportamento.md) | sim (grep de registro sem consumidor) |
+| 29 | [Máquina de estados persistida prova liveness](29-liveness-de-estado.md) | parcial (varredura do enum de estados) |
+| 30 | [Cobertura por convenção se prova por enumeração](30-cobertura-por-convencao.md) | sim (teste que varre o enum/catálogo) |
 
-> O conjunto completo é **01–23** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as que o repo usa; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
+> O conjunto completo é **01–30** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as que o repo usa; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
 
 ## Formato: 3 camadas
 
@@ -87,6 +93,12 @@ revisão — e `stacks/` para o preset técnico correspondente.
 | 21 fonte única da verdade | ✅ | ✅ | frontend: token/estado duplicado; capacidade já dada pelo framework |
 | 22 nome e lugar | ✅ | ✅ | frontend: MVVM + Atomic já fixam o vocabulário (Regra 10) |
 | 23 dado do usuário na URL | ✅ | 〰️ | frontend: monta a URL do serviço; casa com a Regra 17 |
+| 25 desfecho de review | ✅ | ✅ | disciplina de review; independe de stack |
+| 26 afirmação verificada | ✅ | ✅ | disciplina de review; independe de stack |
+| 27 escrita remota | ✅ | — | efeito em sistema de terceiro; não se aplica à tela |
+| 28 wiring é comportamento | ✅ | ✅ | frontend: provider/módulo registrado sem consumidor |
+| 29 liveness de estado | ✅ | — | máquina de estados persistida |
+| 30 cobertura por convenção | ✅ | ✅ | frontend: mapa de status/rota por enum |
 | segurança | ✅ | 〰️ | frontend: PII em seed, exportação, secure context |
 
 Legenda: ✅ aplica · 〰️ aplica em parte · — não aplica.
