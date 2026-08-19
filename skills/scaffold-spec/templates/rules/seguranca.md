@@ -29,12 +29,21 @@
 - **[INEGOCIÁVEL]** Audit log **append-only** — não deletar/alterar
   retroativamente (proteger no banco, ex.: trigger).
 - Actor de auditoria vem do **usuário autenticado**, nunca do body da requisição.
+- **Trilha de auditoria registra o estado "antes" de cada registro alterado.** Quando uma
+  operação altera N registros, ler o "antes" de um só — ou omiti-lo — e generalizar para o
+  lote produz auditoria que **não reconstitui** o que mudou. Leia o conjunto afetado antes da
+  escrita, atualize exatamente esse conjunto e emita um registro de trilha por linha, para
+  que trilha e efeito nunca divirjam (ver Regra 19).
 - Validar/normalizar toda entrada externa (rejeitar inválido com 4xx); nunca
   montar SQL/comando por concatenação de input.
 - **[INEGOCIÁVEL]** Nunca logar corpo de resposta ou de requisição de integração — logar
   apenas **tamanho** e status (`TamanhoDoCorpo={body?.Length ?? 0}`). Corpo de erro de
   downstream carrega PII (CPF/CNPJ, apólice, solicitante) e sink de log não é lugar de
   dado de cliente. Vale para log de sucesso e de erro.
+- **Dado pessoal não entra em path nem query string sem decisão registrada.** Path e query
+  vazam inteiros para log de acesso, proxy, APM e histórico — é o mesmo vetor de "corpo no
+  log", pela outra ponta. Quando o contrato do downstream não oferece alternativa (corpo ou
+  header), normalize para a forma canônica, escape, e registre a decisão no MR (ver Regra 23).
 - **Chave de idempotência derivada precisa ser escopada pela identidade do solicitante.**
   Chave determinística global (ex.: hash só do conteúdo) faz dois usuários que enviam o
   mesmo arquivo colidirem na mesma chave — o segundo pode receber o recurso criado pelo
@@ -82,6 +91,8 @@
 - Segredo em claro no git / em chat / em issue / em PR.
 - Token/JWT/dado sensível em PageData, localStorage ou cookie não-httpOnly.
 - Corpo de resposta de integração no log (só tamanho e status).
+- Dado pessoal em path/query string sem decisão registrada no MR.
+- Trilha de auditoria que grava o "antes" de um registro e o generaliza para o lote.
 - Chave de idempotência derivada sem identidade do solicitante.
 - Dado pessoal real em seed, mock ou fixture.
 - Exportação sem neutralizar início de fórmula.

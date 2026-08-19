@@ -25,6 +25,25 @@ Optional chaining sobre API que pode não existir (`navigator?.clipboard?.write?
 no-op silencioso: o código segue como se tivesse funcionado. Se a capacidade não existe,
 **degrade explicitamente** e diga ao usuário.
 
+### 4. Handler que só loga
+
+`catch` que registra o erro e **retorna como se tivesse dado certo** é falha silenciosa com
+comprovante: existe log, e ainda assim o chamador reporta sucesso. Logar não é tratar. Em
+qualquer caminho cujo retorno outro componente lê como sucesso — publicar na fila, enfileirar,
+enviar, confirmar — ou **repropaga**, ou **grava estado de falha** no recurso afetado. Nunca
+deixa o registro pendente sem sinal, esperando um operador que não foi avisado.
+
+Cancelamento pedido pelo usuário não é falha: repropague-o como cancelamento, sem marcar erro.
+
+### 5. Falha que aparece ilegível
+
+Meio-silêncio conta: a exceção sobe, mas a mensagem sai invertida ou truncada exatamente no
+cenário em que alguém precisa lê-la. O caso clássico é usar o construtor de um argumento de
+uma exceção cujo primeiro parâmetro é o **nome do parâmetro**, e não a mensagem — a saída vira
+`Value cannot be null. (Parameter '<a sua mensagem>')`. Para configuração ausente ou estado
+inválido, use a exceção de estado inválido com a mensagem inteira; e **asserte a mensagem no
+teste**, não só o tipo, senão o mutante que reintroduz o construtor errado sobrevive.
+
 ### Em polling e retry
 Um ciclo que falha não deve notificar a cada tick — vira spam pior que o problema. Mas
 também não pode congelar: no erro, **reconcilie** buscando o estado real do servidor. Isso
@@ -48,6 +67,8 @@ que confiou na tela — e ninguém descobre pelo log, porque não houve log.
 | Angular/RxJS | `error: () => {}` no `subscribe`; `catchError(() => of(null))` sem tratar estado |
 | React | `useEffect` com promise sem `.catch`; estado de erro nunca renderizado |
 | Go | `_ = err`, `if err != nil {}` vazio |
+| qualquer | `catch` que só loga num caminho cujo retorno é lido como sucesso |
+| qualquer | exceção de argumento recebendo mensagem no slot de `paramName` |
 
 ```bash
 # Handlers vazios — cada achado exige justificativa

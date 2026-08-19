@@ -104,3 +104,8 @@ Exemplo (Regra 8 — delegar execução): o critério é "o output do comando mu
 | 16 | Higiene de ignore | sim (glob de extensão na raiz) |
 | 17 | Integração pelo caminho do cliente | parcial (URL do cliente × rota) |
 | 18 | Loop de fundo é feature | parcial (laço sem teto) |
+| 19 | Escrita persistente (alcance/transação/ordem) | sim (transação e CAS por stack) |
+| 20 | Nada anunciado sem mecanismo | sim (grep do símbolo fora de tests/) |
+| 21 | Uma fonte de verdade por conceito | parcial (lista paralela, constante repetida) |
+| 22 | Nome e lugar dizem camada e papel | sim (convenção + teste de arquitetura por stack) |
+| 23 | Dado do usuário na URL que você monta | sim (helper de escape por stack) |

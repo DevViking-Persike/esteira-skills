@@ -68,6 +68,7 @@
 | H5 aceite de risco no 40 | `humano:aceite-risco` |
 | H6 deploy produção | `humano:deploy-prod` |
 | gate reprovado 2× | `humano:<etapa>-2x` |
+| fonte externa de padrões divergida | `humano:fonte-divergente` |
 | ambiente indisponível (qa/seg) | `ambiente:qa` / `ambiente:seg` |
 
 ## Auto-commit no modo `/loop`
@@ -85,3 +86,29 @@
 Os comandos concretos (build/lint/test/RPA, subir `dev_server`, alvo do redteam)
 vivem no `.spec/MANIFEST.md` (*Maquinário de validação* + campos `dev_server` e
 `redteam_target`). O tick consulta o MANIFEST antes de executar cada etapa.
+
+## Manutenção da fonte externa de padrões (antes do 10a)
+
+Quando o projeto referencia padrões que vivem **fora** do repo (skills de stack,
+frameworks cognitivos, agentes de domínio), a atualização é passo de processo — não
+de memória. Rodar **uma vez por sprint, antes do gate 10a (design)**, para o design
+não ser ratificado contra padrão vencido:
+
+```bash
+# 1. Fonte por symlink (a esteira enxerga o clone direto):
+git -C <clone-da-fonte> pull --ff-only
+
+# 2. Fonte instalada por cópia (ex.: avt-frameworks-library-md):
+make -C "$AVT_FRAMEWORKS_LIB_PATH" update-skills   # git pull --rebase + reinstala
+```
+
+**Por que os dois casos existem.** Instalação por cópia envelhece em silêncio: o hook
+`SessionStart` desses instaladores costuma ser bootstrap de primeira vez (sai cedo num
+marker) e nunca mais consulta o upstream. O clone pode estar atual e as skills antigas,
+sem nada sinalizando a diferença. Symlink não tem esse modo de falha — mas também não
+se atualiza sozinho: alguém precisa dar `pull`.
+
+**Divergência bloqueia.** Se o `pull` não faz fast-forward, a fonte local divergiu do
+remoto (commit local não publicado). Não reescreva histórico dentro da esteira: pare,
+registre em `STATE.md` e trate como `humano:fonte-divergente`. Seguir com fonte
+divergida significa validar o design contra um padrão que só existe nesta máquina.

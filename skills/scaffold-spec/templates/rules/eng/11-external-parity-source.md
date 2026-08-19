@@ -18,6 +18,18 @@ Quando o projeto porta funcionalidades de outro app/repo existente, há **duas c
 2. Para nova capacidade no motor/domínio: confirmar no repo-fonte (ou na cópia vendorizada) se a capacidade existe, depois espelhar o padrão dos adapters/cases já existentes no projeto, cobrindo os match arms / branches exaustivos.
 3. **Respeitar contratos imutáveis:** nome/forma serde dos comandos/ACTIONS do projeto não mudam por causa da paridade; tipos que casam dos dois lados (ex.: enum de "tipo de conexão" no TS e no backend) precisam continuar casando.
 
+### Paridade de comportamento se mede executando a fonte
+Quando o que se porta é **regra de cálculo** (data, valor, imposto, janela de vigência), a
+paridade não se declara: ela se **mede**. Antes de escrever a regra no código novo, execute a
+fonte real — decompile o pacote, rode o binário, chame o endpoint legado — e compare as duas
+saídas numa matriz de entradas que cubra as **bordas** (fim de mês, mês de 31 dias, fevereiro,
+valor ausente, sentinela). O teste de paridade fica no repo.
+
+Não valem como fonte: a lembrança de quem portou, o texto do card e o **documento de discovery**
+— que costuma já ter registrado a fórmula com o erro embutido, e depois é citado como se fosse
+prova. Regra inventada no porte passa despercebida por anos, porque "veio do legado" encerra a
+discussão.
+
 ### Drift (sincronização da cópia vendorizada)
 Ao precisar de uma capacidade nova da parte vendorizada do repo-fonte:
 - Copie a mudança do upstream para a cópia vendorizada num **commit separado** (`chore: sync <lib> vendorizada`).

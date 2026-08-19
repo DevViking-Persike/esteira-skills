@@ -21,6 +21,14 @@ Cada indireção, flag e wrapper é carga cognitiva que o próximo desenvolvedor
 - **Reflection e alocação ficam fora de caminho quente.** Resolver atributo por reflection
   a cada chamada dentro de laço, num método que roda em toda desserialização, é custo
   invisível: troque por mapa estático montado uma vez.
+- **Recurso criado antes de uma operação que pode lançar é disposto pelo criador no caminho
+  de exceção.** Abrir conexão, stream ou handle e só então chamar `Open`/`Connect`/`Start`:
+  se essa chamada lança, o objeto já construído fica órfão, porque quem ainda não recebeu a
+  posse não tem como fechar o que vazou. `try`/`catch` com dispose antes de repropagar.
+- **Função pura chamada com os mesmos argumentos para alimentar mais de um campo do resultado
+  é avaliada uma vez**, numa variável que guarda o objeto inteiro. Repetir a chamada por
+  propriedade duplica o custo e permite divergência no dia em que um dos lados ganhar um
+  argumento novo.
 
 ### Sinais de que está complicado demais
 - Função > 60 linhas.

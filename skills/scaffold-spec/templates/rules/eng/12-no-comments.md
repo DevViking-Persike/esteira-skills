@@ -29,6 +29,15 @@ função extraída, variável intermediária, tipo nomeado, constante nomeada, t
 | comentário sobre o workaround | função nomeada pelo efeito + teste que fixa o comportamento |
 | comentário `TODO`/`FIXME` | task no board (o código não é backlog) |
 | bloco de código comentado | **apagar** — o histórico está no git |
+| sentinela numérica ("dia 30 significa fim do mês", "0 significa ausente") | predicado ou constante nomeada pela regra (`DiaLimitadoAoFimDoMes`, `SemDiaConfigurado`) |
+| explicação de por que a coleção é fixa em código | nome do método construtor, dito pela restrição que impede o banco ser a fonte |
+| explicação de por que a peça existe (background service, modo alternativo) | nome do tipo + nome do método de registro no composition root; os modos vão para a doc de arquitetura |
+
+**Sentinela é o caso mais caro.** Um número que reinterpreta outro valor do domínio muda o
+resultado de um cálculo financeiro inteiro e não tem onde ser questionado: sem nome, ninguém
+sabe se é regra de negócio ou defeito de digitação. O nome transforma a pergunta do review em
+uma afirmação verificável — e, se for porte de legado, a afirmação vira teste de paridade
+(Regra 11).
 
 ### Exceções aceitas (não são "comentário de código")
 

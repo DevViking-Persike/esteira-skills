@@ -24,8 +24,14 @@ Cada arquivo neste diretório define uma regra de engenharia universal. Skills (
 | 16 | [Higiene de ignore](16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 | 17 | [Integração verificada pelo caminho do cliente](17-integracao-verificada-pelo-cliente.md) | parcial (URL do cliente × rota do servidor) |
 | 18 | [Loop de fundo é feature](18-loop-de-fundo.md) | parcial (grep de laço sem teto) |
+| 19 | [Escrita persistente: alcance, atomicidade e ordem](19-escrita-persistente.md) | parcial (grep de UPDATE/DELETE sem guarda) |
+| 20 | [Nada anunciado sem mecanismo](20-promessa-sem-mecanismo.md) | sim (grep do símbolo fora de `tests/`) |
+| 21 | [Uma fonte de verdade por conceito](21-fonte-unica-da-verdade.md) | parcial (grep de lista paralela e constante repetida) |
+| 22 | [Nome e lugar dizem a camada e o papel](22-nome-e-lugar.md) | sim (teste de arquitetura + `find` de contrato fora da pasta) |
+| 23 | [Dado do usuário na URL que você monta](23-dado-do-usuario-na-url.md) | parcial (grep de interpolação em rota) |
+| 24 | [Arquitetura Avita (RFC-0010) vence a genérica](24-arquitetura-avita-rfc0010.md) | parcial (estrutura + NetArchTest) |
 
-> O conjunto completo é **01–18** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as 11; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
+> O conjunto completo é **01–23** e todas as regras têm template neste diretório. Uma instalação num projeto materializa as que o repo usa; podas exigem registro no `MANIFEST.md` do projeto e nunca removem regra referenciada por esteira/runbooks.
 
 ## Formato: 3 camadas
 
@@ -76,10 +82,19 @@ revisão — e `stacks/` para o preset técnico correspondente.
 | 16 higiene de ignore | ✅ | ✅ | |
 | 17 integração pelo caminho do cliente | ✅ | ✅ | é a regra da fronteira: exige os dois lados |
 | 18 loop de fundo | 〰️ | ✅ | frontend: polling de tela. Backend: retry com teto e jitter |
+| 19 escrita persistente | ✅ | — | alcance, transação, efeito externo pós-commit, update condicional |
+| 20 promessa sem mecanismo | ✅ | ✅ | frontend: flag de feature e estado de VM sem consumidor |
+| 21 fonte única da verdade | ✅ | ✅ | frontend: token/estado duplicado; capacidade já dada pelo framework |
+| 22 nome e lugar | ✅ | ✅ | frontend: MVVM + Atomic já fixam o vocabulário (Regra 10) |
+| 23 dado do usuário na URL | ✅ | 〰️ | frontend: monta a URL do serviço; casa com a Regra 17 |
 | segurança | ✅ | 〰️ | frontend: PII em seed, exportação, secure context |
 
 Legenda: ✅ aplica · 〰️ aplica em parte · — não aplica.
 
-**Regras de fronteira** (13, 14 e 17) são as que mais falham, porque cada lado passa nos
-próprios testes enquanto o par não conversa. Em MR que atravessa camadas, cobre as três
+**Regras de fronteira** (13, 14, 17 e 23) são as que mais falham, porque cada lado passa nos
+próprios testes enquanto o par não conversa. Em MR que atravessa camadas, cobre as quatro
 explicitamente.
+
+**Regras de escrita e de contrato interno** (19, 20, 21 e 22) vêm do mesmo lugar: defeitos que
+a suíte verde não vê — concorrência, falha parcial, símbolo sem consumidor e definição
+duplicada. Em MR que toca persistência, estado ou catálogo, cobre as quatro.

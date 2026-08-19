@@ -28,6 +28,30 @@ Separe o código em camadas com **fluxo de dependência apontando sempre para de
 - **Ponte de entrada** (handler/`#[command]`/controller/CLI): `commands/`. Mantenha **thin** — só desserializa, chama application/domain, devolve resultado.
 - **Wiring/bootstrap** (registro de handlers, injeção de ports concretos): no composition root.
 
+### Onde mora o contrato (port)
+- **Port implementado por infraestrutura** — repositório, unidade de trabalho, catálogo de
+  leitura, gateway HTTP, adapter para o banco de outro sistema — é declarado no **domínio**.
+  A camada de aplicação orquestra casos de uso sobre portas que o domínio define; ela não é
+  dona do contrato da própria persistência.
+- **Teste seco:** se `infrastructure/` precisa importar `application/` só para enxergar o
+  contrato que implementa, a porta está na camada errada.
+- Port de orquestração **interna ao processo** (fila em memória, fábrica de escopo) pode ficar
+  em `application/`. O critério é onde mora o implementador: se ele fala com fora do processo,
+  a porta é do domínio.
+
+### A camada de entrada só entra
+O projeto de apresentação contém ponte de entrada, serialização e wiring — nada mais.
+**Serviço de longa duração** (background/hosted service, worker, consumidor de fila,
+scheduler) não é apresentação: vai para `application/` quando é orquestração pura, e para
+`infrastructure/` quando depende do framework de hospedagem, de IO ou de canal/fila. O
+registro dele continua no composition root, que é configuração.
+
+### Fronteira violada uma vez vira teste
+Depois de corrigir uma violação de camada, a fronteira sai do olho do revisor e entra no CI:
+um teste de arquitetura falha se o desvio reaparecer (contrato declarado fora do domínio,
+serviço de longa duração no assembly de apresentação, camada interna importando framework).
+Ver também a Regra 22.
+
 ### Teste seco
 Se um arquivo de `domain/` ou `application/` importa o framework de app/IO, um cliente HTTP, um SDK externo, ou executa processo, é **violação** — mover a chamada para `infrastructure/`.
 
@@ -88,7 +112,15 @@ Esperado: vazio.
 Estrutura típica: `/{Domain,Application,Infrastructure,Api}` (ou Features verticais com as 4 dentro).
 ```bash
 rg -l 'using System.Net.Http|using Microsoft.EntityFrameworkCore|using MediatR' <Domain-root> <Application-root>
+
+# Port de persistência/integração declarado fora do Domain — deve vir vazio
+rg -ln 'interface I\w+(Repository|Catalogo|UnidadeDeTrabalho|Gateway)' <Application-root>
+
+# Serviço de longa duração no projeto de apresentação — deve vir vazio
+rg -ln ': BackgroundService|: IHostedService' <Api-root>
 ```
+Fronteira travada por teste: **NetArchTest**/**ArchUnitNET** assertando assembly + namespace
+dos contratos e a ausência de `IHostedService` no assembly da API.
 Esperado: vazio.
 
 ### KMP (Kotlin)

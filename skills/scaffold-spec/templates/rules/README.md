@@ -25,6 +25,12 @@ camadas e `../stacks/` para os presets concretos de cada stack.
 | 16 | [Higiene de ignore](eng/16-higiene-de-ignore.md) | sim (grep de glob de extensão na raiz) |
 | 17 | [Integração verificada pelo caminho do cliente](eng/17-integracao-verificada-pelo-cliente.md) | parcial |
 | 18 | [Loop de fundo é feature](eng/18-loop-de-fundo.md) | parcial |
+| 24 | [Arquitetura Avita (RFC-0010) vence a genérica](eng/24-arquitetura-avita-rfc0010.md) | parcial |
+| 19 | [Escrita persistente: alcance, atomicidade e ordem](eng/19-escrita-persistente.md) | parcial (grep de UPDATE/DELETE sem guarda) |
+| 20 | [Nada anunciado sem mecanismo](eng/20-promessa-sem-mecanismo.md) | sim (grep do símbolo fora de `tests/`) |
+| 21 | [Uma fonte de verdade por conceito](eng/21-fonte-unica-da-verdade.md) | parcial |
+| 22 | [Nome e lugar dizem a camada e o papel](eng/22-nome-e-lugar.md) | sim (teste de arquitetura) |
+| 23 | [Dado do usuário na URL que você monta](eng/23-dado-do-usuario-na-url.md) | parcial (grep de interpolação em rota) |
 | — | [Segurança](seguranca.md) | parcial |
 | — | [Fluxo de desenvolvimento](fluxo-desenvolvimento.md) | não (disciplina) |
 

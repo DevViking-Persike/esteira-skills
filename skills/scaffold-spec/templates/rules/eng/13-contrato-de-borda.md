@@ -24,6 +24,26 @@ URL, regex vinda de config.
   (ver Regra 12 de segurança sobre PII).
 - Teste o caminho: existe um caso que passa entrada malformada e asserta o status.
 
+### Cultura e formato: converter não é só parsear
+
+Número e data **digitados por humano** chegam na convenção local de quem digitou — planilha,
+formulário, CSV, integração com sistema regional. Duas armadilhas, nesta ordem:
+
+1. `TryParse` com **uma única cultura** descarta valor legítimo. `10,5` lido com cultura
+   invariante vira `null`, e o `null` costuma seguir adiante sem erro: prêmio, comissão ou
+   valor monetário some em silêncio (Regra 15).
+2. **Trocar a cultura sem normalizar troca o `null` por um valor errado**, que é pior. Os
+   parsers não validam tamanho de grupo de milhar: com a cultura "errada", `2500,50` pode
+   virar `250050` e `1500.00` pode virar `150000`. O defeito passa a ter aparência de sucesso.
+
+O remédio é **normalizar o texto e depois converter**: decidir qual separador é decimal a
+partir da forma do próprio valor (o último separador presente é o decimal; separador repetido
+é agrupamento), e só então `TryParse` com cultura invariante. O teste cobre os dois formatos e
+mantém explicitamente o que **deve** continuar sendo rejeitado.
+
+Se um campo do mesmo formulário já aceita o formato local (data `dd/MM/yyyy`), então a entrada
+**é** local — o campo numérico ao lado não pode assumir o contrário.
+
 ### O outro lado: resposta do downstream fora do contrato
 
 O mesmo princípio, invertido. Quando quem responde errado é o **serviço de quem você
@@ -54,6 +74,9 @@ com erro de cliente cega o monitoramento e esconde a falha real. E o cliente que
 | Python | `pydantic` com `ValidationError` → 422/400 | `int()`/`datetime.fromisoformat` cru |
 | Go | `strconv.Atoi` com checagem de `err` | ignorar `err` |
 | Rust | `parse::<T>()` com `?` mapeado para 400 | `unwrap()` |
+
+**Número/data digitado por humano:** normalize o texto antes do `TryParse` e converta com
+cultura invariante. Nunca resolva trocando só o `NumberStyles`/a cultura.
 
 ```bash
 # C#: construtores/Parse que lançam sobre dado de borda — cada achado exige justificativa
